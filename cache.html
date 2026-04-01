@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cache — Personal Wealth Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f0e; --surface:#141714; --surface2:#1a1e1a;
+    --border:#252a25; --border-light:#2e352e;
+    --accent:#a8d08d; --accent-dim:#6a9e52; --accent-glow:rgba(168,208,141,0.12);
+    --red:#e07070; --red-dim:#a84f4f; --red-glow:rgba(224,112,112,0.10);
+    --gold:#d4a843; --btc:#f7931a; --btc-glow:rgba(247,147,26,0.10);
+    --blue:#6aafcd;
+    --text:#e8ede8; --text-muted:#7a8a7a; --text-dim:#4a5a4a;
+    --mono:'DM Mono',monospace; --serif:'DM Serif Display',serif; --sans:'DM Sans',sans-serif;
+    --radius:6px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  /* ── HEADER ── */
+  header{position:relative;z-index:10;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95));backdrop-filter:blur(12px)}
+  .header-left h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:-.5px;line-height:1}
+  .header-left h1 span{color:var(--accent);font-style:italic}
+  .header-left .subtitle{margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+  .header-right{text-align:right}
+  .net-worth-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
+  .net-worth-value{font-family:var(--serif);font-size:36px;letter-spacing:-1px;color:var(--accent);text-shadow:0 0 40px rgba(168,208,141,.3);transition:all .4s}
+  .net-worth-value.negative{color:var(--red);text-shadow:0 0 40px rgba(224,112,112,.3)}
+  .last-updated{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
+
+  /* ── SUMMARY BAR ── */
+  .summary-bar{position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);background:var(--surface)}
+  .summary-item{padding:16px 32px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+  .summary-item:last-child{border-right:none}
+  .s-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
+  .s-value{font-family:var(--mono);font-size:20px;font-weight:500}
+  .s-value.assets{color:var(--accent)} .s-value.liabilities{color:var(--red)} .s-value.ratio{color:var(--gold)}
+
+  /* ── BTC TICKER BAR ── */
+  .btc-bar{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
+  .btc-bar-left{display:flex;align-items:center;gap:12px}
+  .btc-logo{font-size:14px;color:var(--btc)}
+  .btc-price-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
+  .btc-price-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--btc)}
+  .btc-price-val.loading{color:var(--text-dim);animation:pulse 1.5s ease-in-out infinite}
+  .btc-bar-right{font-family:var(--mono);font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
+  .btc-refresh{background:none;border:1px solid var(--border-light);color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .btc-refresh:hover{color:var(--btc);border-color:var(--btc)}
+  .btc-refresh.spinning{animation:spin .7s linear infinite}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+  /* ── TAB NAV ── */
+  .tab-nav{position:relative;z-index:10;display:flex;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
+  .tab-btn{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);padding:14px 20px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+  .tab-btn:hover{color:var(--text-muted)}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .view{display:none} .view.active{display:block}
+
+  /* ── MAIN LEDGER ── */
+  .main{position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto;padding:40px 32px 100px}
+
+  /* ── SECTION ── */
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
+  .section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}
+  .section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .section-title{display:flex;align-items:center;gap:10px}
+  .section-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .icon-asset{background:var(--accent-glow);border:1px solid rgba(168,208,141,.2)}
+  .icon-liability{background:var(--red-glow);border:1px solid rgba(224,112,112,.2)}
+  .section-name{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+  .section-total{font-family:var(--mono);font-size:16px;font-weight:500}
+  .section-total.asset{color:var(--accent)} .section-total.liability{color:var(--red)}
+
+  /* ── DRAG & DROP ── */
+  .category{border-bottom:1px solid var(--border);transition:opacity .15s}
+  .category.dragging{opacity:.4;border:1px dashed var(--accent-dim)}
+  .category.drag-over{border-top:2px solid var(--accent)}
+  .drag-handle{cursor:grab;color:var(--text-dim);font-size:12px;padding:0 4px;opacity:0;transition:opacity .15s;user-select:none;line-height:1;align-self:center}
+  .category-header:hover .drag-handle{opacity:1}
+  .drag-handle:active{cursor:grabbing}
+
+  /* ── COLLAPSE-ALL BUTTON ── */
+  .collapse-all-btn{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .collapse-all-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+
+  /* ── INSTITUTION GROUP ── */
+  .inst-group-header{display:flex;align-items:center;gap:8px;padding:7px 14px 5px 36px;background:rgba(255,255,255,.015);border-top:1px solid rgba(255,255,255,.04)}
+  .inst-group-dot{width:5px;height:5px;border-radius:50%;background:var(--text-dim);flex-shrink:0}
+  .inst-group-name{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .inst-group-total{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-left:auto}
+  .inst-group-count{font-family:var(--mono);font-size:9px;color:var(--text-dim)}
+
+  /* ── SECTION HEADER controls ── */
+  .section-header-controls{display:flex;align-items:center;gap:8px}
+
+  /* ── CATEGORY HEADER update for drag handle col ── */
+  .category-header{
+    display:grid;
+    grid-template-columns:16px 28px 1fr 90px 20px;
+    align-items:center;
+    gap:0;
+    padding:10px 14px 10px 10px;
+    cursor:pointer;user-select:none;transition:background .15s;
+  }
+  .category-header:hover{background:rgba(255,255,255,.02)}
+
+  /* sort button — always in col 1, fixed width cell */
+  .sort-btn{
+    background:none;border:1px solid var(--border);color:var(--text-dim);
+    font-family:var(--mono);font-size:9px;letter-spacing:.5px;
+    width:22px;height:22px;border-radius:3px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;flex-shrink:0;
+  }
+  .sort-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .sort-btn.sorted-desc{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-glow)}
+  .sort-btn.sorted-asc{color:var(--gold);border-color:var(--gold);background:rgba(212,168,67,.1)}
+
+  .category-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--text-muted);letter-spacing:.5px;padding-left:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .cat-dot.real-estate{background:#82b366}.cat-dot.stocks{background:#6aafcd}.cat-dot.bitcoin{background:#f7931a}
+  .cat-dot.business{background:#b07de0}.cat-dot.cash{background:#60b89a}.cat-dot.retirement{background:#d4a843}
+  .cat-dot.other-asset{background:#c0a080}.cat-dot.mortgage{background:#e07070}.cat-dot.auto-loan{background:#c05858}
+  .cat-dot.credit{background:#d06060}.cat-dot.student{background:#b85050}.cat-dot.other-liab{background:#a04040}
+  .cat-dot.btc-loan{background:#f7931a}
+
+  /* total — right-aligned in its fixed 90px cell */
+  .category-total{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toggle-btn{font-size:10px;color:var(--text-dim);transition:transform .2s;text-align:center;justify-self:center}
+  .toggle-btn.open{transform:rotate(180deg)}
+
+  /* ── ROWS CONTAINER ── */
+  .rows{overflow:hidden;transition:max-height .3s ease}
+
+  /* ── ENTRY CARD ── Replaces the old single-line row ── */
+  .entry-card{border-top:1px solid rgba(255,255,255,.03);transition:background .1s}
+  .entry-card:hover{background:rgba(255,255,255,.015)}
+
+  /* Summary line — always visible */
+  .entry-summary{
+    display:grid;
+    grid-template-columns:16px 1fr auto auto;
+    align-items:center;gap:8px;
+    padding:8px 14px 8px 20px;
+    cursor:pointer;
+  }
+  .entry-expand-icon{font-size:9px;color:var(--text-dim);transition:transform .2s;text-align:center}
+  .entry-expand-icon.open{transform:rotate(90deg)}
+
+  .entry-name{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .entry-name.has-institution::after{content:attr(data-inst);font-size:11px;color:var(--text-dim);margin-left:6px}
+
+  .entry-value{font-family:var(--mono);font-size:13px;color:var(--text);text-align:right;white-space:nowrap}
+  .entry-value.btc-color{color:var(--btc)}
+  .entry-delete{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:2px 3px;border-radius:3px;opacity:0;transition:opacity .15s,color .15s;line-height:1;flex-shrink:0}
+  .entry-card:hover .entry-delete{opacity:1}
+  .entry-delete:hover{color:var(--red)}
+
+  /* Expanded detail panel */
+  .entry-detail{overflow:hidden;max-height:0;transition:max-height .25s ease}
+  .entry-detail.open{max-height:300px}
+  .entry-fields{padding:0 14px 12px 36px;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+  .entry-fields.single-col{grid-template-columns:1fr}
+  .entry-fields.three-col{grid-template-columns:1fr 1fr 1fr}
+
+  .field-group{display:flex;flex-direction:column;gap:3px}
+  .field-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .field-input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--sans);font-size:12px;padding:5px 8px;outline:none;transition:border-color .15s;width:100%}
+  .field-input:focus{border-color:var(--accent-dim)}
+  .field-input.mono{font-family:var(--mono)}
+  .field-input::placeholder{color:var(--text-dim)}
+  .field-input.url-input{padding-right:28px}
+
+  /* URL field wrapper with open-link icon */
+  .url-wrap{position:relative}
+  .url-open{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;padding:0;transition:color .15s;line-height:1}
+  .url-open:hover{color:var(--blue)}
+
+  /* BTC unit toggle inside category */
+  .unit-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:4px 14px 4px 36px;align-self:flex-start;width:fit-content}
+  .unit-btn{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 10px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;transition:all .15s}
+  .unit-btn.active{background:rgba(247,147,26,.15);color:var(--btc)}
+
+  /* BTC USD equivalent shown in entry value */
+  .entry-usd-sub{font-family:var(--mono);font-size:10px;color:var(--btc);opacity:.7;display:block;text-align:right}
+
+  /* BTC loan collateral sub-line */
+  .entry-collateral{font-family:var(--mono);font-size:10px;color:var(--btc);opacity:.7;display:block;text-align:right}
+
+  /* ── ADD ROW ── */
+  .add-row{padding:8px 14px 10px 36px;border-top:1px solid rgba(255,255,255,.03)}
+  .add-row-btn{background:none;border:1px dashed var(--border-light);color:var(--text-dim);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:5px 12px;border-radius:4px;cursor:pointer;width:100%;text-align:left;transition:color .15s,border-color .15s}
+  .add-row-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .add-row-btn.liability:hover{color:var(--red);border-color:var(--red-dim)}
+  .full-width{grid-column:1/-1}
+
+  /* ── NET WORTH BAR ── */
+  .nw-bar-wrap{grid-column:1/-1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px}
+  .nw-bar-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px}
+  .nw-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;position:relative}
+  .nw-bar-fill-asset{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--accent-dim),var(--accent));border-radius:3px;transition:width .5s}
+  .nw-bar-fill-liab{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--red-dim),var(--red));border-radius:3px;transition:width .5s;opacity:.6}
+
+  /* ── CHARTS VIEW ── */
+  .charts-grid{position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto;padding:40px 32px 100px}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
+  .chart-card.wide{grid-column:1/-1}
+  .chart-card:nth-child(1){animation-delay:.05s}.chart-card:nth-child(2){animation-delay:.1s}
+  .chart-card:nth-child(3){animation-delay:.15s}.chart-card:nth-child(4){animation-delay:.2s}.chart-card:nth-child(5){animation-delay:.25s}
+  .chart-card-header{padding:16px 20px 12px;border-bottom:1px solid var(--border)}
+  .chart-card-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+  .chart-card-sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:3px}
+  .chart-body{padding:20px}
+  .chart-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:14px}
+  .legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+  /* ── BREAKDOWN TABLE ── */
+  .snapshot-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+  .snapshot-table th{text-align:left;padding:6px 10px;color:var(--text-dim);font-weight:400;letter-spacing:1px;font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .snapshot-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-muted);vertical-align:middle}
+  .snapshot-table td.val{text-align:right;color:var(--text)}
+  .snapshot-table td.pct{text-align:right;color:var(--text-dim)}
+  .swatch{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+  .snapshot-table tr:last-child td{border-bottom:none}
+  .snapshot-table tr:hover td{background:rgba(255,255,255,.02)}
+
+  /* ── CASH FLOW VIEW ── */
+  .cf-grid{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:40px 32px 100px;display:flex;flex-direction:column;gap:24px}
+  .cf-summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .cf-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;display:flex;flex-direction:column;gap:4px;animation:fadeUp .4s ease both}
+  .cf-stat-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
+  .cf-stat-value{font-family:var(--serif);font-size:28px;letter-spacing:-.5px;color:var(--red)}
+  .cf-stat-value.accent{color:var(--accent)}
+  .cf-stat-sub{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:2px}
+  .cf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
+  .cf-card:nth-child(2){animation-delay:.1s}.cf-card:nth-child(3){animation-delay:.15s}.cf-card:nth-child(4){animation-delay:.2s}
+  .cf-card-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+  .cf-card-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+  .cf-card-total{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--red)}
+  .cf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+  .cf-table th{text-align:left;padding:7px 16px;color:var(--text-dim);font-weight:400;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .cf-table td{padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-muted);vertical-align:middle}
+  .cf-table td.r{text-align:right} .cf-table td.hi{color:var(--text)} .cf-table td.red{color:var(--red)}
+  .cf-table tr:last-child td{border-bottom:none}
+  .cf-table tr:hover td{background:rgba(255,255,255,.02)}
+  .cf-empty{padding:24px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:12px}
+  .cf-bar{height:4px;border-radius:2px;background:var(--red);opacity:.7;min-width:2px}
+  .interest-sub{display:block;font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:2px}
+
+  /* ── SAVE BAR ── */
+  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:rgba(13,15,14,.95);border-top:1px solid var(--border);backdrop-filter:blur(12px)}
+  .save-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:1px}
+  .save-hint span{color:var(--accent-dim)}
+  .btn-group{display:flex;gap:8px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:8px 16px;border-radius:4px;cursor:pointer;border:none;transition:all .15s}
+  .btn-ghost{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn-primary{background:var(--accent);color:var(--bg);font-weight:500}
+  .btn-primary:hover{background:#bfe0a0}
+  .btn-export{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .btn-export:hover{border-color:var(--gold);color:var(--gold)}
+  .btn-import{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .btn-import:hover{border-color:var(--blue);color:var(--blue)}
+
+  /* ── TOAST ── */
+  .toast{position:fixed;top:24px;right:32px;z-index:200;background:var(--surface2);border:1px solid var(--border-light);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px 18px;border-radius:5px;opacity:0;transform:translateY(-8px);transition:all .2s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.success{border-color:var(--accent-dim);color:var(--accent)}
+  .toast.error{border-color:var(--red-dim);color:var(--red)}
+
+  .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
+  .changed-indicator.visible{opacity:1}
+
+  /* ── LOCK SCREEN ── */
+  #lock-screen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+  #lock-screen.hidden{display:none}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .lock-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:40px 44px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .3s ease}
+  .lock-title{font-family:var(--serif);font-size:26px;font-weight:400;letter-spacing:-.3px;text-align:center}
+  .lock-title span{color:var(--accent);font-style:italic}
+  .lock-subtitle{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);text-align:center}
+  .lock-field{display:flex;flex-direction:column;gap:6px}
+  .lock-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .lock-input{background:var(--surface2);border:1px solid var(--border-light);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:14px;padding:10px 12px;outline:none;transition:border-color .15s;width:100%}
+  .lock-input:focus{border-color:var(--accent-dim)}
+  .lock-input.error{border-color:var(--red);animation:shake .3s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .lock-btn{background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:1px;padding:11px;border:none;border-radius:4px;cursor:pointer;transition:background .15s;width:100%}
+  .lock-btn:hover{background:#bfe0a0}
+  .lock-btn:disabled{opacity:.5;cursor:not-allowed}
+  .lock-btn.secondary{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .lock-btn.secondary:hover{border-color:var(--text-dim);color:var(--text);background:transparent}
+  .lock-error{font-family:var(--mono);font-size:11px;color:var(--red);text-align:center;min-height:16px}
+  .lock-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);text-align:center}
+  .lock-progress{height:2px;background:var(--border);border-radius:1px;overflow:hidden;display:none}
+  .lock-progress-bar{height:100%;background:var(--accent);width:0%;transition:width .1s}
+  .lock-progress.active{display:block}
+  /* ── LOCK BUTTON in save bar ── */
+  .btn-lock{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .btn-lock:hover{border-color:var(--gold);color:var(--gold)}
+
+  /* ── SETTINGS GEAR BUTTON ── */
+  .settings-btn{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:16px;padding:4px 6px;border-radius:4px;transition:color .15s,background .15s;line-height:1}
+  .settings-btn:hover{color:var(--text-muted);background:rgba(255,255,255,0.05)}
+
+  /* ── SETTINGS MODAL ── */
+  #settings-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  #settings-modal.hidden{display:none}
+  .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
+  .settings-title{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+  .settings-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .settings-input{background:var(--surface2);border:1px solid var(--border-light);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 11px;outline:none;transition:border-color .15s;width:100%}
+  .settings-input:focus{border-color:var(--accent-dim)}
+  .settings-help{font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.5}
+  .settings-row{display:flex;gap:8px}
+  .settings-save-btn{background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:1px;padding:9px 16px;border:none;border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap}
+  .settings-save-btn:hover{background:#bfe0a0}
+  .settings-close-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .settings-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
+
+  /* ── AVM RESULT DISPLAY ── */
+  .avm-result{margin-top:6px;background:rgba(168,208,141,0.05);border:1px solid rgba(168,208,141,0.15);border-radius:4px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+  .avm-price{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--accent)}
+  .avm-range{font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  .avm-meta{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+  .avm-actions{display:flex;gap:6px;margin-top:2px}
+  .avm-use-btn{background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.5px;padding:4px 10px;border:none;border-radius:3px;cursor:pointer;transition:background .15s}
+  .avm-use-btn:hover{background:#bfe0a0}
+  .avm-fetch-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:10px;letter-spacing:.5px;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .avm-fetch-btn:hover{border-color:var(--accent-dim);color:var(--accent)}
+  .avm-fetch-btn:disabled{opacity:.5;cursor:not-allowed}
+
+  /* ── ONBOARDING MODAL ── */
+  #rentcast-onboarding{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  #rentcast-onboarding.hidden{display:none}
+  .onboarding-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px;animation:fadeUp .2s ease}
+  .onboarding-title{font-family:var(--serif);font-size:20px;font-weight:400}
+  .onboarding-title span{color:var(--accent);font-style:italic}
+  .onboarding-body{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.7}
+  .onboarding-body strong{color:var(--text)}
+  .onboarding-actions{display:flex;gap:8px}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  @media(max-width:900px){
+    .main,.charts-grid{grid-template-columns:1fr;padding:20px 16px 100px}
+    header{padding:20px 24px 18px;flex-direction:column;align-items:flex-start;gap:12px}
+    .summary-bar{grid-template-columns:1fr}
+    .summary-item{border-right:none;border-bottom:1px solid var(--border)}
+    .chart-card.wide{grid-column:1}
+    .save-bar{padding:12px 16px;flex-wrap:wrap;gap:8px}
+    .tab-nav{padding:0 16px}
+    .btc-bar{padding:8px 16px}
+    .entry-fields{grid-template-columns:1fr}
+    .entry-fields.three-col{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LOCK SCREEN ══ -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div>
+      <div class="lock-title">Ca<span>che</span></div>
+      <div class="lock-subtitle" id="lock-subtitle">Enter your password to unlock</div>
+    </div>
+    <!-- Unlock form (default) -->
+    <div id="lock-form-unlock">
+      <div class="lock-field">
+        <div class="lock-label">Password</div>
+        <input class="lock-input" type="password" id="lock-pw-input" placeholder="••••••••••••"
+          onkeydown="if(event.key==='Enter')submitUnlock()">
+      </div>
+      <div class="lock-progress" id="lock-progress"><div class="lock-progress-bar" id="lock-progress-bar"></div></div>
+      <div class="lock-error" id="lock-error"></div>
+      <button class="lock-btn" id="lock-submit-btn" onclick="submitUnlock()">Unlock</button>
+    </div>
+    <!-- Set password form (first run or change) -->
+    <div id="lock-form-set" style="display:none;flex-direction:column;gap:12px">
+      <div class="lock-field">
+        <div class="lock-label">New Password</div>
+        <input class="lock-input" type="password" id="lock-set-pw" placeholder="Choose a strong password"
+          onkeydown="if(event.key==='Enter')document.getElementById('lock-set-pw2').focus()">
+      </div>
+      <div class="lock-field">
+        <div class="lock-label">Confirm Password</div>
+        <input class="lock-input" type="password" id="lock-set-pw2" placeholder="Repeat password"
+          onkeydown="if(event.key==='Enter')submitSetPassword()">
+      </div>
+      <div class="lock-progress" id="lock-set-progress"><div class="lock-progress-bar" id="lock-set-progress-bar"></div></div>
+      <div class="lock-error" id="lock-set-error"></div>
+      <button class="lock-btn" onclick="submitSetPassword()">Set Password &amp; Continue</button>
+      <button class="lock-btn secondary" id="lock-set-skip" onclick="skipPassword()" style="display:none">Continue without password</button>
+    </div>
+    <div class="lock-hint" id="lock-hint">Your data is encrypted with AES-256-GCM. The password is never stored.</div>
+  </div>
+</div>
+
+<header>
+  <div class="header-left">
+    <h1>Ca<span>che</span></h1>
+    <div class="subtitle">Personal Wealth Ledger &nbsp;·&nbsp; Local Only</div>
+  </div>
+  <div class="header-right" style="display:flex;align-items:flex-end;gap:16px">
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
+    <div>
+      <div class="net-worth-label">Net Worth <span class="changed-indicator" id="changedDot"></span></div>
+      <div class="net-worth-value" id="netWorthDisplay">$0</div>
+      <div class="last-updated" id="lastUpdated">—</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="settings-modal" class="hidden" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-card">
+    <div class="settings-title">Settings</div>
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
+      <div class="settings-row">
+        <input class="settings-input" type="password" id="settings-rentcast-key" placeholder="Paste your API key…"
+          onkeydown="if(event.key==='Enter')saveSettings()">
+        <button class="settings-save-btn" onclick="saveSettings()">Save</button>
+      </div>
+      <div class="settings-help" style="margin-top:8px">Used to fetch automated property value estimates (AVM). Free tier: 50 calls/month. Sign up at rentcast.io → API Keys. Stored encrypted with your data.</div>
+    </div>
+    <button class="settings-close-btn" onclick="closeSettings()">Close</button>
+  </div>
+</div>
+
+<!-- ══ RENTCAST ONBOARDING ══ -->
+<div id="rentcast-onboarding" class="hidden" onclick="if(event.target===this)closeOnboarding()">
+  <div class="onboarding-card">
+    <div class="onboarding-title">Get Property <span>Estimates</span></div>
+    <div class="onboarding-body">
+      RentCast provides automated valuation model (AVM) estimates for US properties.<br><br>
+      <strong>To get started:</strong><br>
+      1. Go to <strong>rentcast.io</strong> and create a free account<br>
+      2. Navigate to <strong>API Keys</strong> in your dashboard<br>
+      3. Copy your key and paste it in <strong>Settings ⚙</strong><br><br>
+      Free tier includes <strong>50 API calls/month</strong>.
+    </div>
+    <div class="onboarding-actions">
+      <button class="settings-save-btn" onclick="closeOnboarding();openSettings()">Open Settings</button>
+      <button class="settings-close-btn" onclick="closeOnboarding()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="summary-bar">
+  <div class="summary-item"><div class="s-label">Total Assets</div><div class="s-value assets" id="totalAssetsDisplay">$0</div></div>
+  <div class="summary-item"><div class="s-label">Total Liabilities</div><div class="s-value liabilities" id="totalLiabDisplay">$0</div></div>
+  <div class="summary-item"><div class="s-label">Asset / Debt Ratio</div><div class="s-value ratio" id="ratioDisplay">—</div></div>
+</div>
+
+<div class="btc-bar">
+  <div class="btc-bar-left">
+    <span class="btc-logo">₿</span>
+    <span class="btc-price-label">BTC / USD</span>
+    <span class="btc-price-val loading" id="btcPriceDisplay">Fetching…</span>
+  </div>
+  <div class="btc-bar-right">
+    <span id="btcPriceAge">—</span>
+    <button class="btc-refresh" id="btcRefreshBtn" onclick="fetchBtcPrice(true)">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('ledger',this)">Ledger</button>
+  <button class="tab-btn" onclick="switchTab('charts',this)">Charts</button>
+  <button class="tab-btn" onclick="switchTab('cashflow',this)">Cash Flow</button>
+</div>
+
+<!-- ══ LEDGER VIEW ══ -->
+<div class="view active" id="view-ledger">
+<div class="main">
+
+  <!-- ── ASSETS ── -->
+  <div class="section" id="section-assets">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon icon-asset">▲</div>
+        <div class="section-name">Assets</div>
+      </div>
+      <div class="section-header-controls">
+        <button class="collapse-all-btn" onclick="toggleSection('assets')" id="collapse-btn-assets">Collapse All</button>
+        <button class="collapse-all-btn" onclick="toggleGroupBy('assets')" id="group-btn-assets" title="Group by institution">Group ⊞</button>
+        <div class="section-total asset" id="assetSectionTotal">$0</div>
+      </div>
+    </div>
+
+    <!-- Real Estate (simple — no institution fields) -->
+    <div class="category" id="cat-real-estate">
+      <div class="category-header" onclick="toggleCat('real-estate')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-real-estate" onclick="sortCat(event,'real-estate')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot real-estate"></span>Real Estate</div>
+        <div class="category-total" id="cat-total-real-estate">$0</div>
+        <span class="toggle-btn open" id="toggle-real-estate">▾</span>
+      </div>
+      <div class="rows" id="rows-real-estate"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('real-estate','asset')">+ Add property</button></div>
+    </div>
+
+    <!-- Stocks -->
+    <div class="category" id="cat-stocks">
+      <div class="category-header" onclick="toggleCat('stocks')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-stocks" onclick="sortCat(event,'stocks')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot stocks"></span>Stocks &amp; Brokerage</div>
+        <div class="category-total" id="cat-total-stocks">$0</div>
+        <span class="toggle-btn open" id="toggle-stocks">▾</span>
+      </div>
+      <div class="rows" id="rows-stocks"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('stocks','asset')">+ Add holding</button></div>
+    </div>
+
+    <!-- Bitcoin -->
+    <div class="category" id="cat-bitcoin">
+      <div class="category-header" onclick="toggleCat('bitcoin')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-bitcoin" onclick="sortCat(event,'bitcoin')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot bitcoin"></span>Bitcoin ₿</div>
+        <div class="category-total" id="cat-total-bitcoin">$0</div>
+        <span class="toggle-btn open" id="toggle-bitcoin">▾</span>
+      </div>
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="unit-sats" onclick="setBtcUnit('sats')">SATS</button>
+        <button class="unit-btn" id="unit-btc" onclick="setBtcUnit('btc')">BTC</button>
+      </div>
+      <div class="rows" id="rows-bitcoin"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('bitcoin','asset')">+ Add wallet / holding</button></div>
+    </div>
+
+    <!-- Business -->
+    <div class="category" id="cat-business">
+      <div class="category-header" onclick="toggleCat('business')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-business" onclick="sortCat(event,'business')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot business"></span>Business Interests</div>
+        <div class="category-total" id="cat-total-business">$0</div>
+        <span class="toggle-btn open" id="toggle-business">▾</span>
+      </div>
+      <div class="rows" id="rows-business"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('business','asset')">+ Add business</button></div>
+    </div>
+
+    <!-- Retirement -->
+    <div class="category" id="cat-retirement">
+      <div class="category-header" onclick="toggleCat('retirement')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-retirement" onclick="sortCat(event,'retirement')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot retirement"></span>Retirement Accounts</div>
+        <div class="category-total" id="cat-total-retirement">$0</div>
+        <span class="toggle-btn open" id="toggle-retirement">▾</span>
+      </div>
+      <div class="rows" id="rows-retirement"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('retirement','asset')">+ Add account</button></div>
+    </div>
+
+    <!-- Cash -->
+    <div class="category" id="cat-cash">
+      <div class="category-header" onclick="toggleCat('cash')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-cash" onclick="sortCat(event,'cash')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot cash"></span>Cash &amp; Bank Accounts</div>
+        <div class="category-total" id="cat-total-cash">$0</div>
+        <span class="toggle-btn open" id="toggle-cash">▾</span>
+      </div>
+      <div class="rows" id="rows-cash"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('cash','asset')">+ Add account</button></div>
+    </div>
+
+    <!-- Other Assets -->
+    <div class="category" id="cat-other-asset">
+      <div class="category-header" onclick="toggleCat('other-asset')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-other-asset" onclick="sortCat(event,'other-asset')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot other-asset"></span>Other Assets</div>
+        <div class="category-total" id="cat-total-other-asset">$0</div>
+        <span class="toggle-btn open" id="toggle-other-asset">▾</span>
+      </div>
+      <div class="rows" id="rows-other-asset"></div>
+      <div class="add-row"><button class="add-row-btn" onclick="addRow('other-asset','asset')">+ Add asset</button></div>
+    </div>
+
+  </div><!-- /assets -->
+
+  <!-- ── LIABILITIES ── -->
+  <div class="section" id="section-liabilities">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon icon-liability">▼</div>
+        <div class="section-name">Liabilities</div>
+      </div>
+      <div class="section-header-controls">
+        <button class="collapse-all-btn" onclick="toggleSection('liabilities')" id="collapse-btn-liabilities">Collapse All</button>
+        <button class="collapse-all-btn" onclick="toggleGroupBy('liabilities')" id="group-btn-liabilities" title="Group by institution">Group ⊞</button>
+        <div class="section-total liability" id="liabSectionTotal">$0</div>
+      </div>
+    </div>
+
+    <!-- Mortgage -->
+    <div class="category" id="cat-mortgage">
+      <div class="category-header" onclick="toggleCat('mortgage')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-mortgage" onclick="sortCat(event,'mortgage')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot mortgage"></span>Mortgages</div>
+        <div class="category-total" id="cat-total-mortgage">$0</div>
+        <span class="toggle-btn open" id="toggle-mortgage">▾</span>
+      </div>
+      <div class="rows" id="rows-mortgage"></div>
+      <div class="add-row"><button class="add-row-btn liability" onclick="addRow('mortgage','liability')">+ Add mortgage</button></div>
+    </div>
+
+    <!-- Auto -->
+    <div class="category" id="cat-auto-loan">
+      <div class="category-header" onclick="toggleCat('auto-loan')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-auto-loan" onclick="sortCat(event,'auto-loan')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot auto-loan"></span>Auto &amp; Vehicle Loans</div>
+        <div class="category-total" id="cat-total-auto-loan">$0</div>
+        <span class="toggle-btn open" id="toggle-auto-loan">▾</span>
+      </div>
+      <div class="rows" id="rows-auto-loan"></div>
+      <div class="add-row"><button class="add-row-btn liability" onclick="addRow('auto-loan','liability')">+ Add loan</button></div>
+    </div>
+
+    <!-- Credit -->
+    <div class="category" id="cat-credit">
+      <div class="category-header" onclick="toggleCat('credit')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-credit" onclick="sortCat(event,'credit')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot credit"></span>Credit Cards</div>
+        <div class="category-total" id="cat-total-credit">$0</div>
+        <span class="toggle-btn open" id="toggle-credit">▾</span>
+      </div>
+      <div class="rows" id="rows-credit"></div>
+      <div class="add-row"><button class="add-row-btn liability" onclick="addRow('credit','liability')">+ Add card</button></div>
+    </div>
+
+    <!-- Student -->
+    <div class="category" id="cat-student">
+      <div class="category-header" onclick="toggleCat('student')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-student" onclick="sortCat(event,'student')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot student"></span>Student Loans</div>
+        <div class="category-total" id="cat-total-student">$0</div>
+        <span class="toggle-btn open" id="toggle-student">▾</span>
+      </div>
+      <div class="rows" id="rows-student"></div>
+      <div class="add-row"><button class="add-row-btn liability" onclick="addRow('student','liability')">+ Add loan</button></div>
+    </div>
+
+    <!-- BTC-Backed Loans -->
+    <div class="category" id="cat-btc-loan">
+      <div class="category-header" onclick="toggleCat('btc-loan')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-btc-loan" onclick="sortCat(event,'btc-loan')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot btc-loan"></span>Bitcoin-Backed Loans</div>
+        <div class="category-total" id="cat-total-btc-loan">$0</div>
+        <span class="toggle-btn open" id="toggle-btc-loan">▾</span>
+      </div>
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="loan-unit-sats" onclick="setBtcLoanUnit('sats')">SATS</button>
+        <button class="unit-btn" id="loan-unit-btc" onclick="setBtcLoanUnit('btc')">BTC</button>
+      </div>
+      <div class="rows" id="rows-btc-loan"></div>
+      <div class="add-row"><button class="add-row-btn liability" onclick="addRow('btc-loan','liability')">+ Add BTC-backed loan</button></div>
+    </div>
+
+    <!-- Other Liabilities -->
+    <div class="category" id="cat-other-liab">
+      <div class="category-header" onclick="toggleCat('other-liab')">
+        <span class="drag-handle" draggable="false">⠿</span>
+        <button class="sort-btn" id="sort-other-liab" onclick="sortCat(event,'other-liab')" title="Sort by value">↕</button>
+        <div class="category-label"><span class="cat-dot other-liab"></span>Other Liabilities</div>
+        <div class="category-total" id="cat-total-other-liab">$0</div>
+        <span class="toggle-btn open" id="toggle-other-liab">▾</span>
+      </div>
+      <div class="rows" id="rows-other-liab"></div>
+      <div class="add-row"><button class="add-row-btn liability" onclick="addRow('other-liab','liability')">+ Add liability</button></div>
+    </div>
+
+  </div><!-- /liabilities -->
+
+  <div class="nw-bar-wrap full-width">
+    <div class="nw-bar-label"><span>Assets</span><span>Liabilities</span></div>
+    <div class="nw-bar-track">
+      <div class="nw-bar-fill-asset" id="nwBarAsset" style="width:0%"></div>
+      <div class="nw-bar-fill-liab" id="nwBarLiab" style="width:0%"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ CHARTS VIEW ══ -->
+<div class="view" id="view-charts">
+<div class="charts-grid">
+  <div class="chart-card wide">
+    <div class="chart-card-header"><div class="chart-card-title">Net Worth History</div><div class="chart-card-sub">Recorded on each save</div></div>
+    <div class="chart-body"><div style="position:relative;width:100%;height:300px"><canvas id="chartHistory"></canvas></div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-header"><div class="chart-card-title">Asset Allocation</div><div class="chart-card-sub">% of total assets by category</div></div>
+    <div class="chart-body"><div id="legend-asset" class="chart-legend"></div><div style="position:relative;width:100%;height:260px"><canvas id="chartAsset"></canvas></div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-header"><div class="chart-card-title">Liability Breakdown</div><div class="chart-card-sub">% of total liabilities by category</div></div>
+    <div class="chart-body"><div id="legend-liab" class="chart-legend"></div><div style="position:relative;width:100%;height:260px"><canvas id="chartLiab"></canvas></div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-header"><div class="chart-card-title">Category Comparison</div><div class="chart-card-sub">Assets vs. liabilities by category</div></div>
+    <div class="chart-body">
+      <div style="display:flex;gap:16px;margin-bottom:12px">
+        <span class="legend-item"><span class="legend-dot" style="background:#a8d08d"></span>Assets</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#e07070"></span>Liabilities</span>
+      </div>
+      <div style="position:relative;width:100%;height:300px"><canvas id="chartAvsL"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-header"><div class="chart-card-title">Net Worth Snapshot</div><div class="chart-card-sub">Assets, liabilities, and resulting net worth</div></div>
+    <div class="chart-body"><div style="position:relative;width:100%;height:300px"><canvas id="chartNW"></canvas></div></div>
+  </div>
+  <div class="chart-card wide">
+    <div class="chart-card-header"><div class="chart-card-title">Full Breakdown</div><div class="chart-card-sub">All categories ranked by value</div></div>
+    <div class="chart-body">
+      <table class="snapshot-table">
+        <thead><tr><th>Category</th><th>Type</th><th style="text-align:right">Value</th><th style="text-align:right">% of Total</th></tr></thead>
+        <tbody id="breakdownBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ CASH FLOW VIEW ══ -->
+<div class="view" id="view-cashflow">
+<div class="cf-grid">
+  <div class="cf-summary-row">
+    <div class="cf-stat">
+      <div class="cf-stat-label">Total Monthly Interest</div>
+      <div class="cf-stat-value" id="cf-total-monthly">$0</div>
+      <div class="cf-stat-sub" id="cf-total-annual-sub">$0 / year</div>
+    </div>
+    <div class="cf-stat">
+      <div class="cf-stat-label">Weighted Avg Rate</div>
+      <div class="cf-stat-value" id="cf-avg-rate">—</div>
+      <div class="cf-stat-sub">across all tracked loans</div>
+    </div>
+    <div class="cf-stat">
+      <div class="cf-stat-label">Debts With Rate Entered</div>
+      <div class="cf-stat-value accent" id="cf-coverage">0 / 0</div>
+      <div class="cf-stat-sub">add rates in the Ledger tab</div>
+    </div>
+  </div>
+  <div class="cf-card">
+    <div class="cf-card-header">
+      <div class="cf-card-title">Monthly Interest by Liability</div>
+      <div class="cf-card-total" id="cf-table-total"></div>
+    </div>
+    <div id="cf-table-wrap">
+      <div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>
+    </div>
+  </div>
+  <div class="cf-card">
+    <div class="cf-card-header">
+      <div class="cf-card-title">Interest Burden by Category</div>
+      <div class="cf-card-total" id="cf-cat-total"></div>
+    </div>
+    <div id="cf-cat-wrap">
+      <div class="cf-empty">No data yet.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
+
+<div class="save-bar">
+  <div class="save-hint">All data saved locally — <span>never leaves this device</span></div>
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    <button class="btn btn-lock" onclick="showChangePassword()" title="Change password">🔑 Password</button>
+    <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
+    <button class="btn btn-import" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
+    <button class="btn btn-export" onclick="exportJSON()">Export JSON</button>
+    <button class="btn btn-primary" onclick="saveData()">Save ✓</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// ── ENCRYPTION / LOCK SYSTEM (Web Crypto API — AES-256-GCM + PBKDF2) ─────
+// ══════════════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY    = 'cache-v1';
+const STORAGE_ENC    = 'cache-v1-enc';   // encrypted payload
+const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
+
+// ── MIGRATE legacy "life-sheet-v1" keys → "cache-v1" ─────────────────────
+(function migrateLegacyStorage() {
+  const map = [
+    ['life-sheet-v1',     'cache-v1'],
+    ['life-sheet-v1-enc', 'cache-v1-enc'],
+    ['life-sheet-v1-meta','cache-v1-meta'],
+  ];
+  map.forEach(([oldKey, newKey]) => {
+    if (localStorage.getItem(oldKey) !== null && localStorage.getItem(newKey) === null) {
+      localStorage.setItem(newKey, localStorage.getItem(oldKey));
+      localStorage.removeItem(oldKey);
+    }
+  });
+})();
+const PBKDF2_ITERS   = 310000;
+const IDLE_TIMEOUT   = 15 * 60 * 1000;        // 15 minutes
+
+let sessionKey       = null;   // CryptoKey in memory, cleared on lock
+let idleTimer        = null;
+let isLocked         = true;
+let isFirstRun       = false;
+let rentcastApiKey   = '';     // stored encrypted with data
+let snapshots        = [];     // [{ ts, nw, cats:{cat:value} }]
+let isChangingPw     = false;
+
+// ── CRYPTO HELPERS ─────────────────────────────────────────────────────────
+function buf2b64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function b642buf(b64) {
+  const bin = atob(b64);
+  const buf = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
+  return buf.buffer;
+}
+
+async function deriveKey(password, salt) {
+  const enc  = new TextEncoder();
+  const base = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:PBKDF2_ITERS, hash:'SHA-256' },
+    base,
+    { name:'AES-GCM', length:256 },
+    false,
+    ['encrypt','decrypt']
+  );
+}
+
+async function encryptPayload(plaintext, key) {
+  const iv  = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const ct  = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, enc.encode(plaintext));
+  return { iv: buf2b64(iv), ct: buf2b64(ct) };
+}
+
+async function decryptPayload(ivB64, ctB64, key) {
+  const iv  = b642buf(ivB64);
+  const ct  = b642buf(ctB64);
+  const dec = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, ct);
+  return new TextDecoder().decode(dec);
+}
+
+// ── LOCK UI HELPERS ────────────────────────────────────────────────────────
+function showLockScreen(mode='unlock') {
+  const screen = document.getElementById('lock-screen');
+  screen.classList.remove('hidden');
+  document.getElementById('lock-form-unlock').style.display = mode==='unlock' ? 'flex' : 'none';
+  document.getElementById('lock-form-unlock').style.flexDirection = 'column';
+  document.getElementById('lock-form-unlock').style.gap = '12px';
+  document.getElementById('lock-form-set').style.display = mode==='set' ? 'flex' : 'none';
+  document.getElementById('lock-error').textContent = '';
+  document.getElementById('lock-set-error').textContent = '';
+
+  if (mode==='set') {
+    document.getElementById('lock-subtitle').textContent = isChangingPw ? 'Change your password' : 'Set a password to protect your data';
+    document.getElementById('lock-hint').textContent = 'AES-256-GCM encryption · PBKDF2 310k iterations · password never stored';
+    if (!isChangingPw) {
+      document.getElementById('lock-set-skip').style.display = 'block';
+    } else {
+      document.getElementById('lock-set-skip').style.display = 'none';
+    }
+    setTimeout(()=>document.getElementById('lock-set-pw').focus(), 80);
+  } else {
+    document.getElementById('lock-subtitle').textContent = 'Enter your password to unlock';
+    document.getElementById('lock-hint').textContent = 'Your data is encrypted with AES-256-GCM. The password is never stored.';
+    setTimeout(()=>document.getElementById('lock-pw-input').focus(), 80);
+  }
+}
+
+function hideLockScreen() {
+  document.getElementById('lock-screen').classList.add('hidden');
+  document.getElementById('lock-pw-input').value = '';
+  document.getElementById('lock-set-pw').value   = '';
+  document.getElementById('lock-set-pw2').value  = '';
+}
+
+function setLockProgress(id, barId, pct, active) {
+  const wrap = document.getElementById(id);
+  const bar  = document.getElementById(barId);
+  wrap.classList.toggle('active', active);
+  if (bar) bar.style.width = pct + '%';
+}
+
+function setLockBtn(disabled, label='Unlock') {
+  const btn = document.getElementById('lock-submit-btn');
+  if (!btn) return;
+  btn.disabled = disabled;
+  btn.textContent = label;
+}
+
+// ── UNLOCK ─────────────────────────────────────────────────────────────────
+async function submitUnlock() {
+  const pw = document.getElementById('lock-pw-input').value;
+  if (!pw) return;
+  const errEl = document.getElementById('lock-error');
+  errEl.textContent = '';
+  setLockBtn(true, 'Decrypting…');
+  setLockProgress('lock-progress','lock-progress-bar', 60, true);
+
+  try {
+    const meta = JSON.parse(localStorage.getItem(STORAGE_META)||'{}');
+    const enc  = JSON.parse(localStorage.getItem(STORAGE_ENC)||'{}');
+    const salt = b642buf(meta.salt);
+    const key  = await deriveKey(pw, salt);
+    setLockProgress('lock-progress','lock-progress-bar', 90, true);
+    const plain = await decryptPayload(enc.iv, enc.ct, key);
+    // Success
+    sessionKey = key;
+    const parsed = JSON.parse(plain);
+    applyLoadedPayload(parsed);
+    setLockProgress('lock-progress','lock-progress-bar', 100, true);
+    setTimeout(()=>{
+      setLockProgress('lock-progress','lock-progress-bar', 0, false);
+      setLockBtn(false,'Unlock');
+      hideLockScreen();
+      isLocked = false;
+      resetIdleTimer();
+      renderAll(); recalc();
+    }, 200);
+  } catch(e) {
+    setLockProgress('lock-progress','lock-progress-bar', 0, false);
+    setLockBtn(false,'Unlock');
+    const input = document.getElementById('lock-pw-input');
+    input.classList.add('error');
+    errEl.textContent = 'Incorrect password — please try again.';
+    input.value = '';
+    setTimeout(()=>input.classList.remove('error'), 500);
+  }
+}
+
+// ── SET / CHANGE PASSWORD ───────────────────────────────────────────────────
+async function submitSetPassword() {
+  const pw  = document.getElementById('lock-set-pw').value;
+  const pw2 = document.getElementById('lock-set-pw2').value;
+  const errEl = document.getElementById('lock-set-error');
+  errEl.textContent = '';
+
+  if (pw.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.';
+    return;
+  }
+  if (pw !== pw2) {
+    errEl.textContent = 'Passwords do not match.';
+    document.getElementById('lock-set-pw2').classList.add('error');
+    setTimeout(()=>document.getElementById('lock-set-pw2').classList.remove('error'),500);
+    return;
+  }
+
+  setLockProgress('lock-set-progress','lock-set-progress-bar', 50, true);
+  const salt = crypto.getRandomValues(new Uint8Array(32));
+  const key  = await deriveKey(pw, salt);
+  sessionKey = key;
+  setLockProgress('lock-set-progress','lock-set-progress-bar', 80, true);
+
+  // Save salt
+  localStorage.setItem(STORAGE_META, JSON.stringify({ salt: buf2b64(salt) }));
+  // Remove legacy unencrypted key
+  localStorage.removeItem(STORAGE_KEY);
+
+  // If we have in-memory data, encrypt and save it now
+  await encryptAndSave();
+
+  setLockProgress('lock-set-progress','lock-set-progress-bar', 100, true);
+  setTimeout(()=>{
+    setLockProgress('lock-set-progress','lock-set-progress-bar', 0, false);
+    isChangingPw = false;
+    hideLockScreen();
+    isLocked = false;
+    resetIdleTimer();
+    if (isFirstRun) { isFirstRun=false; seedDemoData(); }
+    showToast('Password set — data is now encrypted', 'success');
+  }, 300);
+}
+
+async function skipPassword() {
+  // No password — store plaintext (legacy compatible)
+  sessionKey = null;
+  isChangingPw = false;
+  hideLockScreen();
+  isLocked = false;
+  if (isFirstRun) { isFirstRun=false; seedDemoData(); }
+  showToast('Running without password — data stored unencrypted');
+}
+
+function showChangePassword() {
+  isChangingPw = true;
+  showLockScreen('set');
+}
+
+// ── LOCK / IDLE ─────────────────────────────────────────────────────────────
+function lockApp() {
+  if (hasUnsavedChanges) {
+    if (!confirm('You have unsaved changes. Lock anyway? (unsaved changes will be lost)')) return;
+  }
+  sessionKey = null;
+  isLocked   = true;
+  clearIdleTimer();
+  // Clear in-memory data so it can't be extracted from JS console
+  ALL_CATS.forEach(c=>{ data[c]=[]; });
+  renderAll(); recalc();
+  showLockScreen('unlock');
+}
+
+function resetIdleTimer() {
+  clearIdleTimer();
+  idleTimer = setTimeout(()=>{
+    if (!isLocked && !hasUnsavedChanges) lockApp();
+    else if (!isLocked) {
+      // Warn but don't auto-lock if there are unsaved changes
+      showToast('Auto-lock skipped — save your changes first');
+      resetIdleTimer();
+    }
+  }, IDLE_TIMEOUT);
+}
+function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=null; } }
+
+// Reset idle timer on any user interaction
+['mousemove','keydown','click','touchstart'].forEach(ev=>{
+  document.addEventListener(ev, ()=>{ if(!isLocked) resetIdleTimer(); }, {passive:true});
+});
+
+// ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
+async function encryptAndSave() {
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, snapshots, savedAt:new Date().toISOString() });
+  if (sessionKey) {
+    const { iv, ct } = await encryptPayload(payload, sessionKey);
+    localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
+    localStorage.removeItem(STORAGE_KEY); // never keep plaintext if encrypted
+  } else {
+    // No password — store plaintext under legacy key
+    localStorage.setItem(STORAGE_KEY, payload);
+  }
+}
+
+function applyLoadedPayload(p) {
+  if (p.data) {
+    if (p.data.crypto && !p.data.bitcoin) p.data.bitcoin = p.data.crypto;
+    ALL_CATS.forEach(c=>{ if(p.data[c]) data[c]=p.data[c]; });
+  }
+  if (p.btcUnit)     { btcUnit=p.btcUnit; setBtcUnit(btcUnit); }
+  if (p.btcLoanUnit) { btcLoanUnit=p.btcLoanUnit; setBtcLoanUnit(btcLoanUnit); }
+  if (p.groupByState) {
+    groupByState=p.groupByState;
+    ['assets','liabilities'].forEach(s=>{
+      const btn=document.getElementById(`group-btn-${s}`);
+      if(btn&&groupByState[s]){btn.style.color='var(--accent)';btn.style.borderColor='var(--accent-dim)';btn.textContent='Ungroup ⊟';}
+    });
+  }
+  if (p.rentcastApiKey) rentcastApiKey = p.rentcastApiKey;
+  if (p.snapshots)     snapshots = p.snapshots;
+  if (p.savedAt) document.getElementById('lastUpdated').textContent='Last saved '+new Date(p.savedAt).toLocaleString();
+}
+
+// ── STARTUP LOCK LOGIC ──────────────────────────────────────────────────────
+function initLockSystem() {
+  const hasEncrypted = !!localStorage.getItem(STORAGE_ENC);
+  const hasPlain     = !!localStorage.getItem(STORAGE_KEY);
+
+  if (hasEncrypted) {
+    // Data exists and is encrypted — show unlock screen
+    showLockScreen('unlock');
+    return; // wait for user to unlock; init() called after
+  }
+
+  if (hasPlain) {
+    // Legacy unencrypted data — load it, then prompt to set password
+    try {
+      const p = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      applyLoadedPayload(p);
+    } catch(e) {}
+    isLocked = false;
+    hideLockScreen();
+    // Prompt to upgrade to password protection
+    setTimeout(()=>{
+      if (confirm('Your data is currently unencrypted. Set a password to protect it?')) {
+        showChangePassword();
+      }
+    }, 600);
+    return;
+  }
+
+  // First run — no data at all — ask to set password
+  isFirstRun = true;
+  isLocked   = false;
+  showLockScreen('set');
+}
+
+// ── SEED DEMO DATA (extracted from bottom of file) ──────────────────────────
+function seedDemoData() {
+  addRow('real-estate','asset','Primary Residence',425000,{address:'123 Main St, Austin TX 78701'});
+  addRow('stocks','asset','Schwab Total Market',82000,{institution:'Charles Schwab',accountType:'Brokerage',loginUrl:'https://schwab.com/login'});
+  addRow('stocks','asset','Company RSUs',14000,{institution:'E*Trade',accountType:'Brokerage'});
+  addRow('bitcoin','asset','Cold Wallet',23000000);
+  addRow('bitcoin','asset','Coinbase',5000000,{loginUrl:'https://coinbase.com'});
+  addRow('retirement','asset','401(k)',118000,{institution:'Fidelity',accountType:'401(k)',loginUrl:'https://netbenefits.fidelity.com'});
+  addRow('cash','asset','Primary Checking',8200,{institution:'Chase Bank',accountType:'Checking',loginUrl:'https://chase.com/login'});
+  addRow('cash','asset','High-Yield Savings',24000,{institution:'Marcus by Goldman',accountType:'HYSA',loginUrl:'https://marcus.com'});
+  addRow('mortgage','liability','Primary Mortgage',310000,{institution:'Rocket Mortgage',accountType:'Primary',loginUrl:'https://rocketmortgage.com',interestRate:'6.75',originationDate:'2022-03-15'});
+  addRow('credit','liability','Chase Sapphire',2400,{institution:'Chase Bank',accountType:'Visa',loginUrl:'https://chase.com/login',interestRate:'24.99'});
+  addRow('auto-loan','liability','Toyota Tacoma',18000,{institution:'Toyota Financial',accountType:'Auto',loginUrl:'https://toyotafinancial.com',interestRate:'5.9',originationDate:'2023-06-01'});
+  addRow('btc-loan','liability','Vault Loan',50000,{institution:'Unchained Capital',accountType:'Unchained',loginUrl:'https://unchained.com',collateralSats:150000000,interestRate:'12.0',originationDate:'2024-01-10'});
+  recalc(); markChanged();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── CATEGORY CONFIG ────────────────────────────────────────────────────────
+const ASSET_CATS = ['real-estate','stocks','bitcoin','business','retirement','cash','other-asset'];
+const LIAB_CATS  = ['mortgage','auto-loan','credit','student','btc-loan','other-liab'];
+const ALL_CATS   = [...ASSET_CATS,...LIAB_CATS];
+// Keep original sets for drag-drop filtering
+const ASSET_CATS_ORIG = [...ASSET_CATS];
+const LIAB_CATS_ORIG  = [...LIAB_CATS];
+
+// Which categories skip the institution/account fields (keep simple)
+const SIMPLE_CATS = new Set(['real-estate','bitcoin']);
+// Which categories are BTC-denominated liabilities
+const BTC_LIAB_CATS = new Set(['btc-loan']);
+
+const CAT_META = {
+  'real-estate': {label:'Real Estate',         color:'#82b366'},
+  'stocks':      {label:'Stocks & Brokerage',  color:'#6aafcd'},
+  'bitcoin':     {label:'Bitcoin',             color:'#f7931a'},
+  'business':    {label:'Business Interests',  color:'#b07de0'},
+  'retirement':  {label:'Retirement',          color:'#d4a843'},
+  'cash':        {label:'Cash & Bank',         color:'#60b89a'},
+  'other-asset': {label:'Other Assets',        color:'#c0a080'},
+  'mortgage':    {label:'Mortgages',           color:'#e07070'},
+  'auto-loan':   {label:'Auto Loans',          color:'#c05858'},
+  'credit':      {label:'Credit Cards',        color:'#d06060'},
+  'student':     {label:'Student Loans',       color:'#b85050'},
+  'btc-loan':    {label:'BTC-Backed Loans',    color:'#f7931a'},
+  'other-liab':  {label:'Other Liabilities',   color:'#a04040'},
+};
+
+// Account type options per category
+const ACCT_TYPES = {
+  'stocks':      ['Brokerage','IRA','Roth IRA','Trust','Joint','Other'],
+  'business':    ['LLC','S-Corp','C-Corp','Partnership','Sole Prop','Other'],
+  'retirement':  ['401(k)','403(b)','IRA','Roth IRA','SEP IRA','Pension','Other'],
+  'cash':        ['Checking','Savings','HYSA','Money Market','CD','Other'],
+  'other-asset': ['Vehicle','Collectibles','Jewelry','Equipment','Other'],
+  'mortgage':    ['Primary','Second Home','Investment','HELOC','Other'],
+  'auto-loan':   ['Auto','Motorcycle','RV','Boat','Other'],
+  'credit':      ['Visa','Mastercard','Amex','Discover','Store Card','Other'],
+  'student':     ['Federal','Private','Refinanced','Other'],
+  'btc-loan':    ['Unchained','Ledn','Coinbase Borrow','Nexo','Other'],
+  'other-liab':  ['Personal Loan','Medical','Tax','Other'],
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let data = {};
+let hasUnsavedChanges = false;
+let btcPriceUSD = null;
+let btcUnit = 'sats';
+let btcLoanUnit = 'sats';
+let btcFetchedAt = null;
+let sortState = {};
+let groupByState = { assets: false, liabilities: false };
+let sectionCollapsed = { assets: false, liabilities: false };
+const chartInst = {};
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function init() {
+  ALL_CATS.forEach(c => { data[c] = []; sortState[c] = null; });
+  // Lock system handles data loading — it will call applyLoadedPayload after unlock
+  // For legacy plaintext path, loadData() is called from initLockSystem
+  recalc();
+  fetchBtcPrice(false);
+  setInterval(() => fetchBtcPrice(false), 5 * 60 * 1000);
+  setTimeout(()=>initAllDragDrop(), 300);
+}
+
+// ── BTC PRICE ─────────────────────────────────────────────────────────────
+async function fetchBtcPrice(manual) {
+  const btn = document.getElementById('btcRefreshBtn');
+  const disp = document.getElementById('btcPriceDisplay');
+  btn.classList.add('spinning');
+  disp.className = 'btc-price-val loading';
+  disp.textContent = 'Fetching…';
+  let price = null;
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',{cache:'no-store'});
+    if (r.ok) { const j=await r.json(); price=j?.bitcoin?.usd; }
+  } catch(_){}
+  if (!price) {
+    try {
+      const r = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot',{cache:'no-store'});
+      if (r.ok) { const j=await r.json(); price=parseFloat(j?.data?.amount); }
+    } catch(_){}
+  }
+  btn.classList.remove('spinning');
+  if (price && price > 0) {
+    btcPriceUSD = price;
+    btcFetchedAt = new Date();
+    disp.className = 'btc-price-val';
+    disp.textContent = '$' + price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    updateBtcAge();
+    recalc();
+    if (manual) showToast('BTC price updated','success');
+  } else {
+    disp.className = 'btc-price-val';
+    disp.style.color = 'var(--text-dim)';
+    disp.textContent = 'Unavailable';
+    document.getElementById('btcPriceAge').textContent = 'API unreachable';
+    if (manual) showToast('Could not fetch BTC price','error');
+  }
+}
+
+function updateBtcAge() {
+  if (!btcFetchedAt) return;
+  const mins = Math.floor((Date.now()-btcFetchedAt)/60000);
+  document.getElementById('btcPriceAge').textContent = mins < 1 ? 'Just updated' : `Updated ${mins}m ago`;
+}
+setInterval(updateBtcAge, 30000);
+
+function satsToUSD(sats) {
+  if (!btcPriceUSD || !sats) return 0;
+  return (parseFloat(sats)/1e8)*btcPriceUSD;
+}
+
+function setBtcUnit(unit) {
+  btcUnit = unit;
+  document.getElementById('unit-sats').classList.toggle('active', unit==='sats');
+  document.getElementById('unit-btc').classList.toggle('active', unit==='btc');
+  renderRows('bitcoin');
+  recalc();
+}
+
+function setBtcLoanUnit(unit) {
+  btcLoanUnit = unit;
+  document.getElementById('loan-unit-sats').classList.toggle('active', unit==='sats');
+  document.getElementById('loan-unit-btc').classList.toggle('active', unit==='btc');
+  renderRows('btc-loan');
+  recalc();
+}
+
+// ── ROW MANAGEMENT ────────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2,9); }
+
+function addRow(cat, type, name='', value='', extra={}) {
+  const row = {id:uid(), name, value, accountType:'', institution:'', loginUrl:'', address:'', interestRate:'', originationDate:'', ...extra};
+  // BTC-loan also has collateralSats
+  if (BTC_LIAB_CATS.has(cat)) row.collateralSats = row.collateralSats || '';
+  data[cat].push(row);
+  renderRows(cat);
+  recalc(); markChanged();
+  setTimeout(()=>{
+    const el = document.querySelector(`#entry-name-${row.id}`);
+    if (el) el.focus();
+  },30);
+}
+
+function deleteRow(cat, id) {
+  data[cat] = data[cat].filter(r=>r.id!==id);
+  renderRows(cat); recalc(); markChanged();
+}
+
+function updateField(cat, id, field, val) {
+  const row = data[cat].find(r=>r.id===id);
+  if (!row) return;
+  if (field==='value' && cat==='bitcoin') {
+    const n = parseFloat(val)||0;
+    row.value = btcUnit==='btc' ? Math.round(n*1e8) : Math.round(n);
+  } else {
+    row[field] = val;
+  }
+  recalc(); markChanged();
+}
+
+function toggleEntry(id) {
+  const detail = document.getElementById(`detail-${id}`);
+  const icon   = document.getElementById(`icon-${id}`);
+  if (!detail) return;
+  const open = detail.classList.contains('open');
+  detail.classList.toggle('open', !open);
+  if (icon) icon.classList.toggle('open', !open);
+}
+
+function openLink(url) {
+  if (!url) return;
+  const u = url.startsWith('http') ? url : 'https://' + url;
+  window.open(u, '_blank', 'noopener');
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
+  const card = document.createElement('div');
+  card.className = 'entry-card';
+  card.id = `card-${row.id}`;
+
+  let valueDisplay, valueSub = '';
+  if (isBtc) {
+    const sats = parseFloat(row.value)||0;
+    const displayVal = btcUnit==='btc'
+      ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0'
+      : sats.toLocaleString();
+    const usd = satsToUSD(sats);
+    valueDisplay = `${displayVal} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
+    valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
+  } else if (isBtcLoan) {
+    const loanUsd = parseFloat(row.value)||0;
+    const colSats = parseFloat(row.collateralSats)||0;
+    const colUsd  = satsToUSD(colSats);
+    valueDisplay = fmt(loanUsd);
+    const mi = calcMonthlyInterest(row);
+    const miStr = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+    // Bug 1 fix: show collateral using btcLoanUnit
+    let colStr = '';
+    if (colSats > 0) {
+      const colDisplay = btcLoanUnit==='btc'
+        ? `₿ ${(colSats/1e8).toFixed(8).replace(/\.?0+$/,'')} BTC`
+        : `₿ ${colSats.toLocaleString()} sats`;
+      colStr = `<span class="entry-collateral">${colDisplay}${colUsd>0?' ≈ '+fmtS(colUsd):''} collateral</span>`;
+    }
+    valueSub = colStr + miStr;
+  } else {
+    const isLiab = LIAB_CATS.includes(cat);
+    valueDisplay = fmt(parseFloat(row.value)||0);
+    if (isLiab) {
+      const mi = calcMonthlyInterest(row);
+      valueSub = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+    }
+  }
+
+  const instTag = (!isSimple && row.institution)
+    ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
+
+  card.innerHTML = `
+    <div class="entry-summary" onclick="toggleEntry('${row.id}')">
+      <span class="entry-expand-icon" id="icon-${row.id}">▶</span>
+      <span class="entry-name">${escHtml(row.name)||'<span style="color:var(--text-dim)">Untitled</span>'}${instTag}</span>
+      <span class="entry-value${isBtc?' btc-color':''}">${valueDisplay}${valueSub}</span>
+      <button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>
+    </div>
+    <div class="entry-detail" id="detail-${row.id}">
+      ${buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple)}
+    </div>
+  `;
+  return card;
+}
+
+function renderRows(cat) {
+  const container = document.getElementById(`rows-${cat}`);
+  if (!container) return;
+  container.innerHTML = '';
+  const isBtc     = cat === 'bitcoin';
+  const isBtcLoan = BTC_LIAB_CATS.has(cat);
+  const isSimple  = SIMPLE_CATS.has(cat);
+
+  // Determine which section this cat belongs to
+  const sectionId = ASSET_CATS.includes(cat) ? 'assets' : 'liabilities';
+
+  if (groupByState[sectionId] && !isBtc && !isSimple) {
+    renderGrouped(cat, container);
+  } else {
+    data[cat].forEach(row => {
+      container.appendChild(buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple));
+    });
+  }
+
+  // Bug 2 fix: if the category is open (toggle btn has .open), ensure maxHeight
+  // is large enough to show all content including interest sub-lines
+  const toggleBtn = document.getElementById(`toggle-${cat}`);
+  if (toggleBtn && toggleBtn.classList.contains('open')) {
+    container.style.maxHeight = 'none';
+  }
+}
+
+function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
+  const id = row.id;
+  const types = ACCT_TYPES[cat] || [];
+
+  // ── Bitcoin: just label + amount (unit controlled by toggle) + login URL for exchange
+  if (isBtc) {
+    const sats = parseFloat(row.value)||0;
+    const displayVal = btcUnit==='btc'
+      ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||''
+      : (sats||'');
+    return `<div class="entry-fields">
+      <div class="field-group">
+        <div class="field-label">Label</div>
+        <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Cold wallet, Ledger"
+          oninput="updateField('${cat}','${id}','name',this.value)">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Amount (${btcUnit==='btc'?'BTC':'Satoshis'})</div>
+        <input class="field-input mono" type="number" step="${btcUnit==='btc'?'0.00000001':'1'}"
+          value="${displayVal}" placeholder="${btcUnit==='btc'?'0.00000000':'0'}"
+          oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Exchange / Custodian Login</div>
+        <div class="url-wrap">
+          <input class="field-input url-input" value="${escHtml(row.loginUrl)}" placeholder="https://exchange.com/login"
+            oninput="updateField('${cat}','${id}','loginUrl',this.value)">
+          <button class="url-open" onclick="openLink(document.getElementById('detail-${id}').querySelector('.url-input').value)" title="Open">↗</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Real Estate: name + address + lookup + value
+  if (isSimple) {
+    const addr = escHtml(row.address||'');
+    // Zillow: direct property search - works well
+    const zillowUrl = row.address ? `https://www.zillow.com/homes/${encodeURIComponent(row.address)}_rb/` : '#';
+    // Redfin: use their address search endpoint which resolves properly
+    const redfinUrl = row.address ? `https://www.redfin.com/search#location=${encodeURIComponent(row.address)}&start=0` : '#';
+    // Google Maps property lookup - most reliable fallback
+    const gmapsUrl = row.address ? `https://www.google.com/maps/search/${encodeURIComponent(row.address)}` : '#';
+    return `<div class="entry-fields three-col">
+      <div class="field-group">
+        <div class="field-label">Property Name / Nickname</div>
+        <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Primary Residence"
+          oninput="updateField('${cat}','${id}','name',this.value)">
+      </div>
+      <div class="field-group" style="grid-column:span 2">
+        <div class="field-label">Street Address (for lookups)</div>
+        <input class="field-input" id="re-addr-${id}" value="${addr}" placeholder="e.g. 123 Main St, Austin TX 78701"
+          oninput="updateField('${cat}','${id}','address',this.value);updateReLinks('${id}')">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Estimated Value ($)</div>
+        <input class="field-input mono" type="number" step="1000"
+          value="${row.value!==''?row.value:''}" placeholder="0"
+          oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+      </div>
+      <div class="field-group" style="grid-column:span 2">
+        <div class="field-label">Lookup Estimate</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a id="re-zillow-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
+            href="${zillowUrl}" target="_blank" rel="noopener">🏠 Zillow ↗</a>
+          <a id="re-redfin-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
+            href="${redfinUrl}" target="_blank" rel="noopener">📊 Redfin ↗</a>
+          <a id="re-gmaps-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
+            href="${gmapsUrl}" target="_blank" rel="noopener">📍 Maps ↗</a>
+          <button id="re-avm-btn-${id}" class="avm-fetch-btn" onclick="fetchRentcastAVM('${id}')">⬡ Fetch Estimate</button>
+        </div>
+        ${buildAvmResult(row, id)}
+      </div>
+    </div>`;
+  }
+
+  // ── BTC-Backed Loan: loan balance USD + collateral sats
+  if (isBtcLoan) {
+    const colSats = parseFloat(row.collateralSats)||0;
+    const colDisplay = btcLoanUnit==='btc'
+      ? (colSats/1e8).toFixed(8).replace(/\.?0+$/,'')||''
+      : (colSats||'');
+    const typeOptions = types.map(t=>`<option${t===row.accountType?' selected':''}>${escHtml(t)}</option>`).join('');
+    return `<div class="entry-fields three-col">
+      <div class="field-group">
+        <div class="field-label">Loan Name</div>
+        <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Unchained Vault Loan"
+          oninput="updateField('${cat}','${id}','name',this.value)">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Lender</div>
+        <div class="url-wrap">
+          <input class="field-input url-input" value="${escHtml(row.institution)}" placeholder="e.g. Unchained Capital"
+            oninput="updateField('${cat}','${id}','institution',this.value)">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Loan Type</div>
+        <select class="field-input" onchange="updateField('${cat}','${id}','accountType',this.value)">
+          <option value="">— Select —</option>${typeOptions}
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Outstanding Balance ($)</div>
+        <input class="field-input mono" type="number" step="100"
+          value="${row.value!==''?row.value:''}" placeholder="0"
+          oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+      </div>
+      <div class="field-group">
+        <div class="field-label">BTC Collateral (${btcLoanUnit==='btc'?'BTC':'Sats'})</div>
+        <input class="field-input mono" type="number" step="${btcLoanUnit==='btc'?'0.00000001':'1'}"
+          value="${colDisplay}" placeholder="0"
+          oninput="updateField('${cat}','${id}','collateralSats',btcLoanUnit==='btc'?Math.round(this.value*1e8):Math.round(this.value));updateCardDisplay('${id}','${cat}')">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Interest Rate (% APR)</div>
+        <input class="field-input mono" type="number" step="0.01" min="0" max="100"
+          value="${row.interestRate||''}" placeholder="e.g. 12.5"
+          oninput="updateField('${cat}','${id}','interestRate',this.value);updateCardDisplay('${id}','${cat}')">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Origination Date</div>
+        <input class="field-input" type="date" value="${row.originationDate||''}"
+          oninput="updateField('${cat}','${id}','originationDate',this.value)">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Lender Login URL</div>
+        <div class="url-wrap">
+          <input class="field-input url-input" value="${escHtml(row.loginUrl)}" placeholder="https://…"
+            oninput="updateField('${cat}','${id}','loginUrl',this.value)">
+          <button class="url-open" onclick="openLink(document.getElementById('detail-${id}').querySelectorAll('.url-input')[1].value)" title="Open">↗</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Standard expanded fields (all other cats)
+  const typeOptions = types.map(t=>`<option${t===row.accountType?' selected':''}>${escHtml(t)}</option>`).join('');
+  return `<div class="entry-fields three-col">
+    <div class="field-group">
+      <div class="field-label">Account Name</div>
+      <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Chase Sapphire"
+        oninput="updateField('${cat}','${id}','name',this.value)">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Institution / Company</div>
+      <input class="field-input" value="${escHtml(row.institution)}" placeholder="e.g. Chase Bank"
+        oninput="updateField('${cat}','${id}','institution',this.value)">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Account Type</div>
+      <select class="field-input" onchange="updateField('${cat}','${id}','accountType',this.value)">
+        <option value="">— Select —</option>${typeOptions}
+      </select>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Balance / Value ($)</div>
+      <input class="field-input mono" type="number" step="any"
+        value="${row.value!==''?row.value:''}" placeholder="0"
+        oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Interest Rate (% APR)</div>
+      <input class="field-input mono" type="number" step="0.01" min="0" max="100"
+        value="${row.interestRate||''}" placeholder="e.g. 6.75"
+        oninput="updateField('${cat}','${id}','interestRate',this.value);updateCardDisplay('${id}','${cat}')">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Origination Date</div>
+      <input class="field-input" type="date" value="${row.originationDate||''}"
+        oninput="updateField('${cat}','${id}','originationDate',this.value)">
+    </div>
+    <div class="field-group" style="grid-column:span 2">
+      <div class="field-label">Login URL (optional)</div>
+      <div class="url-wrap">
+        <input class="field-input url-input" value="${escHtml(row.loginUrl)}" placeholder="https://chase.com/login"
+          oninput="updateField('${cat}','${id}','loginUrl',this.value)">
+        <button class="url-open" onclick="openLink(this.closest('.url-wrap').querySelector('input').value)" title="Open">↗</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Update the summary line of a card without full re-render (avoids losing focus)
+function updateCardDisplay(rowId, cat) {
+  const card = document.getElementById(`card-${rowId}`);
+  if (!card) return;
+  const row = data[cat].find(r=>r.id===rowId);
+  if (!row) return;
+  const isBtc = cat==='bitcoin';
+  const isBtcLoan = BTC_LIAB_CATS.has(cat);
+  const isLiab = LIAB_CATS.includes(cat);
+  const valEl = card.querySelector('.entry-value');
+  if (!valEl) return;
+
+  let valueDisplay='', valueSub='';
+  if (isBtc) {
+    const sats = parseFloat(row.value)||0;
+    const dv = btcUnit==='btc' ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0' : sats.toLocaleString();
+    const usd = satsToUSD(sats);
+    valueDisplay = `${dv} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
+    valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
+  } else if (isBtcLoan) {
+    const loanUsd=parseFloat(row.value)||0;
+    const colSats=parseFloat(row.collateralSats)||0;
+    const colUsd=satsToUSD(colSats);
+    valueDisplay=fmt(loanUsd);
+    const mi = calcMonthlyInterest(row);
+    const miStr = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+    let colStr = '';
+    if (colSats > 0) {
+      const colDisplay = btcLoanUnit==='btc'
+        ? `₿ ${(colSats/1e8).toFixed(8).replace(/\.?0+$/,'')} BTC`
+        : `₿ ${colSats.toLocaleString()} sats`;
+      colStr = `<span class="entry-collateral">${colDisplay}${colUsd>0?' ≈ '+fmtS(colUsd):''} collateral</span>`;
+    }
+    valueSub = colStr + miStr;
+  } else if (isLiab) {
+    valueDisplay = fmt(parseFloat(row.value)||0);
+    const mi = calcMonthlyInterest(row);
+    valueSub = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+  } else {
+    valueDisplay = fmt(parseFloat(row.value)||0);
+  }
+  valEl.innerHTML = valueDisplay+valueSub;
+}
+
+// Update real estate lookup links when address changes
+function updateReLinks(rowId) {
+  const addrEl = document.getElementById(`re-addr-${rowId}`);
+  if (!addrEl) return;
+  const addr = addrEl.value.trim();
+  const z  = addr ? `https://www.zillow.com/homes/${encodeURIComponent(addr)}_rb/` : '#';
+  const rf = addr ? `https://www.redfin.com/search#location=${encodeURIComponent(addr)}&start=0` : '#';
+const gm = addr ? `https://www.google.com/maps/search/${encodeURIComponent(addr)}` : '#';
+  const zEl=document.getElementById(`re-zillow-${rowId}`);  if(zEl) zEl.href=z;
+  const rEl=document.getElementById(`re-redfin-${rowId}`);  if(rEl) rEl.href=rf;
+const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
+}
+
+// ── SETTINGS MODAL ───────────────────────────────────────────────────────────
+function openSettings() {
+  const el = document.getElementById('settings-rentcast-key');
+  el.value = rentcastApiKey;
+  el.type = 'password';
+  document.getElementById('settings-modal').classList.remove('hidden');
+  el.focus();
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.add('hidden');
+}
+function saveSettings() {
+  rentcastApiKey = document.getElementById('settings-rentcast-key').value.trim();
+  closeSettings();
+  encryptAndSave().then(() => showToast('Settings saved'));
+}
+
+// ── RENTCAST ONBOARDING ───────────────────────────────────────────────────────
+function showRentcastOnboarding() {
+  document.getElementById('rentcast-onboarding').classList.remove('hidden');
+}
+function closeOnboarding() {
+  document.getElementById('rentcast-onboarding').classList.add('hidden');
+}
+
+// ── AVM RESULT BUILDER (pure HTML, called during card render) ─────────────────
+function buildAvmResult(row, id) {
+  const avm = row.avm;
+  if (!avm) return '';
+  const fmt = v => '$' + Math.round(v).toLocaleString();
+  const conf = avm.confidence ? ` · ${avm.confidence} confidence` : '';
+  const fetched = avm.fetchedAt ? 'Fetched ' + new Date(avm.fetchedAt).toLocaleDateString() : '';
+  return `<div class="avm-result" id="re-avm-result-${id}">
+    <div class="avm-price">${fmt(avm.price)}</div>
+    <div class="avm-range">Range: ${fmt(avm.priceRangeLow)} – ${fmt(avm.priceRangeHigh)}${conf}</div>
+    <div class="avm-meta">${fetched}</div>
+    <div class="avm-actions">
+      <button class="avm-use-btn" onclick="useAvmValue('${id}')">Use this value</button>
+    </div>
+  </div>`;
+}
+
+// ── FETCH RENTCAST AVM ────────────────────────────────────────────────────────
+async function fetchRentcastAVM(rowId) {
+  if (!rentcastApiKey) { showRentcastOnboarding(); return; }
+  const row = data['real-estate'].find(r => r.id === rowId);
+  if (!row) return;
+  if (!row.address || !row.address.trim()) { showToast('Enter a property address first', 'error'); return; }
+
+  const btn = document.getElementById(`re-avm-btn-${rowId}`);
+  if (btn) { btn.disabled = true; btn.textContent = '… Fetching'; }
+
+  try {
+    const url = `https://api.rentcast.io/v1/avm/value?address=${encodeURIComponent(row.address.trim())}`;
+    const res = await fetch(url, { headers: { 'X-Api-Key': rentcastApiKey, 'Accept': 'application/json' } });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const msg = err.message || `API error ${res.status}`;
+      showToast(msg, 'error');
+      return;
+    }
+    const json = await res.json();
+    row.avm = {
+      price: json.price,
+      priceRangeLow: json.priceRangeLow,
+      priceRangeHigh: json.priceRangeHigh,
+      confidence: json.score != null ? (json.score >= 0.85 ? 'High' : json.score >= 0.6 ? 'Medium' : 'Low') : null,
+      fetchedAt: new Date().toISOString()
+    };
+    markChanged();
+    // Re-render the AVM result in place without full re-render
+    const resultSlot = document.getElementById(`re-avm-result-${rowId}`);
+    const newHtml = buildAvmResult(row, rowId);
+    if (resultSlot) {
+      resultSlot.outerHTML = newHtml;
+    } else {
+      // Insert after the lookup links div
+      const linksDiv = document.getElementById(`re-zillow-${rowId}`)?.closest('div[style]') || btn?.parentElement;
+      if (linksDiv && linksDiv.parentElement) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = newHtml;
+        linksDiv.parentElement.appendChild(tmp.firstElementChild);
+      }
+    }
+    showToast('Estimate fetched');
+  } catch(e) {
+    showToast('Failed to fetch estimate', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⬡ Fetch Estimate'; }
+  }
+}
+
+// ── USE AVM VALUE ─────────────────────────────────────────────────────────────
+function useAvmValue(rowId) {
+  const row = data['real-estate'].find(r => r.id === rowId);
+  if (!row || !row.avm) return;
+  const price = Math.round(row.avm.price);
+  row.value = price;
+  // Update the input field directly
+  const input = document.getElementById(`detail-${rowId}`)?.querySelector('input[type="number"]');
+  if (input) input.value = price;
+  recalc(); markChanged();
+  showToast('Value updated to ' + '$' + price.toLocaleString());
+}
+
+function renderAll() {
+  ALL_CATS.forEach(c => renderRows(c));
+}
+
+// ── TOGGLE ────────────────────────────────────────────────────────────────
+function toggleCat(cat) {
+  const rows = document.getElementById(`rows-${cat}`);
+  const btn  = document.getElementById(`toggle-${cat}`);
+  const open = btn.classList.contains('open');
+  if (open) {
+    rows.style.maxHeight = rows.scrollHeight+'px';
+    requestAnimationFrame(()=>rows.style.maxHeight='0');
+    btn.classList.remove('open');
+  } else {
+    rows.style.maxHeight='0';
+    requestAnimationFrame(()=>rows.style.maxHeight=(rows.scrollHeight+400)+'px');
+    btn.classList.add('open');
+  }
+}
+function openAll() {
+  ALL_CATS.forEach(c=>{
+    const r=document.getElementById(`rows-${c}`); if(r) r.style.maxHeight='none';
+    const b=document.getElementById(`toggle-${c}`); if(b) b.classList.add('open');
+  });
+}
+
+// ── COLLAPSE / EXPAND ALL ─────────────────────────────────────────────────
+function toggleSection(sectionId) {
+  const cats = sectionId==='assets' ? ASSET_CATS : LIAB_CATS;
+  const isCollapsed = sectionCollapsed[sectionId];
+  const btn = document.getElementById(`collapse-btn-${sectionId}`);
+  sectionCollapsed[sectionId] = !isCollapsed;
+
+  cats.forEach(c=>{
+    const rows = document.getElementById(`rows-${c}`);
+    const toggle = document.getElementById(`toggle-${c}`);
+    if (!rows || !toggle) return;
+    if (isCollapsed) {
+      // expand
+      rows.style.maxHeight = (rows.scrollHeight+400)+'px';
+      toggle.classList.add('open');
+    } else {
+      // collapse
+      rows.style.maxHeight = rows.scrollHeight+'px';
+      requestAnimationFrame(()=>rows.style.maxHeight='0');
+      toggle.classList.remove('open');
+    }
+  });
+  if (btn) btn.textContent = isCollapsed ? 'Collapse All' : 'Expand All';
+}
+
+// ── GROUP BY INSTITUTION ──────────────────────────────────────────────────
+function toggleGroupBy(sectionId) {
+  groupByState[sectionId] = !groupByState[sectionId];
+  const btn = document.getElementById(`group-btn-${sectionId}`);
+  if (btn) {
+    btn.style.color = groupByState[sectionId] ? 'var(--accent)' : '';
+    btn.style.borderColor = groupByState[sectionId] ? 'var(--accent-dim)' : '';
+    btn.textContent = groupByState[sectionId] ? 'Ungroup ⊟' : 'Group ⊞';
+  }
+  const cats = sectionId==='assets' ? ASSET_CATS : LIAB_CATS;
+  cats.forEach(c=>renderRows(c));
+}
+
+function renderGrouped(cat, container) {
+  // Build institution buckets
+  const buckets = {};
+  data[cat].forEach(row=>{
+    const inst = row.institution || '—';
+    if (!buckets[inst]) buckets[inst] = [];
+    buckets[inst].push(row);
+  });
+  const isBtc = cat==='bitcoin';
+  const isBtcLoan = BTC_LIAB_CATS.has(cat);
+  const isSimple = SIMPLE_CATS.has(cat);
+
+  Object.entries(buckets).sort(([a],[b])=>a.localeCompare(b)).forEach(([inst, rows])=>{
+    // Group header
+    const groupTotal = rows.reduce((s,r)=>{
+      if (isBtc) return s+satsToUSD(parseFloat(r.value)||0);
+      return s+(parseFloat(r.value)||0);
+    },0);
+    const gh = document.createElement('div');
+    gh.className = 'inst-group-header';
+    gh.innerHTML = `<span class="inst-group-dot"></span><span class="inst-group-name">${escHtml(inst)}</span><span class="inst-group-count">${rows.length} item${rows.length>1?'s':''}</span><span class="inst-group-total">${fmt(groupTotal)}</span>`;
+    container.appendChild(gh);
+    // Render rows for this group
+    rows.forEach(row=>{
+      const cardEl = buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple);
+      container.appendChild(cardEl);
+    });
+  });
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────
+function initDragDrop(sectionEl, cats) {
+  let dragSrc = null;
+
+  sectionEl.querySelectorAll('.category').forEach(catEl=>{
+    const handle = catEl.querySelector('.drag-handle');
+    if (!handle) return;
+
+    handle.addEventListener('mousedown', ()=>{ catEl.setAttribute('draggable','true'); });
+    handle.addEventListener('mouseup', ()=>{ catEl.setAttribute('draggable','false'); });
+
+    catEl.addEventListener('dragstart', e=>{
+      dragSrc = catEl;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', catEl.id);
+      setTimeout(()=>catEl.classList.add('dragging'),0);
+    });
+    catEl.addEventListener('dragend', ()=>{
+      catEl.classList.remove('dragging');
+      catEl.setAttribute('draggable','false');
+      sectionEl.querySelectorAll('.category').forEach(c=>c.classList.remove('drag-over'));
+      dragSrc = null;
+      // Persist new category order
+      const newOrder = Array.from(sectionEl.querySelectorAll('.category')).map(c=>c.id.replace('cat-',''));
+      const isAsset = cats === ASSET_CATS;
+      if (isAsset) {
+        ASSET_CATS.length = 0;
+        newOrder.filter(c=>ASSET_CATS_ORIG.includes(c)).forEach(c=>ASSET_CATS.push(c));
+      } else {
+        LIAB_CATS.length = 0;
+        newOrder.filter(c=>LIAB_CATS_ORIG.includes(c)).forEach(c=>LIAB_CATS.push(c));
+      }
+    });
+    catEl.addEventListener('dragover', e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (dragSrc && dragSrc !== catEl) {
+        sectionEl.querySelectorAll('.category').forEach(c=>c.classList.remove('drag-over'));
+        catEl.classList.add('drag-over');
+      }
+    });
+    catEl.addEventListener('dragleave', ()=>catEl.classList.remove('drag-over'));
+    catEl.addEventListener('drop', e=>{
+      e.preventDefault();
+      catEl.classList.remove('drag-over');
+      if (!dragSrc || dragSrc===catEl) return;
+      const parent = catEl.parentNode;
+      const allCats = [...parent.querySelectorAll('.category')];
+      const srcIdx = allCats.indexOf(dragSrc);
+      const tgtIdx = allCats.indexOf(catEl);
+      if (srcIdx < tgtIdx) parent.insertBefore(dragSrc, catEl.nextSibling);
+      else parent.insertBefore(dragSrc, catEl);
+    });
+  });
+}
+
+function initAllDragDrop() {
+  const assetSection = document.querySelector('#section-assets');
+  const liabSection  = document.querySelector('#section-liabilities');
+  if (assetSection) initDragDrop(assetSection, ASSET_CATS);
+  if (liabSection)  initDragDrop(liabSection, LIAB_CATS);
+}
+
+// ── SORT ─────────────────────────────────────────────────────────────────
+function sortCat(event, cat) {
+  event.stopPropagation();
+  const next = sortState[cat]==='desc'?'asc':'desc';
+  sortState[cat] = next;
+  data[cat].sort((a,b)=>{
+    const va = cat==='bitcoin' ? satsToUSD(parseFloat(a.value)||0) : (parseFloat(a.value)||0);
+    const vb = cat==='bitcoin' ? satsToUSD(parseFloat(b.value)||0) : (parseFloat(b.value)||0);
+    return next==='desc' ? vb-va : va-vb;
+  });
+  const btn=document.getElementById(`sort-${cat}`);
+  if (btn) {
+    btn.className = `sort-btn sorted-${next}`;
+    btn.textContent = next==='desc'?'↓':'↑';
+  }
+  renderRows(cat); markChanged();
+}
+
+// ── INTEREST CALCULATIONS ─────────────────────────────────────────────────
+function calcMonthlyInterest(row) {
+  const balance = parseFloat(row.value) || 0;
+  const rate    = parseFloat(row.interestRate) || 0;
+  if (!balance || !rate) return 0;
+  return (balance * rate / 100) / 12;
+}
+
+function calcMonthlyInterestBtcLoan(row) {
+  const balance = parseFloat(row.value) || 0; // USD balance
+  const rate    = parseFloat(row.interestRate) || 0;
+  if (!balance || !rate) return 0;
+  return (balance * rate / 100) / 12;
+}
+
+// ── CALCULATE ─────────────────────────────────────────────────────────────
+function parseVal(v) { return parseFloat(v)||0; }
+function catSum(cat) {
+  if (cat==='bitcoin') return data[cat].reduce((s,r)=>s+satsToUSD(parseVal(r.value)),0);
+  if (BTC_LIAB_CATS.has(cat)) return data[cat].reduce((s,r)=>s+parseVal(r.value),0);
+  return data[cat].reduce((s,r)=>s+parseVal(r.value),0);
+}
+function fmt(n) {
+  const abs=Math.abs(n),sign=n<0?'-':'';
+  if(abs>=1e9)return sign+'$'+(abs/1e9).toFixed(2)+'B';
+  if(abs>=1e6)return sign+'$'+(abs/1e6).toFixed(2)+'M';
+  if(abs>=1e3)return sign+'$'+abs.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+  return sign+'$'+abs.toFixed(0);
+}
+function fmtS(n) {
+  const abs=Math.abs(n),sign=n<0?'-':'';
+  if(abs>=1e6)return sign+'$'+(abs/1e6).toFixed(1)+'M';
+  if(abs>=1e3)return sign+'$'+(abs/1e3).toFixed(0)+'K';
+  return sign+'$'+Math.round(abs).toLocaleString();
+}
+
+function recalc() {
+  ALL_CATS.forEach(c=>{
+    const el=document.getElementById(`cat-total-${c}`);
+    if(el) el.textContent=(c==='bitcoin'&&!btcPriceUSD)?'—':fmt(catSum(c));
+  });
+  const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0);
+  const tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
+  const nw=tA-tL;
+  document.getElementById('assetSectionTotal').textContent=fmt(tA);
+  document.getElementById('liabSectionTotal').textContent=fmt(tL);
+  document.getElementById('totalAssetsDisplay').textContent=fmt(tA);
+  document.getElementById('totalLiabDisplay').textContent=fmt(tL);
+  const nwEl=document.getElementById('netWorthDisplay');
+  nwEl.textContent=fmt(nw); nwEl.className='net-worth-value'+(nw<0?' negative':'');
+  const rEl=document.getElementById('ratioDisplay');
+  rEl.textContent=tL===0?(tA>0?'∞':'—'):(tA/tL).toFixed(2)+'x';
+  const tot=tA+tL;
+  if(tot>0){
+    document.getElementById('nwBarAsset').style.width=((tA/tot)*100)+'%';
+    document.getElementById('nwBarLiab').style.width=((tL/tot)*100)+'%';
+  }
+  refreshCharts(tA,tL,nw);
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+const TTIP={backgroundColor:'#1a1e1a',borderColor:'#2e352e',borderWidth:1,titleColor:'#e8ede8',bodyColor:'#7a8a7a',padding:10};
+function buildLegend(id,labels,colors,values,total){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML=labels.map((l,i)=>{
+    const pct=total>0?((values[i]/total)*100).toFixed(1):'0.0';
+    return `<span class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${l}&nbsp;${pct}%</span>`;
+  }).join('');
+}
+function mkDonut(id,labels,colors,values){
+  if(chartInst[id])chartInst[id].destroy();
+  const ctx=document.getElementById(id); if(!ctx)return;
+  const hasData=values.some(v=>v>0);
+  chartInst[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:hasData?values:[1],backgroundColor:hasData?colors:['#252a25'],borderColor:'#0d0f0e',borderWidth:3,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{enabled:hasData,...TTIP,callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return ` ${fmtS(c.raw)} (${t>0?((c.raw/t)*100).toFixed(1):0}%)`;}}}}}});
+}
+function mkBarAvsL(){
+  if(chartInst['avsl'])chartInst['avsl'].destroy();
+  const ctx=document.getElementById('chartAvsL'); if(!ctx)return;
+  const idx=ALL_CATS.map((_,i)=>i).filter(i=>catSum(ALL_CATS[i])>0);
+  const labels=idx.map(i=>CAT_META[ALL_CATS[i]].label);
+  const aVals=idx.map(i=>ASSET_CATS.includes(ALL_CATS[i])?catSum(ALL_CATS[i]):0);
+  const lVals=idx.map(i=>LIAB_CATS.includes(ALL_CATS[i])?catSum(ALL_CATS[i]):0);
+  chartInst['avsl']=new Chart(ctx,{type:'bar',data:{labels:labels.length?labels:['No data'],datasets:[{label:'Assets',data:aVals,backgroundColor:'rgba(168,208,141,.75)',borderColor:'#a8d08d',borderWidth:1,borderRadius:3},{label:'Liabilities',data:lVals,backgroundColor:'rgba(224,112,112,.65)',borderColor:'#e07070',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#4a5a4a',font:{size:11},maxRotation:35,autoSkip:false},grid:{color:'#1a1e1a'}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function mkNWChart(tA,tL,nw){
+  if(chartInst['nw'])chartInst['nw'].destroy();
+  const ctx=document.getElementById('chartNW'); if(!ctx)return;
+  const nc=nw>=0?'rgba(168,208,141,.8)':'rgba(224,112,112,.8)';
+  const nb=nw>=0?'#a8d08d':'#e07070';
+  chartInst['nw']=new Chart(ctx,{type:'bar',data:{labels:['Total Assets','Total Liabilities','Net Worth'],datasets:[{data:[tA,tL,Math.abs(nw)],backgroundColor:['rgba(168,208,141,.75)','rgba(224,112,112,.65)',nc],borderColor:['#a8d08d','#e07070',nb],borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#7a8a7a',font:{size:12,weight:'500'}},grid:{display:false}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function mkTable(tA,tL){
+  const grand=tA+tL;
+  const rows=ALL_CATS.map(c=>({c,val:catSum(c),type:ASSET_CATS.includes(c)?'Asset':'Liability',color:CAT_META[c].color,label:CAT_META[c].label})).filter(r=>r.val>0).sort((a,b)=>b.val-a.val);
+  const tbody=document.getElementById('breakdownBody'); if(!tbody)return;
+  tbody.innerHTML=rows.length?rows.map(r=>{const pct=grand>0?((r.val/grand)*100).toFixed(1):'0.0';const tc=r.type==='Asset'?'#a8d08d':'#e07070';return `<tr><td><span class="swatch" style="background:${r.color}"></span>${r.label}</td><td><span style="color:${tc};font-size:11px">${r.type}</span></td><td class="val">${fmt(r.val)}</td><td class="pct">${pct}%</td></tr>`;}).join(''):`<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px">No data yet — add entries in the Ledger tab</td></tr>`;
+}
+function mkHistoryChart(){
+  if(chartInst['hist'])chartInst['hist'].destroy();
+  const ctx=document.getElementById('chartHistory'); if(!ctx)return;
+  if(!snapshots.length){
+    chartInst['hist']=new Chart(ctx,{type:'line',data:{labels:['No data yet'],datasets:[{data:[null],borderColor:'#252a25',pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{color:'#4a5a4a'}},y:{ticks:{color:'#4a5a4a'}}}}});
+    return;
+  }
+  const labels=snapshots.map(s=>{
+    const d=new Date(s.ts);
+    return snapshots.length>60
+      ? d.toLocaleDateString()
+      : d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  });
+  const nwVals=snapshots.map(s=>s.nw);
+  const aVals=snapshots.map(s=>ASSET_CATS.reduce((sum,c)=>sum+(s.cats[c]||0),0));
+  const lVals=snapshots.map(s=>LIAB_CATS.reduce((sum,c)=>sum+(s.cats[c]||0),0));
+  chartInst['hist']=new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'Net Worth',data:nwVals,borderColor:'#a8d08d',backgroundColor:'rgba(168,208,141,0.08)',pointRadius:snapshots.length>60?0:3,pointHoverRadius:5,borderWidth:2,fill:true,tension:0.3},
+    {label:'Assets',data:aVals,borderColor:'rgba(168,208,141,0.4)',pointRadius:0,borderWidth:1,fill:false,tension:0.3,borderDash:[4,3]},
+    {label:'Liabilities',data:lVals,borderColor:'rgba(224,112,112,0.4)',pointRadius:0,borderWidth:1,fill:false,tension:0.3,borderDash:[4,3]},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#4a5a4a',font:{size:10},maxRotation:35,autoSkip:true,maxTicksLimit:12},grid:{color:'rgba(255,255,255,.03)'}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function refreshCharts(tA,tL,nw){
+  mkHistoryChart();
+  const aL=ASSET_CATS.map(c=>CAT_META[c].label),aC=ASSET_CATS.map(c=>CAT_META[c].color),aV=ASSET_CATS.map(c=>catSum(c));
+  buildLegend('legend-asset',aL,aC,aV,tA); mkDonut('chartAsset',aL,aC,aV);
+  const lL=LIAB_CATS.map(c=>CAT_META[c].label),lC=LIAB_CATS.map(c=>CAT_META[c].color),lV=LIAB_CATS.map(c=>catSum(c));
+  buildLegend('legend-liab',lL,lC,lV,tL); mkDonut('chartLiab',lL,lC,lV);
+  mkBarAvsL(); mkNWChart(tA,tL,nw); mkTable(tA,tL);
+}
+
+// ── CASH FLOW TAB ─────────────────────────────────────────────────────────
+function buildCashFlowTab() {
+  // Collect all liability rows that have a balance and rate
+  const rows = [];
+  LIAB_CATS.forEach(cat => {
+    (data[cat]||[]).forEach(row => {
+      const bal  = parseFloat(row.value)||0;
+      const rate = parseFloat(row.interestRate)||0;
+      const mi   = BTC_LIAB_CATS.has(cat) ? calcMonthlyInterestBtcLoan(row) : calcMonthlyInterest(row);
+      const label = row.name || 'Untitled';
+      const inst  = row.institution || '';
+      const orig  = row.originationDate || '';
+      rows.push({ cat, label, inst, bal, rate, mi, orig, hasRate: rate > 0 });
+    });
+  });
+
+  const totalEntries  = rows.length;
+  const withRate      = rows.filter(r => r.hasRate);
+  const totalMonthly  = withRate.reduce((s,r) => s+r.mi, 0);
+  const totalAnnual   = totalMonthly * 12;
+  const totalBal      = withRate.reduce((s,r) => s+r.bal, 0);
+  const weightedRate  = totalBal > 0
+    ? withRate.reduce((s,r) => s + r.rate*(r.bal/totalBal), 0)
+    : 0;
+
+  // Summary stats
+  document.getElementById('cf-total-monthly').textContent = fmtS(totalMonthly);
+  document.getElementById('cf-total-annual-sub').textContent = `${fmt(totalAnnual)} / year`;
+  document.getElementById('cf-avg-rate').textContent = weightedRate > 0 ? weightedRate.toFixed(2)+'%' : '—';
+  document.getElementById('cf-coverage').textContent = `${withRate.length} / ${totalEntries}`;
+
+  // Detailed table
+  const tableWrap = document.getElementById('cf-table-wrap');
+  document.getElementById('cf-table-total').textContent = withRate.length ? fmtS(totalMonthly)+'/mo' : '';
+  if (!withRate.length) {
+    tableWrap.innerHTML = '<div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>';
+  } else {
+    const sorted = [...withRate].sort((a,b) => b.mi - a.mi);
+    const maxMi  = sorted[0].mi;
+    tableWrap.innerHTML = `<table class="cf-table">
+      <thead><tr><th>Account</th><th>Institution</th><th>Origination</th><th class="r">Balance</th><th class="r">Rate</th><th class="r">Monthly Interest</th><th style="width:80px"></th></tr></thead>
+      <tbody>${sorted.map(r => `<tr>
+        <td class="hi">${escHtml(r.label)}</td>
+        <td>${escHtml(r.inst)||'—'}</td>
+        <td>${r.orig ? new Date(r.orig+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short'}) : '—'}</td>
+        <td class="r">${fmt(r.bal)}</td>
+        <td class="r">${r.rate.toFixed(2)}%</td>
+        <td class="r red">${fmtS(r.mi)}</td>
+        <td><div class="cf-bar" style="width:${Math.round((r.mi/maxMi)*76)}px"></div></td>
+      </tr>`).join('')}
+      <tr style="border-top:1px solid var(--border-light)">
+        <td colspan="5" style="color:var(--text-dim);font-size:10px;letter-spacing:1px;text-transform:uppercase">Total</td>
+        <td class="r red" style="font-weight:500">${fmtS(totalMonthly)}</td>
+        <td></td>
+      </tr>
+      </tbody>
+    </table>`;
+  }
+
+  // Category roll-up
+  const catWrap = document.getElementById('cf-cat-wrap');
+  document.getElementById('cf-cat-total').textContent = withRate.length ? fmtS(totalMonthly)+'/mo' : '';
+  const byCat = {};
+  withRate.forEach(r => {
+    if (!byCat[r.cat]) byCat[r.cat] = { mi:0, bal:0, count:0 };
+    byCat[r.cat].mi    += r.mi;
+    byCat[r.cat].bal   += r.bal;
+    byCat[r.cat].count += 1;
+  });
+  const catRows = Object.entries(byCat).sort((a,b) => b[1].mi - a[1].mi);
+  if (!catRows.length) {
+    catWrap.innerHTML = '<div class="cf-empty">No data yet.</div>';
+  } else {
+    const maxCatMi = catRows[0][1].mi;
+    catWrap.innerHTML = `<table class="cf-table">
+      <thead><tr><th>Category</th><th class="r">Entries</th><th class="r">Total Balance</th><th class="r">Monthly Interest</th><th class="r">% of Total</th><th style="width:80px"></th></tr></thead>
+      <tbody>${catRows.map(([cat, d]) => {
+        const pct = totalMonthly > 0 ? ((d.mi/totalMonthly)*100).toFixed(1) : '0';
+        const color = CAT_META[cat]?.color || '#888';
+        return `<tr>
+          <td class="hi"><span class="swatch" style="background:${color}"></span>${CAT_META[cat]?.label||cat}</td>
+          <td class="r">${d.count}</td>
+          <td class="r">${fmt(d.bal)}</td>
+          <td class="r red">${fmtS(d.mi)}</td>
+          <td class="r">${pct}%</td>
+          <td><div class="cf-bar" style="width:${Math.round((d.mi/maxCatMi)*76)}px;background:${color}"></div></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>`;
+  }
+}
+
+// ── TAB ───────────────────────────────────────────────────────────────────
+function switchTab(tab,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`view-${tab}`).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='charts') setTimeout(()=>recalc(),50);
+  if(tab==='cashflow') setTimeout(()=>buildCashFlowTab(),50);
+}
+
+// ── PERSIST ───────────────────────────────────────────────────────────────
+async function saveData(){
+  const tA = ASSET_CATS.reduce((s,c)=>s+catSum(c),0);
+  const tL = LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
+  const snap = { ts: new Date().toISOString(), nw: tA-tL, cats:{} };
+  ALL_CATS.forEach(c => snap.cats[c] = catSum(c));
+  snapshots.push(snap);
+  await encryptAndSave();
+  hasUnsavedChanges=false;
+  document.getElementById('changedDot').classList.remove('visible');
+  document.getElementById('lastUpdated').textContent='Saved '+new Date().toLocaleString();
+  showToast('Saved successfully','success');
+}
+function loadData(){
+  // loadData is now only used for legacy plaintext path.
+  // Encrypted path is handled by submitUnlock → applyLoadedPayload.
+  const raw=localStorage.getItem(STORAGE_KEY); if(!raw)return;
+  try{ applyLoadedPayload(JSON.parse(raw)); }catch(e){ console.warn('Load failed',e); }
+}
+function clearAll(){
+  if(!confirm('Clear all entries? This cannot be undone.'))return;
+  ALL_CATS.forEach(c=>{data[c]=[];sortState[c]=null;});
+  renderAll(); recalc(); markChanged();
+  showToast('All entries cleared');
+}
+function markChanged(){hasUnsavedChanges=true;document.getElementById('changedDot').classList.add('visible');}
+
+function exportJSON(){
+  const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),btcPriceAtExport:btcPriceUSD,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+  showToast('Exported as JSON');
+}
+
+function handleImportFile(event){
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const p=JSON.parse(e.target.result);
+      const incoming=p.data||p;
+      if(incoming.crypto&&!incoming.bitcoin)incoming.bitcoin=incoming.crypto;
+      const finalKeys=ALL_CATS.filter(c=>Array.isArray(incoming[c]));
+      if(finalKeys.length===0){showToast('Invalid JSON: no recognized categories found','error');return;}
+      if(!confirm(`Import will replace current data with ${finalKeys.length} categories from the file. Continue?`))return;
+      ALL_CATS.forEach(c=>{data[c]=incoming[c]||[];sortState[c]=null;});
+      renderAll(); recalc(); markChanged();
+      showToast(`Imported ${finalKeys.length} categories`,'success');
+    }catch(err){showToast('Failed to parse JSON file','error');console.error(err);}
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+let toastTimer;
+function showToast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show'+(type?' '+type:'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.className='toast',2500);
+}
+
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(!isLocked)saveData();}});
+window.addEventListener('beforeunload',e=>{if(hasUnsavedChanges){e.preventDefault();e.returnValue='';}});
+
+// ── START ─────────────────────────────────────────────────────────────────
+init();
+openAll();
+initLockSystem();
+</script>
+</body>
+</html>
