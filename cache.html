@@ -413,6 +413,7 @@
       <div class="lock-error" id="lock-set-error"></div>
       <button class="lock-btn" onclick="submitSetPassword()">Set Password &amp; Continue</button>
       <button class="lock-btn secondary" id="lock-set-skip" onclick="skipPassword()" style="display:none">Continue without password</button>
+      <button class="lock-btn secondary" id="lock-set-cancel" onclick="cancelChangePassword()" style="display:none">Cancel</button>
     </div>
     <div class="lock-hint" id="lock-hint">Your data is encrypted with AES-256-GCM. The password is never stored.</div>
   </div>
@@ -942,8 +943,10 @@ function showLockScreen(mode='unlock') {
     document.getElementById('lock-hint').textContent = 'AES-256-GCM encryption · PBKDF2 310k iterations · password never stored';
     if (!isChangingPw) {
       document.getElementById('lock-set-skip').style.display = 'block';
+      document.getElementById('lock-set-cancel').style.display = 'none';
     } else {
       document.getElementById('lock-set-skip').style.display = 'none';
+      document.getElementById('lock-set-cancel').style.display = 'block';
     }
     setTimeout(()=>document.getElementById('lock-set-pw').focus(), 80);
   } else {
@@ -1072,6 +1075,15 @@ function showChangePassword() {
   isChangingPw = true;
   showLockScreen('set');
 }
+
+function cancelChangePassword() {
+  isChangingPw = false;
+  hideLockScreen();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && isChangingPw) cancelChangePassword();
+});
 
 // ── LOCK / IDLE ─────────────────────────────────────────────────────────────
 function lockApp() {
