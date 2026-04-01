@@ -336,6 +336,22 @@
   .avm-fetch-btn:hover{border-color:var(--accent-dim);color:var(--accent)}
   .avm-fetch-btn:disabled{opacity:.5;cursor:not-allowed}
 
+  /* ── BOOKMARKLET TUTORIAL MODAL ── */
+  #bookmarklet-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  #bookmarklet-modal.hidden{display:none}
+  .bm-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:500px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
+  .bm-step{display:flex;flex-direction:column;gap:8px}
+  .bm-step-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim)}
+  .bm-step-body{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.7}
+  .bm-step-body strong{color:var(--text)}
+  .bm-drag-link{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px dashed var(--accent-dim);border-radius:5px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;cursor:grab;transition:background .15s;user-select:none;margin-top:4px}
+  .bm-drag-link:hover{background:rgba(168,208,141,0.08)}
+  .bm-drag-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
+  .bm-divider{border:none;border-top:1px solid var(--border);margin:0}
+  /* ── UPDATE BALANCE BUTTON on cards ── */
+  .entry-update{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:12px;padding:4px 6px;border-radius:3px;transition:color .15s;line-height:1;margin-right:2px}
+  .entry-update:hover{color:var(--accent)}
+
   /* ── ONBOARDING MODAL ── */
   #rentcast-onboarding{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #rentcast-onboarding.hidden{display:none}
@@ -451,6 +467,43 @@
       <button class="settings-save-btn" onclick="closeOnboarding();openSettings()">Open Settings</button>
       <button class="settings-close-btn" onclick="closeOnboarding()">Cancel</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ BOOKMARKLET TUTORIAL ══ -->
+<div id="bookmarklet-modal" class="hidden" onclick="if(event.target===this)closeBookmarkletSetup()">
+  <div class="bm-card">
+    <div class="settings-title">Balance Bookmarklet</div>
+    <div class="bm-step-body">Update account balances without manually typing — log into your bank, click the bookmarklet, and Cache captures the balance automatically.</div>
+    <hr class="bm-divider">
+    <div class="bm-step">
+      <div class="bm-step-label">Step 1 — Install once</div>
+      <div class="bm-step-body">Drag this button to your bookmarks bar:</div>
+      <a id="bookmarklet-link" class="bm-drag-link" title="Drag me to your bookmarks bar">🔖 Cache Balance</a>
+      <div class="bm-drag-hint">Works in Chrome, Firefox, Safari, Edge, Arc, and Brave.</div>
+    </div>
+    <hr class="bm-divider">
+    <div class="bm-step">
+      <div class="bm-step-label">Step 2 — First-time setup per account</div>
+      <div class="bm-step-body">
+        Click <strong>↻</strong> on any account in the ledger. Cache will open your institution's login page in a new tab.<br><br>
+        Log in, navigate to the page showing your balance, then click <strong>Cache Balance</strong> in your bookmarks bar.<br><br>
+        A green outline will appear as you hover — <strong>click on your account balance</strong>. Cache remembers that element for next time.
+      </div>
+    </div>
+    <hr class="bm-divider">
+    <div class="bm-step">
+      <div class="bm-step-label">Step 3 — Ongoing updates</div>
+      <div class="bm-step-body">
+        Log into your bank → click <strong>Cache Balance</strong> in your bookmarks bar. The balance syncs instantly — no clicking required after first-time setup.
+      </div>
+    </div>
+    <hr class="bm-divider">
+    <div class="bm-step">
+      <div class="bm-step-label">Re-pick an element</div>
+      <div class="bm-step-body">If a bank redesigns their site and the selector breaks, delete the saved selector from your bank's browser storage (<strong>DevTools → Application → Local Storage → cache-balance-sel</strong>) and run the bookmarklet again to re-pick.</div>
+    </div>
+    <button class="settings-close-btn" onclick="closeBookmarkletSetup()">Close</button>
   </div>
 </div>
 
@@ -792,6 +845,7 @@
     <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
     <button class="btn btn-lock" onclick="showChangePassword()" title="Change password">🔑 Password</button>
     <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
+    <button class="btn btn-lock" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
     <button class="btn btn-import" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
     <button class="btn btn-export" onclick="exportJSON()">Export JSON</button>
     <button class="btn btn-primary" onclick="saveData()">Save ✓</button>
@@ -831,8 +885,9 @@ let sessionKey       = null;   // CryptoKey in memory, cleared on lock
 let idleTimer        = null;
 let isLocked         = true;
 let isFirstRun       = false;
-let rentcastApiKey   = '';     // stored encrypted with data
-let snapshots        = [];     // [{ ts, nw, cats:{cat:value} }]
+let rentcastApiKey      = '';   // stored encrypted with data
+let snapshots           = [];   // [{ ts, nw, cats:{cat:value} }]
+let pendingBalanceUpdate = null; // { rowId, cat } — set when opening a bank tab
 let isChangingPw     = false;
 
 // ── CRYPTO HELPERS ─────────────────────────────────────────────────────────
@@ -1361,11 +1416,13 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
   const instTag = (!isSimple && row.institution)
     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
 
+  const showUpdateBtn = !isSimple && !isBtc && !isBtcLoan;
   card.innerHTML = `
     <div class="entry-summary" onclick="toggleEntry('${row.id}')">
       <span class="entry-expand-icon" id="icon-${row.id}">▶</span>
       <span class="entry-name">${escHtml(row.name)||'<span style="color:var(--text-dim)">Untitled</span>'}${instTag}</span>
       <span class="entry-value${isBtc?' btc-color':''}">${valueDisplay}${valueSub}</span>
+      ${showUpdateBtn ? `<button class="entry-update" onclick="event.stopPropagation();openBankTab('${row.id}','${cat}')" title="Update balance from bank">↻</button>` : ''}
       <button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>
     </div>
     <div class="entry-detail" id="detail-${row.id}">
@@ -1745,6 +1802,54 @@ function useAvmValue(rowId) {
   recalc(); markChanged();
   showToast('Value updated to ' + '$' + price.toLocaleString());
 }
+
+// ── BOOKMARKLET ───────────────────────────────────────────────────────────────
+function bookmarkletCode() {
+  return `(function(){var K='cache-balance-sel',H=location.hostname,S={};try{S=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}function gSel(el){if(el.id)return'#'+el.id;var p=[],e=el;while(e&&e!==document.body){var t=e.tagName.toLowerCase(),c=Array.from(e.classList).slice(0,2).map(function(x){return'.'+x}).join(''),sb=e.parentNode?Array.from(e.parentNode.children).filter(function(x){return x.tagName===e.tagName}):[],i=sb.indexOf(e);p.unshift(t+c+(i>0?':nth-of-type('+(i+1)+')':''));e=e.parentElement}return p.join('>')}function parse(t){return parseFloat(t.replace(/[^0-9.\\-]/g,''))||NaN}function toast(m,c){var d=document.createElement('div');d.style.cssText='position:fixed;top:16px;right:16px;z-index:999999;background:#141714;color:'+(c||'#a8d08d')+';font-family:monospace;font-size:13px;padding:12px 18px;border-radius:6px;border:1px solid '+(c||'#a8d08d')+';box-shadow:0 4px 24px rgba(0,0,0,.5)';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},3000)}function send(v,s){var p={type:'cache-balance-update',value:v,domain:H};if(s)p.selector=s;if(window.opener){window.opener.postMessage(p,'*');toast('Sent to Cache: $'+v.toLocaleString())}else toast('Open this site from Cache first','#e07070')}if(S[H]){var el=document.querySelector(S[H]);if(el){var v=parse(el.textContent);if(!isNaN(v)&&v>0){send(v,null);return}}}var ov=document.createElement('div');ov.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999999;background:#141714;color:#e8ede8;font-family:monospace;font-size:12px;padding:12px 20px;border-radius:6px;border:1px solid #2e352e;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)';ov.textContent='Click on your account balance';document.body.appendChild(ov);var hv=null,ho='';function mv(e){var t=document.elementFromPoint(e.clientX,e.clientY);if(t===hv)return;if(hv)hv.style.outline=ho;hv=t;if(hv){ho=hv.style.outline;hv.style.outline='2px solid #a8d08d'}}function ck(e){e.preventDefault();e.stopPropagation();var el=e.target,s=gSel(el),v=parse(el.textContent);if(hv)hv.style.outline=ho;document.removeEventListener('mousemove',mv,true);document.removeEventListener('click',ck,true);ov.remove();if(isNaN(v)||v<=0){toast('Could not read a number — try a different element','#e07070');return}S[H]=s;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}send(v,s)}document.addEventListener('mousemove',mv,true);document.addEventListener('click',ck,true)})()`;
+}
+
+function openBookmarkletSetup() {
+  const link = document.getElementById('bookmarklet-link');
+  if (link) link.href = 'javascript:' + bookmarkletCode();
+  document.getElementById('bookmarklet-modal').classList.remove('hidden');
+}
+function closeBookmarkletSetup() {
+  document.getElementById('bookmarklet-modal').classList.add('hidden');
+}
+
+// Open institution login URL and set pending balance update
+function openBankTab(rowId, cat) {
+  const row = data[cat] && data[cat].find(r => r.id === rowId);
+  if (!row) return;
+  if (!row.loginUrl) { showToast('Add a login URL for this account first', 'error'); return; }
+  pendingBalanceUpdate = { rowId, cat };
+  const url = row.loginUrl.startsWith('http') ? row.loginUrl : 'https://' + row.loginUrl;
+  window.open(url, '_blank');
+  showToast('Log in, then click the bookmarklet');
+}
+
+// Receive balance from bookmarklet via postMessage
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'cache-balance-update') return;
+  const value = parseFloat(e.data.value);
+  if (isNaN(value) || value <= 0) return;
+  if (!pendingBalanceUpdate) {
+    showToast('Click ↻ on an account first, then use the bookmarklet', 'error');
+    return;
+  }
+  const { rowId, cat } = pendingBalanceUpdate;
+  const row = data[cat] && data[cat].find(r => r.id === rowId);
+  if (!row) { pendingBalanceUpdate = null; return; }
+  row.value = value;
+  if (e.data.selector) row.balanceSelector = e.data.selector;
+  pendingBalanceUpdate = null;
+  renderRows(cat);
+  recalc(); markChanged();
+  // Update the value input in case the detail panel is open
+  const input = document.getElementById(`detail-${rowId}`)?.querySelector('input[type="number"]');
+  if (input) input.value = value;
+  showToast('Balance updated to ' + fmt(value), 'success');
+});
 
 function renderAll() {
   ALL_CATS.forEach(c => renderRows(c));
