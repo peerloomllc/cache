@@ -1482,7 +1482,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
       <div class="field-group">
         <div class="field-label">Label</div>
         <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Cold wallet, Ledger"
-          oninput="updateField('${cat}','${id}','name',this.value)">
+          oninput="updateField('${cat}','${id}','name',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group">
         <div class="field-label">Amount (${btcUnit==='btc'?'BTC':'Satoshis'})</div>
@@ -1514,7 +1514,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
       <div class="field-group">
         <div class="field-label">Property Name / Nickname</div>
         <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Primary Residence"
-          oninput="updateField('${cat}','${id}','name',this.value)">
+          oninput="updateField('${cat}','${id}','name',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group" style="grid-column:span 2">
         <div class="field-label">Street Address (for lookups)</div>
@@ -1554,13 +1554,13 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
       <div class="field-group">
         <div class="field-label">Loan Name</div>
         <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Unchained Vault Loan"
-          oninput="updateField('${cat}','${id}','name',this.value)">
+          oninput="updateField('${cat}','${id}','name',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group">
         <div class="field-label">Lender</div>
         <div class="url-wrap">
           <input class="field-input url-input" value="${escHtml(row.institution)}" placeholder="e.g. Unchained Capital"
-            oninput="updateField('${cat}','${id}','institution',this.value)">
+            oninput="updateField('${cat}','${id}','institution',this.value);updateCardDisplay('${id}','${cat}')">
         </div>
       </div>
       <div class="field-group">
@@ -1609,12 +1609,12 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     <div class="field-group">
       <div class="field-label">Account Name</div>
       <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Chase Sapphire"
-        oninput="updateField('${cat}','${id}','name',this.value)">
+        oninput="updateField('${cat}','${id}','name',this.value);updateCardDisplay('${id}','${cat}')">
     </div>
     <div class="field-group">
       <div class="field-label">Institution / Company</div>
       <input class="field-input" value="${escHtml(row.institution)}" placeholder="e.g. Chase Bank"
-        oninput="updateField('${cat}','${id}','institution',this.value)">
+        oninput="updateField('${cat}','${id}','institution',this.value);updateCardDisplay('${id}','${cat}')">
     </div>
     <div class="field-group">
       <div class="field-label">Account Type</div>
@@ -1693,6 +1693,14 @@ function updateCardDisplay(rowId, cat) {
     valueDisplay = fmt(parseFloat(row.value)||0);
   }
   valEl.innerHTML = valueDisplay+valueSub;
+
+  const nameEl = card.querySelector('.entry-name');
+  if (nameEl) {
+    const isSimple = SIMPLE_CATS.has(cat);
+    const instTag = (!isSimple && row.institution)
+      ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
+    nameEl.innerHTML = (escHtml(row.name) || '<span style="color:var(--text-dim)">Untitled</span>') + instTag;
+  }
 }
 
 // Update real estate lookup links when address changes
