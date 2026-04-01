@@ -1119,7 +1119,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, snapshots, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1146,6 +1146,7 @@ function applyLoadedPayload(p) {
   }
   if (p.rentcastApiKey) rentcastApiKey = p.rentcastApiKey;
   if (p.snapshots)     snapshots = p.snapshots;
+  if (p.catOrder)      applyCatOrder(p.catOrder.assets, p.catOrder.liabs);
   if (p.savedAt) document.getElementById('lastUpdated').textContent='Last saved '+new Date(p.savedAt).toLocaleString();
 }
 
@@ -1995,6 +1996,7 @@ function initDragDrop(sectionEl, cats) {
         LIAB_CATS.length = 0;
         newOrder.filter(c=>LIAB_CATS_ORIG.includes(c)).forEach(c=>LIAB_CATS.push(c));
       }
+      markChanged();
     });
     catEl.addEventListener('dragover', e=>{
       e.preventDefault();
@@ -2017,6 +2019,21 @@ function initDragDrop(sectionEl, cats) {
       else parent.insertBefore(dragSrc, catEl);
     });
   });
+}
+
+function applyCatOrder(assetOrder, liabOrder) {
+  if (assetOrder) {
+    ASSET_CATS.length = 0;
+    assetOrder.filter(c=>ASSET_CATS_ORIG.includes(c)).forEach(c=>ASSET_CATS.push(c));
+    const assetSection = document.querySelector('#section-assets');
+    if (assetSection) ASSET_CATS.forEach(c=>{ const el=document.getElementById(`cat-${c}`); if(el) assetSection.appendChild(el); });
+  }
+  if (liabOrder) {
+    LIAB_CATS.length = 0;
+    liabOrder.filter(c=>LIAB_CATS_ORIG.includes(c)).forEach(c=>LIAB_CATS.push(c));
+    const liabSection = document.querySelector('#section-liabilities');
+    if (liabSection) LIAB_CATS.forEach(c=>{ const el=document.getElementById(`cat-${c}`); if(el) liabSection.appendChild(el); });
+  }
 }
 
 function initAllDragDrop() {
