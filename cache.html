@@ -175,6 +175,9 @@
   .field-input.mono{font-family:var(--mono)}
   .field-input::placeholder{color:var(--text-dim)}
   .field-input.url-input{padding-right:28px}
+  .field-input.url-input.has-sync{padding-right:50px}
+  .url-sync{position:absolute;right:26px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;padding:0;transition:color .15s;line-height:1}
+  .url-sync:hover{color:var(--accent)}
 
   /* URL field wrapper with open-link icon */
   .url-wrap{position:relative}
@@ -348,10 +351,6 @@
   .bm-drag-link:hover{background:rgba(168,208,141,0.08)}
   .bm-drag-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
   .bm-divider{border:none;border-top:1px solid var(--border);margin:0}
-  /* ── UPDATE BALANCE BUTTON on cards ── */
-  .entry-update{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:12px;padding:4px 6px;border-radius:3px;transition:color .15s;line-height:1;margin-right:2px}
-  .entry-update:hover{color:var(--accent)}
-
   /* ── ONBOARDING MODAL ── */
   #rentcast-onboarding{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #rentcast-onboarding.hidden{display:none}
@@ -1416,13 +1415,11 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
   const instTag = (!isSimple && row.institution)
     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
 
-  const showUpdateBtn = !isSimple && !isBtc && !isBtcLoan;
   card.innerHTML = `
     <div class="entry-summary" onclick="toggleEntry('${row.id}')">
       <span class="entry-expand-icon" id="icon-${row.id}">▶</span>
       <span class="entry-name">${escHtml(row.name)||'<span style="color:var(--text-dim)">Untitled</span>'}${instTag}</span>
       <span class="entry-value${isBtc?' btc-color':''}">${valueDisplay}${valueSub}</span>
-      ${showUpdateBtn ? `<button class="entry-update" onclick="event.stopPropagation();openBankTab('${row.id}','${cat}')" title="Update balance from bank">↻</button>` : ''}
       <button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>
     </div>
     <div class="entry-detail" id="detail-${row.id}">
@@ -1633,8 +1630,9 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     <div class="field-group" style="grid-column:span 2">
       <div class="field-label">Login URL (optional)</div>
       <div class="url-wrap">
-        <input class="field-input url-input" value="${escHtml(row.loginUrl)}" placeholder="https://chase.com/login"
+        <input class="field-input url-input has-sync" value="${escHtml(row.loginUrl)}" placeholder="https://chase.com/login"
           oninput="updateField('${cat}','${id}','loginUrl',this.value)">
+        <button class="url-sync" onclick="openBankTab('${id}','${cat}')" title="Open &amp; sync balance">↻</button>
         <button class="url-open" onclick="openLink(this.closest('.url-wrap').querySelector('input').value)" title="Open">↗</button>
       </div>
     </div>
