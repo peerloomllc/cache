@@ -366,6 +366,11 @@
   .btn-about{background:transparent;border:1px solid var(--accent-dim);color:var(--accent);position:relative}
   .btn-about:hover{background:rgba(168,208,141,0.08);border-color:var(--accent)}
   .btn-about .about-icon{display:inline-block;width:14px;height:14px;border:1.5px solid currentColor;border-radius:50%;text-align:center;line-height:13px;font-size:10px;font-style:italic;font-family:Georgia,serif;margin-right:4px}
+  .ln-panel{margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;animation:fadeUp .2s ease}
+  .ln-qr{border-radius:6px}
+  .ln-addr{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:6px 12px;width:100%;text-align:center;cursor:pointer;transition:border-color .15s;box-sizing:border-box}
+  .ln-addr:hover{border-color:var(--accent-dim)}
+  .ln-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
 
   /* ── BOOKMARKLET TUTORIAL MODAL ── */
   #bookmarklet-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
@@ -538,9 +543,10 @@
       <div class="about-section-label">Support Development</div>
       <div class="about-body" style="margin-bottom:8px">Cache is free and open source. If you find it useful, please consider supporting its development.</div>
       <div class="about-links-row">
-        <a class="about-link" href="lightning:peerloomllc@strike.me" title="Donate BTC via Lightning">&#9889; Donate BTC</a>
+        <a class="about-link" href="#" onclick="event.preventDefault();handleDonateBtc()" title="Donate BTC via Lightning">&#9889; Donate BTC</a>
         <a class="about-link" href="https://buymeacoffee.com/peerloomllc" target="_blank" rel="noopener">&#36; Donate USD</a>
       </div>
+      <div id="ln-panel" class="ln-panel" style="display:none"></div>
     </div>
     <hr class="about-divider">
     <div>
@@ -2191,8 +2197,274 @@ function bookmarkletCode() {
 }
 
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
-function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); }
+function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); document.getElementById('ln-panel').style.display='none'; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('about-modal').classList.contains('hidden')) closeAbout(); });
+
+const LN_ADDR = 'peerloomllc@strike.me';
+function isMobile() { return navigator.maxTouchPoints > 0 && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent); }
+
+function handleDonateBtc() {
+  if (isMobile()) { window.location.href = 'lightning:' + LN_ADDR; return; }
+  const panel = document.getElementById('ln-panel');
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+  const canvas = document.createElement('canvas');
+  generateQR(canvas, 'lightning:' + LN_ADDR, 180);
+  canvas.className = 'ln-qr';
+  panel.innerHTML = '';
+  panel.appendChild(canvas);
+  const addr = document.createElement('div');
+  addr.className = 'ln-addr';
+  addr.textContent = LN_ADDR;
+  addr.title = 'Click to copy';
+  addr.onclick = () => { navigator.clipboard.writeText(LN_ADDR).then(() => showToast('Lightning address copied','success')); };
+  panel.appendChild(addr);
+  const hint = document.createElement('div');
+  hint.className = 'ln-hint';
+  hint.textContent = 'Scan with a Lightning wallet or click to copy';
+  panel.appendChild(hint);
+  panel.style.display = '';
+}
+
+// ── Minimal QR Code Generator (alphanumeric, version auto-select) ────────
+function generateQR(canvas, text, size) {
+  // QR encoder supporting alphanumeric mode for short strings
+  const EC_L = 1;
+  text = text.toUpperCase();
+  const ALPHANUM = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+  const isAlpha = [...text].every(c => ALPHANUM.includes(c));
+  // Version capacities for EC level L, alphanumeric mode
+  const ALPHA_CAP = [0,25,47,77,114,154,195,224,279,335,395,468,535,619,667,758,854,938,1046,1153,1249];
+  const BYTE_CAP  = [0,17,32,53,78,106,134,154,192,230,271,321,367,425,458,520,586,644,718,792,858];
+  let ver = 1;
+  if (isAlpha) { while (ver <= 20 && ALPHA_CAP[ver] < text.length) ver++; }
+  else { while (ver <= 20 && BYTE_CAP[ver] < text.length) ver++; }
+  if (ver > 20) return;
+
+  // Encode data bits
+  const bits = [];
+  function push(val, len) { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); }
+  const ccLen = ver <= 9 ? (isAlpha ? 9 : 8) : (isAlpha ? 13 : 16);
+  if (isAlpha) {
+    push(0b0010, 4); push(text.length, ccLen);
+    for (let i = 0; i < text.length - 1; i += 2) push(ALPHANUM.indexOf(text[i]) * 45 + ALPHANUM.indexOf(text[i + 1]), 11);
+    if (text.length % 2) push(ALPHANUM.indexOf(text[text.length - 1]), 6);
+  } else {
+    push(0b0100, 4); push(text.length, ccLen);
+    for (let i = 0; i < text.length; i++) push(text.charCodeAt(i), 8);
+  }
+  push(0, Math.min(4, totalDataBits(ver, EC_L) - bits.length));
+  while (bits.length % 8) bits.push(0);
+  const pads = [0xEC, 0x11]; let pi = 0;
+  while (bits.length < totalDataBits(ver, EC_L)) { push(pads[pi], 8); pi ^= 1; }
+
+  // Error correction
+  const dcWords = bits.length / 8;
+  const dataBytes = []; for (let i = 0; i < dcWords; i++) { let b = 0; for (let j = 0; j < 8; j++) b = (b << 1) | bits[i * 8 + j]; dataBytes.push(b); }
+  const blocks = ecBlocks(ver, EC_L);
+  let idx = 0; const blockData = [], blockEc = [];
+  for (const [cnt, dcCnt] of blocks) {
+    const ecCnt = blockTotalCodewords(ver, EC_L, blocks) - dcCnt;
+    for (let b = 0; b < cnt; b++) {
+      const d = dataBytes.slice(idx, idx + dcCnt); idx += dcCnt;
+      blockData.push(d); blockEc.push(rsEncode(d, ecCnt));
+    }
+  }
+  // Interleave
+  const allBytes = [];
+  const maxDc = Math.max(...blockData.map(b => b.length));
+  for (let i = 0; i < maxDc; i++) for (const b of blockData) if (i < b.length) allBytes.push(b[i]);
+  const maxEc = Math.max(...blockEc.map(b => b.length));
+  for (let i = 0; i < maxEc; i++) for (const b of blockEc) if (i < b.length) allBytes.push(b[i]);
+
+  // Place modules
+  const n = 17 + ver * 4;
+  const mod = Array.from({ length: n }, () => new Uint8Array(n));
+  const used = Array.from({ length: n }, () => new Uint8Array(n));
+  placeFinder(mod, used, 0, 0, n);
+  placeFinder(mod, used, n - 7, 0, n);
+  placeFinder(mod, used, 0, n - 7, n);
+  placeTiming(mod, used, n);
+  if (ver >= 2) placeAlignment(mod, used, ver, n);
+  if (ver >= 7) placeVersion(mod, used, ver, n);
+  // Reserve format areas
+  for (let i = 0; i < 8; i++) { used[8][i] = used[8][n - 1 - i] = used[i][8] = used[n - 1 - i][8] = 1; }
+  used[8][8] = 1;
+  mod[n - 8][8] = 1; used[n - 8][8] = 1; // dark module
+
+  // Data placement
+  const dataBits = [];
+  for (const b of allBytes) for (let i = 7; i >= 0; i--) dataBits.push((b >> i) & 1);
+  let di = 0, right = n - 1, upward = true;
+  while (right >= 0) {
+    if (right === 6) right--;
+    for (let v = 0; v < n; v++) {
+      const row = upward ? n - 1 - v : v;
+      for (const col of [right, right - 1]) {
+        if (col < 0 || used[row][col]) continue;
+        mod[row][col] = di < dataBits.length ? dataBits[di++] : 0;
+        used[row][col] = 1;
+      }
+    }
+    upward = !upward; right -= 2;
+  }
+
+  // Masking (use mask 0 for simplicity, apply format info)
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    if (used[r][c] && !isData(r, c, n, ver)) continue;
+    if ((r + c) % 2 === 0) mod[r][c] ^= 1;
+  }
+  placeFormat(mod, n, 0, EC_L);
+
+  // Draw
+  const scale = Math.floor(size / (n + 8));
+  const px = scale * (n + 8);
+  canvas.width = canvas.height = px;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, px, px);
+  ctx.fillStyle = '#000000';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    if (mod[r][c]) ctx.fillRect((c + 4) * scale, (r + 4) * scale, scale, scale);
+  }
+}
+
+function totalDataBits(ver, ecl) {
+  const total = totalCodewords(ver);
+  const blocks = ecBlocks(ver, ecl);
+  let ecTotal = 0;
+  for (const [cnt, dcCnt] of blocks) ecTotal += cnt * (blockTotalCodewords(ver, ecl, blocks) - dcCnt);
+  return (total - ecTotal) * 8;
+}
+function totalCodewords(ver) {
+  const n = 17 + ver * 4;
+  let bits = n * n - 64 * 3 - 31 - (n - 16) * 2;
+  if (ver >= 2) { const a = alignPositions(ver); let cnt = a.length * a.length - 3; bits -= cnt * 25; }
+  if (ver >= 7) bits -= 36;
+  return Math.floor(bits / 8);
+}
+function blockTotalCodewords(ver, ecl, blocks) {
+  const total = totalCodewords(ver);
+  const numBlocks = blocks.reduce((s, [c]) => s + c, 0);
+  // each block has same total codeword count (or +1 for type-2 blocks)
+  return Math.floor(total / numBlocks);
+}
+// EC block definitions for L level (simplified for common versions)
+function ecBlocks(ver, ecl) {
+  const table = {
+    1:[[1,19]],2:[[1,34]],3:[[1,55]],4:[[1,80]],5:[[1,108]],6:[[2,68]],
+    7:[[2,78]],8:[[2,97]],9:[[2,116]],10:[[2,68],[2,69]],11:[[2,81],[2,82]],
+    12:[[2,92],[2,93]],13:[[2,107],[2,108]],14:[[3,115],[1,116]],15:[[3,87],[1,88]],
+    16:[[3,98],[1,99]],17:[[4,107],[1,108]],18:[[3,120],[1,121]],19:[[3,113],[1,114]],
+    20:[[3,107],[1,108]]
+  };
+  return table[ver] || [[1,19]];
+}
+function alignPositions(ver) {
+  if (ver === 1) return [];
+  const t = [[],[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],
+    [6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],
+    [6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90]];
+  return t[ver] || [];
+}
+function placeFinder(mod, used, row, col, n) {
+  for (let r = -1; r <= 7; r++) for (let c = -1; c <= 7; c++) {
+    const rr = row + r, cc = col + c;
+    if (rr < 0 || rr >= n || cc < 0 || cc >= n) continue;
+    const inOuter = r === -1 || r === 7 || c === -1 || c === 7;
+    const inRing = r === 0 || r === 6 || c === 0 || c === 6;
+    const inInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+    mod[rr][cc] = (inRing || inInner) && !inOuter ? 1 : 0;
+    used[rr][cc] = 1;
+  }
+}
+function placeTiming(mod, used, n) {
+  for (let i = 8; i < n - 8; i++) {
+    mod[6][i] = mod[i][6] = i % 2 === 0 ? 1 : 0;
+    used[6][i] = used[i][6] = 1;
+  }
+}
+function placeAlignment(mod, used, ver, n) {
+  const pos = alignPositions(ver);
+  for (const r of pos) for (const c of pos) {
+    if ((r < 9 && c < 9) || (r < 9 && c > n - 9) || (r > n - 9 && c < 9)) continue;
+    for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+      const rr = r + dr, cc = c + dc;
+      mod[rr][cc] = (Math.abs(dr) === 2 || Math.abs(dc) === 2 || (dr === 0 && dc === 0)) ? 1 : 0;
+      used[rr][cc] = 1;
+    }
+  }
+}
+function placeVersion(mod, used, ver, n) {
+  const VER_BITS = [0,0,0,0,0,0,0,0x07C94,0x085BC,0x09A99,0x0A4D3,0x0BBF6,0x0C762,0x0D847,
+    0x0E60D,0x0F928,0x10B78,0x1145D,0x12A17,0x13532,0x149A6];
+  if (ver < 7) return;
+  const bits = VER_BITS[ver];
+  for (let i = 0; i < 18; i++) {
+    const b = (bits >> i) & 1;
+    const r = Math.floor(i / 3), c = n - 11 + (i % 3);
+    mod[r][c] = b; used[r][c] = 1;
+    mod[c][r] = b; used[c][r] = 1;
+  }
+}
+function placeFormat(mod, n, mask, ecl) {
+  const FMT = [0x77C4,0x72F3,0x7DAA,0x789D,0x662F,0x6318,0x6C41,0x6976,
+    0x5412,0x5125,0x5E7C,0x5B4B,0x45F9,0x40CE,0x4F97,0x4AA0];
+  const bits = FMT[ecl * 8 + mask]; // ecl=1(L) mask=0 → index 8
+  const idx = (ecl === 1 ? 8 : ecl === 0 ? 0 : ecl === 2 ? 16 : 24) + mask;
+  const b = FMT[idx] || FMT[8];
+  const fmt = b;
+  const positions = [
+    [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
+    [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]
+  ];
+  for (let i = 0; i < 15; i++) {
+    const [r, c] = positions[i];
+    mod[r][c] = (fmt >> (14 - i)) & 1;
+  }
+  const positions2 = [
+    [n-1,8],[n-2,8],[n-3,8],[n-4,8],[n-5,8],[n-6,8],[n-7,8],
+    [8,n-8],[8,n-7],[8,n-6],[8,n-5],[8,n-4],[8,n-3],[8,n-2],[8,n-1]
+  ];
+  for (let i = 0; i < 15; i++) {
+    const [r, c] = positions2[i];
+    mod[r][c] = (fmt >> (14 - i)) & 1;
+  }
+}
+function isData(r, c, n, ver) {
+  if (r === 6 || c === 6) return false;
+  if (r < 9 && c < 9) return false;
+  if (r < 9 && c > n - 9) return false;
+  if (r > n - 9 && c < 9) return false;
+  if (r < 9 && c === 8) return false;
+  if (c < 9 && r === 8) return false;
+  if (ver >= 2) {
+    const pos = alignPositions(ver);
+    for (const pr of pos) for (const pc of pos) {
+      if ((pr < 9 && pc < 9) || (pr < 9 && pc > n - 9) || (pr > n - 9 && pc < 9)) continue;
+      if (Math.abs(r - pr) <= 2 && Math.abs(c - pc) <= 2) return false;
+    }
+  }
+  return true;
+}
+// Reed-Solomon over GF(256)
+function rsEncode(data, ecLen) {
+  const gfExp = new Uint8Array(512), gfLog = new Uint8Array(256);
+  let v = 1; for (let i = 0; i < 255; i++) { gfExp[i] = v; gfLog[v] = i; v <<= 1; if (v > 255) v ^= 0x11D; }
+  for (let i = 255; i < 512; i++) gfExp[i] = gfExp[i - 255];
+  function gfMul(a, b) { return a === 0 || b === 0 ? 0 : gfExp[gfLog[a] + gfLog[b]]; }
+  const gen = [1];
+  for (let i = 0; i < ecLen; i++) {
+    const ng = new Array(gen.length + 1).fill(0);
+    for (let j = 0; j < gen.length; j++) { ng[j] ^= gen[j]; ng[j + 1] ^= gfMul(gen[j], gfExp[i]); }
+    gen.length = ng.length; for (let j = 0; j < ng.length; j++) gen[j] = ng[j];
+  }
+  const msg = new Uint8Array(data.length + ecLen);
+  for (let i = 0; i < data.length; i++) msg[i] = data[i];
+  for (let i = 0; i < data.length; i++) {
+    const coef = msg[i]; if (coef === 0) continue;
+    for (let j = 0; j < gen.length; j++) msg[i + j] ^= gfMul(gen[j], coef);
+  }
+  return Array.from(msg.slice(data.length));
+}
 
 function openBookmarkletSetup() {
   const link = document.getElementById('bookmarklet-link');
