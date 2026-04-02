@@ -489,7 +489,8 @@
     <div class="bm-step">
       <div class="bm-step-label">Step 2 — First-time setup per account</div>
       <div class="bm-step-body">
-        Click <strong>↻</strong> on any account in the ledger. Cache will open your institution's login page in a new tab.<br><br>
+        First, expand an account card and add your institution's <strong>Login URL</strong> (e.g. <em>https://chase.com/login</em>) in the Login URL field.<br><br>
+        Then click <strong>↻</strong> next to the URL. Cache will open that page in a new tab.<br><br>
         Log in, navigate to the page showing your balance, then click <strong>Cache Balance</strong> in your bookmarks bar.<br><br>
         A green outline will appear as you hover — <strong>click on your account balance</strong>. Cache remembers that element for next time.
       </div>
@@ -1865,7 +1866,7 @@ function useAvmValue(rowId) {
 
 // ── BOOKMARKLET ───────────────────────────────────────────────────────────────
 function bookmarkletCode() {
-  return `(function(){var K='cache-balance-sel',H=location.hostname,S={};try{S=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}function gSel(el){if(el.id)return'#'+el.id;var p=[],e=el;while(e&&e!==document.body){var t=e.tagName.toLowerCase(),c=Array.from(e.classList).slice(0,2).map(function(x){return'.'+x}).join(''),sb=e.parentNode?Array.from(e.parentNode.children).filter(function(x){return x.tagName===e.tagName}):[],i=sb.indexOf(e);p.unshift(t+c+(i>0?':nth-of-type('+(i+1)+')':''));e=e.parentElement}return p.join('>')}function parse(t){return parseFloat(t.replace(/[^0-9.\\-]/g,''))||NaN}function toast(m,c){var d=document.createElement('div');d.style.cssText='position:fixed;top:16px;right:16px;z-index:999999;background:#141714;color:'+(c||'#a8d08d')+';font-family:monospace;font-size:13px;padding:12px 18px;border-radius:6px;border:1px solid '+(c||'#a8d08d')+';box-shadow:0 4px 24px rgba(0,0,0,.5)';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},3000)}function send(v,s){var p={type:'cache-balance-update',value:v,domain:H};if(s)p.selector=s;if(window.opener){window.opener.postMessage(p,'*');toast('Sent to Cache: $'+v.toLocaleString())}else toast('Open this site from Cache first','#e07070')}if(S[H]){var el=document.querySelector(S[H]);if(el){var v=parse(el.textContent);if(!isNaN(v)&&v>0){send(v,null);return}}}var ov=document.createElement('div');ov.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999999;background:#141714;color:#e8ede8;font-family:monospace;font-size:12px;padding:12px 20px;border-radius:6px;border:1px solid #2e352e;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)';ov.textContent='Click on your account balance';document.body.appendChild(ov);var hv=null,ho='';function mv(e){var t=document.elementFromPoint(e.clientX,e.clientY);if(t===hv)return;if(hv)hv.style.outline=ho;hv=t;if(hv){ho=hv.style.outline;hv.style.outline='2px solid #a8d08d'}}function ck(e){e.preventDefault();e.stopPropagation();var el=e.target,s=gSel(el),v=parse(el.textContent);if(hv)hv.style.outline=ho;document.removeEventListener('mousemove',mv,true);document.removeEventListener('click',ck,true);ov.remove();if(isNaN(v)||v<=0){toast('Could not read a number — try a different element','#e07070');return}S[H]=s;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}send(v,s)}document.addEventListener('mousemove',mv,true);document.addEventListener('click',ck,true)})()`;
+  return `(function(){function gSel(el){if(el.id)return'#'+el.id;var p=[],e=el;while(e&&e!==document.body){var t=e.tagName.toLowerCase(),c=Array.from(e.classList).slice(0,2).map(function(x){return'.'+x}).join(''),sb=e.parentNode?Array.from(e.parentNode.children).filter(function(x){return x.tagName===e.tagName}):[],i=sb.indexOf(e);p.unshift(t+c+(i>0?':nth-of-type('+(i+1)+')':''));e=e.parentElement}return p.join('>')}function parse(t){return parseFloat(t.replace(/[^0-9.\\-]/g,''))||NaN}function toast(m,c){var d=document.createElement('div');d.style.cssText='position:fixed;top:16px;right:16px;z-index:999999;background:#141714;color:'+(c||'#a8d08d')+';font-family:monospace;font-size:13px;padding:12px 18px;border-radius:6px;border:1px solid '+(c||'#a8d08d')+';box-shadow:0 4px 24px rgba(0,0,0,.5)';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},3000)}function send(v,s){var p={type:'cache-balance-update',value:v,domain:location.hostname};if(s)p.selector=s;if(window.opener){window.opener.postMessage(p,'*');toast('Sent to Cache: $'+v.toLocaleString())}else toast('Open this site from Cache first','#e07070')}if(!window.opener){toast('Open this site from Cache first','#e07070');return}var done=false;function pick(){if(done)return;done=true;var ov=document.createElement('div');ov.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999999;background:#141714;color:#e8ede8;font-family:monospace;font-size:12px;padding:12px 20px;border-radius:6px;border:1px solid #2e352e;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)';ov.textContent='Click on your account balance';document.body.appendChild(ov);var hv=null,ho='';function mv(e){var t=document.elementFromPoint(e.clientX,e.clientY);if(t===hv)return;if(hv)hv.style.outline=ho;hv=t;if(hv){ho=hv.style.outline;hv.style.outline='2px solid #a8d08d'}}function ck(e){e.preventDefault();e.stopPropagation();var el=e.target,s=gSel(el),v=parse(el.textContent);if(hv)hv.style.outline=ho;document.removeEventListener('mousemove',mv,true);document.removeEventListener('click',ck,true);ov.remove();if(isNaN(v)||v<=0){toast('Could not read a number — try a different element','#e07070');return}send(v,s)}document.addEventListener('mousemove',mv,true);document.addEventListener('click',ck,true)}window.addEventListener('message',function h(e){if(!e.data||e.data.type!=='cache-balance-config')return;window.removeEventListener('message',h);if(done)return;var sel=e.data.selector;if(sel){var el=document.querySelector(sel);if(el){var v=parse(el.textContent);if(!isNaN(v)&&v>0){done=true;send(v,sel);return}}}pick()});window.opener.postMessage({type:'cache-balance-init'},'*');setTimeout(pick,1500)})()`;
 }
 
 function openBookmarkletSetup() {
@@ -1888,9 +1889,33 @@ function openBankTab(rowId, cat) {
   showToast('Log in, then click the bookmarklet');
 }
 
-// Receive balance from bookmarklet via postMessage
+// Receive messages from bookmarklet via postMessage
 window.addEventListener('message', function(e) {
-  if (!e.data || e.data.type !== 'cache-balance-update') return;
+  if (!e.data) return;
+  // Bookmarklet asking for the saved selector for the pending account
+  if (e.data.type === 'cache-balance-init') {
+    if (pendingBalanceUpdate && e.source) {
+      const { rowId, cat } = pendingBalanceUpdate;
+      const row = data[cat] && data[cat].find(r => r.id === rowId);
+      let selector = (row && row.balanceSelector) || '';
+      // If multiple rows share the same loginUrl and balanceSelector, clear all to force re-pick
+      if (selector && row.loginUrl) {
+        const dupes = [];
+        ALL_CATS.forEach(c => data[c].forEach(r => {
+          if (r.id !== rowId && r.loginUrl === row.loginUrl && r.balanceSelector === selector) dupes.push(r);
+        }));
+        if (dupes.length > 0) {
+          row.balanceSelector = '';
+          dupes.forEach(r => { r.balanceSelector = ''; });
+          selector = '';
+          markChanged();
+        }
+      }
+      e.source.postMessage({type: 'cache-balance-config', selector}, '*');
+    }
+    return;
+  }
+  if (e.data.type !== 'cache-balance-update') return;
   const value = parseFloat(e.data.value);
   if (isNaN(value) || value <= 0) return;
   if (!pendingBalanceUpdate) {
