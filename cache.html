@@ -1647,6 +1647,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
 
   // ── Standard expanded fields (all other cats)
   const typeOptions = types.map(t=>`<option${t===row.accountType?' selected':''}>${escHtml(t)}</option>`).join('');
+  const showLoanFields = ['mortgage','auto-loan','student','other-liab'].includes(cat);
   return `<div class="entry-fields three-col">
     <div class="field-group">
       <div class="field-label">Account Name</div>
@@ -1670,7 +1671,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         value="${row.value!==''?row.value:''}" placeholder="0"
         oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
     </div>
-    <div class="field-group">
+    ${showLoanFields?`<div class="field-group">
       <div class="field-label">Interest Rate (% APR)</div>
       <input class="field-input mono" type="number" step="0.01" min="0" max="100"
         value="${row.interestRate||''}" placeholder="e.g. 6.75"
@@ -1680,7 +1681,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
       <div class="field-label">Origination Date</div>
       <input class="field-input" type="date" value="${row.originationDate||''}"
         oninput="updateField('${cat}','${id}','originationDate',this.value)">
-    </div>
+    </div>`:''}
     <div class="field-group" style="grid-column:span 2">
       <div class="field-label">Login URL (optional)</div>
       <div class="url-wrap">
