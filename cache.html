@@ -140,6 +140,8 @@
   /* ── ENTRY CARD ── Replaces the old single-line row ── */
   .entry-card{border-top:1px solid rgba(255,255,255,.03);transition:background .1s}
   .entry-card:hover{background:rgba(255,255,255,.015)}
+  .entry-card.auto-collateral{background:rgba(247,147,26,.04);border-left:2px solid rgba(247,147,26,.3)}
+  .auto-collateral-badge{font-size:9px;background:rgba(247,147,26,.15);color:#f7931a;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:middle;letter-spacing:.3px}
 
   /* Summary line — always visible */
   .entry-summary{
@@ -1350,20 +1352,26 @@ function addRow(cat, type, name='', value='', extra={}) {
 }
 
 function deleteRow(cat, id) {
+  if (cat==='bitcoin' && data[cat].find(r=>r.id===id)?._autoCollateral) return;
   data[cat] = data[cat].filter(r=>r.id!==id);
-  renderRows(cat); recalc(); markChanged();
+  renderRows(cat); recalc();
+  if (BTC_LIAB_CATS.has(cat)) renderRows('bitcoin');
+  markChanged();
 }
 
 function updateField(cat, id, field, val) {
   const row = data[cat].find(r=>r.id===id);
   if (!row) return;
+  if (row._autoCollateral) return;
   if (field==='value' && cat==='bitcoin') {
     const n = parseFloat(val)||0;
     row.value = btcUnit==='btc' ? Math.round(n*1e8) : Math.round(n);
   } else {
     row[field] = val;
   }
-  recalc(); markChanged();
+  recalc();
+  if (BTC_LIAB_CATS.has(cat) && field==='collateralSats') renderRows('bitcoin');
+  markChanged();
 }
 
 function toggleEntry(id) {
@@ -1388,7 +1396,7 @@ function escHtml(s) {
 // ── RENDER ────────────────────────────────────────────────────────────────
 function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
   const card = document.createElement('div');
-  card.className = 'entry-card';
+  card.className = 'entry-card' + (row._autoCollateral ? ' auto-collateral' : '');
   card.id = `card-${row.id}`;
 
   let valueDisplay, valueSub = '';
@@ -1428,12 +1436,14 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
   const instTag = (!isSimple && row.institution)
     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
 
+  const autoBadge = row._autoCollateral ? '<span class="auto-collateral-badge">AUTO</span>' : '';
+  const deleteBtn = row._autoCollateral ? '' : `<button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>`;
   card.innerHTML = `
     <div class="entry-summary" onclick="toggleEntry('${row.id}')">
       <span class="entry-expand-icon" id="icon-${row.id}">▶</span>
-      <span class="entry-name">${escHtml(row.name)||'<span style="color:var(--text-dim)">Untitled</span>'}${instTag}</span>
+      <span class="entry-name">${escHtml(row.name)||'<span style="color:var(--text-dim)">Untitled</span>'}${autoBadge}${instTag}</span>
       <span class="entry-value${isBtc?' btc-color':''}">${valueDisplay}${valueSub}</span>
-      <button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>
+      ${deleteBtn}
     </div>
     <div class="entry-detail" id="detail-${row.id}">
       ${buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple)}
@@ -1472,6 +1482,25 @@ function renderRows(cat) {
 function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
   const id = row.id;
   const types = ACCT_TYPES[cat] || [];
+
+  // ── Auto-collateral: read-only summary
+  if (row._autoCollateral) {
+    const sats = parseFloat(row.value)||0;
+    const displayVal = btcUnit==='btc'
+      ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0'
+      : sats.toLocaleString();
+    const usd = satsToUSD(sats);
+    const loanCount = data['btc-loan'].filter(r=>(parseFloat(r.collateralSats)||0)>0).length;
+    return `<div class="entry-fields" style="opacity:.85">
+      <div class="field-group" style="grid-column:span 2">
+        <div class="field-label" style="color:#f7931a">Auto-Calculated from Bitcoin-Backed Loans</div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
+          Total collateral across <strong>${loanCount}</strong> loan${loanCount!==1?'s':''}: <span class="mono" style="color:var(--text)">${displayVal} ${btcUnit==='btc'?'BTC':'sats'}</span>${usd>0?' ≈ '+fmtS(usd):''}
+          <br><span style="font-size:11px">This entry updates automatically when you change collateral amounts on your BTC-backed loans.</span>
+        </div>
+      </div>
+    </div>`;
+  }
 
   // ── Bitcoin: just label + amount (unit controlled by toggle) + login URL for exchange
   if (isBtc) {
@@ -2076,6 +2105,30 @@ function calcMonthlyInterestBtcLoan(row) {
   return (balance * rate / 100) / 12;
 }
 
+// ── AUTO-COLLATERAL SYNC ─────────────────────────────────────────────────
+function syncCollateralEntry() {
+  const totalSats = data['btc-loan'].reduce((s,r) => s + (parseFloat(r.collateralSats)||0), 0);
+  const existing = data['bitcoin'].find(r => r._autoCollateral);
+  let changed = false;
+  if (totalSats > 0) {
+    if (existing) {
+      if (existing.value !== totalSats) { existing.value = totalSats; changed = true; }
+    } else {
+      data['bitcoin'].push({
+        id: 'auto-collateral', _autoCollateral: true,
+        name: 'Collateralized BTC', value: totalSats,
+        accountType:'', institution:'', loginUrl:'', address:'',
+        interestRate:'', originationDate:'', collateralSats:''
+      });
+      changed = true;
+    }
+  } else if (existing) {
+    data['bitcoin'] = data['bitcoin'].filter(r => !r._autoCollateral);
+    changed = true;
+  }
+  if (changed) renderRows('bitcoin');
+}
+
 // ── CALCULATE ─────────────────────────────────────────────────────────────
 function parseVal(v) { return parseFloat(v)||0; }
 function catSum(cat) {
@@ -2098,6 +2151,7 @@ function fmtS(n) {
 }
 
 function recalc() {
+  syncCollateralEntry();
   ALL_CATS.forEach(c=>{
     const el=document.getElementById(`cat-total-${c}`);
     if(el) el.textContent=(c==='bitcoin'&&!btcPriceUSD)?'—':fmt(catSum(c));
