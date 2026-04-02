@@ -286,6 +286,7 @@
   .toast.show{opacity:1;transform:translateY(0)}
   .toast.success{border-color:var(--accent-dim);color:var(--accent)}
   .toast.error{border-color:var(--red-dim);color:var(--red)}
+  .toast.warning{border-color:#b8860b;color:#f0c040}
 
   .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
   .changed-indicator.visible{opacity:1}
@@ -1193,6 +1194,13 @@ function applyLoadedPayload(p) {
   if (p.snapshots)     snapshots = p.snapshots;
   if (p.catOrder)      applyCatOrder(p.catOrder.assets, p.catOrder.liabs);
   if (p.savedAt) document.getElementById('lastUpdated').textContent='Last saved '+new Date(p.savedAt).toLocaleString();
+  // Seed LTV bands so first price fetch doesn't false-trigger alerts
+  (data['btc-loan']||[]).forEach(row => {
+    const loanUsd = parseFloat(row.value)||0;
+    const colSats = parseFloat(row.collateralSats)||0;
+    const colUsd = satsToUSD(colSats);
+    if (loanUsd > 0 && colUsd > 0) prevLtvBands[row.id] = ltvBand(loanUsd / colUsd);
+  });
 }
 
 // ── STARTUP LOCK LOGIC ──────────────────────────────────────────────────────
@@ -1367,6 +1375,38 @@ const SIMPLE_CATS = new Set(['real-estate','bitcoin']);
 // Which categories are BTC-denominated liabilities
 const BTC_LIAB_CATS = new Set(['btc-loan']);
 
+// LTV threshold colors and alert tracking
+function ltvColor(ratio) {
+  if (ratio < 0.3) return '#4caf50';
+  if (ratio > 0.7) return '#e07070';
+  return 'var(--text-dim)';
+}
+function ltvBand(ratio) { return ratio < 0.3 ? 'low' : ratio > 0.7 ? 'high' : 'mid'; }
+const prevLtvBands = {};
+
+function checkLtvAlerts() {
+  const alerts = [];
+  (data['btc-loan']||[]).forEach(row => {
+    const loanUsd = parseFloat(row.value)||0;
+    const colSats = parseFloat(row.collateralSats)||0;
+    const colUsd = satsToUSD(colSats);
+    if (loanUsd <= 0 || colUsd <= 0) return;
+    const ratio = loanUsd / colUsd;
+    const band = ltvBand(ratio);
+    const prev = prevLtvBands[row.id];
+    prevLtvBands[row.id] = band;
+    if (prev && prev !== band) {
+      const pct = (ratio*100).toFixed(1);
+      const name = row.name || 'BTC loan';
+      if (band === 'high') alerts.push(`${name} LTV crossed 70% (now ${pct}%)`);
+      else if (band === 'low') alerts.push(`${name} LTV dropped below 30% (now ${pct}%)`);
+      else if (prev === 'high') alerts.push(`${name} LTV fell below 70% (now ${pct}%)`);
+      else if (prev === 'low') alerts.push(`${name} LTV rose above 30% (now ${pct}%)`);
+    }
+  });
+  alerts.forEach((msg, i) => setTimeout(() => showToast(msg, 'warning'), i * 2800));
+}
+
 const CAT_META = {
   'real-estate': {label:'Real Estate',         color:'#82b366'},
   'stocks':      {label:'Stocks & Brokerage',  color:'#6aafcd'},
@@ -1447,6 +1487,7 @@ async function fetchBtcPrice(manual) {
     disp.textContent = '$' + price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     updateBtcAge();
     recalc();
+    checkLtvAlerts();
     if (manual) showToast('BTC price updated','success');
   } else {
     disp.className = 'btc-price-val';
@@ -1608,7 +1649,7 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
         : `₿ ${colSats.toLocaleString()} sats`;
       colStr = `<span class="entry-collateral">${colDisplay}${colUsd>0?' ≈ '+fmtS(colUsd):''} collateral</span>`;
     }
-    const ltvStr = (loanUsd>0 && colUsd>0) ? `<span class="entry-ltv" style="color:${(loanUsd/colUsd)>0.7?'#e07070':'var(--text-dim)'}">LTV ${((loanUsd/colUsd)*100).toFixed(1)}%</span>` : '';
+    const ltvStr = (loanUsd>0 && colUsd>0) ? `<span class="entry-ltv" style="color:${ltvColor(loanUsd/colUsd)}">LTV ${((loanUsd/colUsd)*100).toFixed(1)}%</span>` : '';
     valueSub = colStr + ltvStr + miStr;
   } else {
     const isLiab = LIAB_CATS.includes(cat);
@@ -1905,7 +1946,7 @@ function updateCardDisplay(rowId, cat) {
         : `₿ ${colSats.toLocaleString()} sats`;
       colStr = `<span class="entry-collateral">${colDisplay}${colUsd>0?' ≈ '+fmtS(colUsd):''} collateral</span>`;
     }
-    const ltvStr = (loanUsd>0 && colUsd>0) ? `<span class="entry-ltv" style="color:${(loanUsd/colUsd)>0.7?'#e07070':'var(--text-dim)'}">LTV ${((loanUsd/colUsd)*100).toFixed(1)}%</span>` : '';
+    const ltvStr = (loanUsd>0 && colUsd>0) ? `<span class="entry-ltv" style="color:${ltvColor(loanUsd/colUsd)}">LTV ${((loanUsd/colUsd)*100).toFixed(1)}%</span>` : '';
     valueSub = colStr + ltvStr + miStr;
   } else if (isLiab) {
     valueDisplay = fmt(parseFloat(row.value)||0);
