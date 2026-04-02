@@ -1308,14 +1308,20 @@ function showTourStep() {
     spotlight.style.width  = (r.width + pad * 2) + 'px';
     spotlight.style.height = (r.height + pad * 2) + 'px';
 
-    // Position tooltip below or above the target
+    // Position tooltip: prefer above for bottom-anchored targets, below otherwise
     const tipW = 340;
+    const tipH = tooltip.offsetHeight || 220;
     let tipLeft = Math.max(12, Math.min(r.left, window.innerWidth - tipW - 12));
-    let tipTop = r.bottom + pad + 12;
-    // If not enough room below, place above
-    if (tipTop + 200 > window.innerHeight) {
-      tipTop = Math.max(12, r.top - pad - 200);
+    let tipTop;
+    if (r.top - pad - tipH - 12 > 0) {
+      // Place above the target
+      tipTop = r.top - pad - tipH - 12;
+    } else {
+      // Place below the target
+      tipTop = r.bottom + pad + 12;
     }
+    // Keep tooltip fully on-screen vertically
+    tipTop = Math.max(12, Math.min(tipTop, window.innerHeight - tipH - 12));
     tooltip.style.left = tipLeft + 'px';
     tooltip.style.top  = tipTop + 'px';
   }, 350);
