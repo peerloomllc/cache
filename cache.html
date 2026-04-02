@@ -204,6 +204,7 @@
   /* BTC loan collateral sub-line */
   .entry-collateral{font-family:var(--mono);font-size:10px;color:var(--btc);opacity:.7;display:block;text-align:right}
   .entry-ltv{font-family:var(--mono);font-size:10px;display:block;text-align:right;margin-top:1px}
+  .entry-re-ltv{font-family:var(--mono);font-size:10px;display:block;text-align:right;margin-top:1px;color:var(--text-dim)}
 
   /* ── ADD ROW ── */
   .add-row{padding:8px 14px 10px 36px;border-top:1px solid rgba(255,255,255,.03)}
@@ -1407,6 +1408,19 @@ function checkLtvAlerts() {
   alerts.forEach((msg, i) => setTimeout(() => showToast(msg, 'warning'), i * 2800));
 }
 
+// Real estate LTV: sum of linked mortgage balances / property value
+function getPropertyLtv(propertyId) {
+  const property = data['real-estate'].find(r => r.id === propertyId);
+  if (!property) return null;
+  const propVal = parseFloat(property.value) || 0;
+  if (propVal <= 0) return null;
+  const totalDebt = data['mortgage'].reduce((sum, m) => {
+    return m.linkedPropertyId === propertyId ? sum + (parseFloat(m.value) || 0) : sum;
+  }, 0);
+  if (totalDebt <= 0) return null;
+  return { ratio: totalDebt / propVal, totalDebt, propVal };
+}
+
 const CAT_META = {
   'real-estate': {label:'Real Estate',         color:'#82b366'},
   'stocks':      {label:'Stocks & Brokerage',  color:'#6aafcd'},
@@ -1536,6 +1550,10 @@ function addRow(cat, type, name='', value='', extra={}) {
     row.collateralSats = row.collateralSats || '';
     row.loanAmount = row.loanAmount || '';
   }
+  // Mortgage: linked property for LTV
+  if (cat === 'mortgage') {
+    row.linkedPropertyId = row.linkedPropertyId || '';
+  }
   data[cat].push(row);
   renderRows(cat);
   recalc(); markChanged();
@@ -1568,14 +1586,20 @@ function applyPayment(cat, id, val) {
   const oldVal = parseFloat(row.value) || 0;
   row.value = Math.max(0, oldVal - amount);
   renderRows(cat); recalc(); markChanged();
+  if (cat === 'mortgage') renderRows('real-estate');
   showToast(`Payment of ${fmt(amount)} applied — balance now ${fmt(row.value)}`, 'success');
 }
 
 function deleteRow(cat, id) {
   if (cat==='bitcoin' && data[cat].find(r=>r.id===id)?._autoCollateral) return;
+  const deletedId = id;
   data[cat] = data[cat].filter(r=>r.id!==id);
   renderRows(cat); recalc();
   if (BTC_LIAB_CATS.has(cat)) renderRows('bitcoin');
+  if (cat === 'mortgage') renderRows('real-estate');
+  if (cat === 'real-estate') {
+    data['mortgage'].forEach(m => { if (m.linkedPropertyId === deletedId) m.linkedPropertyId = ''; });
+  }
   markChanged();
 }
 
@@ -1597,6 +1621,7 @@ function updateField(cat, id, field, val) {
   }
   recalc();
   if (BTC_LIAB_CATS.has(cat) && field==='collateralSats') renderRows('bitcoin');
+  if (cat === 'mortgage' && (field === 'value' || field === 'linkedPropertyId')) renderRows('real-estate');
   markChanged();
 }
 
@@ -1657,6 +1682,10 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     if (isLiab) {
       const mi = calcMonthlyInterest(row);
       valueSub = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+    }
+    if (cat === 'real-estate') {
+      const ltv = getPropertyLtv(row.id);
+      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(ltv.totalDebt)} owed</span>`;
     }
   }
 
@@ -1901,6 +1930,12 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
       <input class="field-input" type="date" value="${row.originationDate||''}"
         oninput="updateField('${cat}','${id}','originationDate',this.value)">
     </div>`:''}
+    ${cat==='mortgage'?`<div class="field-group">
+      <div class="field-label">Linked Property</div>
+      <select class="field-input" onchange="updateField('${cat}','${id}','linkedPropertyId',this.value);renderRows('real-estate')">
+        <option value="">— None —</option>${data['real-estate'].map(p=>`<option value="${p.id}"${p.id===row.linkedPropertyId?' selected':''}>${escHtml(p.name||'Untitled')}${p.value?' — '+fmt(parseFloat(p.value)||0):''}</option>`).join('')}
+      </select>
+    </div>`:''}
     <div class="field-group" style="grid-column:span 2">
       <div class="field-label">Login URL (optional)</div>
       <div class="url-wrap">
@@ -1954,6 +1989,10 @@ function updateCardDisplay(rowId, cat) {
     valueSub = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
   } else {
     valueDisplay = fmt(parseFloat(row.value)||0);
+    if (cat === 'real-estate') {
+      const ltv = getPropertyLtv(row.id);
+      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(ltv.totalDebt)} owed</span>`;
+    }
   }
   valEl.innerHTML = valueDisplay+valueSub;
 
