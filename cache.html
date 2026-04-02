@@ -162,6 +162,13 @@
   .entry-delete{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;padding:2px 3px;border-radius:3px;opacity:0;transition:opacity .15s,color .15s;line-height:1;flex-shrink:0}
   .entry-card:hover .entry-delete{opacity:1}
   .entry-delete:hover{color:var(--red)}
+  .entry-pay{background:none;border:1px solid var(--border-light);color:var(--text-dim);cursor:pointer;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px;opacity:0;transition:opacity .15s,color .15s,border-color .15s;white-space:nowrap}
+  .entry-card:hover .entry-pay{opacity:1}
+  .entry-pay:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .pay-inline{display:inline-flex;align-items:center;gap:4px}
+  .pay-inline input{background:var(--surface2);border:1px solid var(--accent-dim);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:12px;padding:3px 6px;width:100px;outline:none}
+  .pay-inline button{background:var(--accent);color:var(--bg);border:none;border-radius:3px;font-family:var(--mono);font-size:10px;padding:3px 8px;cursor:pointer}
+  .pay-inline .pay-cancel{background:transparent;color:var(--text-dim)}
 
   /* Expanded detail panel */
   .entry-detail{overflow:hidden;max-height:0;transition:max-height .25s ease}
@@ -1497,6 +1504,32 @@ function addRow(cat, type, name='', value='', extra={}) {
   },30);
 }
 
+function showPayInput(cat, id) {
+  // Replace the pay button with an inline input
+  const card = document.getElementById(`card-${id}`);
+  if (!card) return;
+  const payBtn = card.querySelector('.entry-pay');
+  if (!payBtn) return;
+  const wrap = document.createElement('span');
+  wrap.className = 'pay-inline';
+  wrap.innerHTML = `<input type="number" step="any" min="0" placeholder="Amount" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();applyPayment('${cat}','${id}',this.value)}else if(event.key==='Escape'){event.stopPropagation();renderRows('${cat}')}">
+    <button onclick="event.stopPropagation();applyPayment('${cat}','${id}',this.previousElementSibling.value)">Apply</button>
+    <button class="pay-cancel" onclick="event.stopPropagation();renderRows('${cat}')">✕</button>`;
+  payBtn.replaceWith(wrap);
+  wrap.querySelector('input').focus();
+}
+
+function applyPayment(cat, id, val) {
+  const amount = parseFloat(val);
+  if (isNaN(amount) || amount <= 0) { showToast('Enter a valid payment amount', 'error'); return; }
+  const row = data[cat].find(r => r.id === id);
+  if (!row) return;
+  const oldVal = parseFloat(row.value) || 0;
+  row.value = Math.max(0, oldVal - amount);
+  renderRows(cat); recalc(); markChanged();
+  showToast(`Payment of ${fmt(amount)} applied — balance now ${fmt(row.value)}`, 'success');
+}
+
 function deleteRow(cat, id) {
   if (cat==='bitcoin' && data[cat].find(r=>r.id===id)?._autoCollateral) return;
   data[cat] = data[cat].filter(r=>r.id!==id);
@@ -1591,11 +1624,15 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
 
   const autoBadge = row._autoCollateral ? '<span class="auto-collateral-badge">AUTO</span>' : '';
   const deleteBtn = row._autoCollateral ? '' : `<button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>`;
+  const isLiab = LIAB_CATS.includes(cat);
+  const payBtn = (isLiab && !row._autoCollateral) ? `<button class="entry-pay" onclick="event.stopPropagation();showPayInput('${cat}','${row.id}')" title="Apply payment">− Pay</button>` : '';
+  const payGrid = payBtn ? 'grid-template-columns:16px 1fr auto auto auto;' : '';
   card.innerHTML = `
-    <div class="entry-summary" onclick="toggleEntry('${row.id}')">
+    <div class="entry-summary" onclick="toggleEntry('${row.id}')" ${payGrid?`style="${payGrid}"`:''}>
       <span class="entry-expand-icon" id="icon-${row.id}">▶</span>
       <span class="entry-name">${escHtml(row.name)||'<span style="color:var(--text-dim)">Untitled</span>'}${autoBadge}${instTag}</span>
       <span class="entry-value${isBtc?' btc-color':''}">${valueDisplay}${valueSub}</span>
+      ${payBtn}
       ${deleteBtn}
     </div>
     <div class="entry-detail" id="detail-${row.id}">
