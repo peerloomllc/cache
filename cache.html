@@ -364,6 +364,26 @@
   .onboarding-body strong{color:var(--text)}
   .onboarding-actions{display:flex;gap:8px}
 
+  /* ── GUIDED TOUR ── */
+  #tour-overlay{position:fixed;inset:0;z-index:998;pointer-events:none}
+  #tour-overlay.hidden{display:none}
+  #tour-spotlight{position:fixed;z-index:999;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,0.65);pointer-events:none;transition:all .3s ease}
+  #tour-spotlight.hidden{display:none}
+  #tour-tooltip{position:fixed;z-index:1000;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;width:340px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .25s ease;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+  #tour-tooltip.hidden{display:none}
+  .tour-step-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim)}
+  .tour-step-body{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.7}
+  .tour-step-body strong{color:var(--text)}
+  .tour-nav{display:flex;gap:8px;align-items:center}
+  .tour-nav button{font-family:var(--mono);font-size:11px;padding:8px 16px;border-radius:4px;cursor:pointer;border:none;transition:background .15s}
+  .tour-nav .tour-next{background:var(--accent);color:var(--bg);font-weight:500}
+  .tour-nav .tour-next:hover{background:#bfe0a0}
+  .tour-nav .tour-back{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .tour-nav .tour-back:hover{border-color:var(--text-dim);color:var(--text)}
+  .tour-nav .tour-skip{background:transparent;color:var(--text-dim);margin-left:auto;font-size:10px;padding:8px 10px}
+  .tour-nav .tour-skip:hover{color:var(--text-muted)}
+  .tour-counter{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+
   @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
   @media(max-width:900px){
@@ -858,6 +878,20 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ══ GUIDED TOUR ══ -->
+<div id="tour-overlay" class="hidden"></div>
+<div id="tour-spotlight" class="hidden"></div>
+<div id="tour-tooltip" class="hidden">
+  <div class="tour-step-label" id="tour-label"></div>
+  <div class="tour-step-body" id="tour-body"></div>
+  <div class="tour-nav">
+    <button class="tour-back" id="tour-back" onclick="prevTourStep()">Back</button>
+    <button class="tour-next" id="tour-next" onclick="nextTourStep()">Next</button>
+    <span class="tour-counter" id="tour-counter"></span>
+    <button class="tour-skip" onclick="endTour()">Skip tour</button>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════════════
@@ -1060,7 +1094,7 @@ async function submitSetPassword() {
     hideLockScreen();
     isLocked = false;
     resetIdleTimer();
-    if (isFirstRun) { isFirstRun=false; seedDemoData(); }
+    if (isFirstRun) { isFirstRun=false; startTour(); }
     showToast('Password set — data is now encrypted', 'success');
   }, 300);
 }
@@ -1071,7 +1105,7 @@ async function skipPassword() {
   isChangingPw = false;
   hideLockScreen();
   isLocked = false;
-  if (isFirstRun) { isFirstRun=false; seedDemoData(); }
+  if (isFirstRun) { isFirstRun=false; startTour(); }
   showToast('Running without password — data stored unencrypted');
 }
 
@@ -1203,6 +1237,107 @@ function seedDemoData() {
   addRow('auto-loan','liability','Toyota Tacoma',18000,{institution:'Toyota Financial',accountType:'Auto',loginUrl:'https://toyotafinancial.com',interestRate:'5.9',originationDate:'2023-06-01'});
   addRow('btc-loan','liability','Vault Loan',50000,{institution:'Unchained Capital',accountType:'Unchained',loginUrl:'https://unchained.com',collateralSats:150000000,interestRate:'12.0',originationDate:'2024-01-10',loanAmount:50000});
   recalc(); markChanged();
+}
+
+// ── GUIDED TOUR ──────────────────────────────────────────────────────────
+const TOUR_STEPS = [
+  { target: null, label: 'Welcome', body: 'Welcome to <strong>Cache</strong> — your encrypted personal wealth ledger.<br><br>Cache is a single-file, zero-dependency app. There are no servers, no accounts, no tracking. Your data is encrypted and stored in your browser\u2019s local storage \u2014 it never leaves this device.' },
+  { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private, and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser, on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
+  { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties, or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
+  { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet, and the balance syncs back here.' },
+  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong>, <strong>Redfin</strong>, and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
+  { target: 'button[onclick="exportJSON()"]', label: 'Backup & portability', body: 'Your data lives in this browser\u2019s local storage \u2014 it doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data, and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>To migrate: bring the HTML file + your exported JSON.' },
+  { target: 'button[onclick="saveData()"]', label: 'Save your data', body: 'Your data is encrypted with <strong>AES-256-GCM</strong> and stored locally. Save often — nothing ever leaves this device.' }
+];
+let tourIndex = -1;
+
+function startTour() {
+  // Open all category sections so tour targets are visible
+  openAll();
+  // Scroll to top so the first steps are in view
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  tourIndex = 0;
+  document.getElementById('tour-overlay').classList.remove('hidden');
+  showTourStep();
+}
+
+function showTourStep() {
+  const step = TOUR_STEPS[tourIndex];
+  const overlay   = document.getElementById('tour-overlay');
+  const spotlight = document.getElementById('tour-spotlight');
+  const tooltip   = document.getElementById('tour-tooltip');
+  const label     = document.getElementById('tour-label');
+  const body      = document.getElementById('tour-body');
+  const counter   = document.getElementById('tour-counter');
+  const backBtn   = document.getElementById('tour-back');
+  const nextBtn   = document.getElementById('tour-next');
+
+  label.textContent = step.label;
+  body.innerHTML = step.body;
+  counter.textContent = `${tourIndex + 1} / ${TOUR_STEPS.length}`;
+  backBtn.style.display = tourIndex === 0 ? 'none' : '';
+  nextBtn.textContent = tourIndex === TOUR_STEPS.length - 1 ? 'Done' : 'Next';
+
+  tooltip.classList.remove('hidden');
+
+  if (!step.target) {
+    // Centered card, no spotlight
+    spotlight.classList.add('hidden');
+    overlay.style.background = 'rgba(0,0,0,0.65)';
+    tooltip.style.left = '50%';
+    tooltip.style.top = '50%';
+    tooltip.style.transform = 'translate(-50%, -50%)';
+    return;
+  }
+
+  overlay.style.background = 'transparent';
+  tooltip.style.transform = '';
+  const el = document.querySelector(step.target);
+  if (!el) { spotlight.classList.add('hidden'); return; }
+
+  // Scroll element into view if needed
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Position spotlight and tooltip after scroll settles
+  setTimeout(() => {
+    const r = el.getBoundingClientRect();
+    const pad = 8;
+    spotlight.classList.remove('hidden');
+    spotlight.style.left   = (r.left - pad) + 'px';
+    spotlight.style.top    = (r.top - pad) + 'px';
+    spotlight.style.width  = (r.width + pad * 2) + 'px';
+    spotlight.style.height = (r.height + pad * 2) + 'px';
+
+    // Position tooltip below or above the target
+    const tipW = 340;
+    let tipLeft = Math.max(12, Math.min(r.left, window.innerWidth - tipW - 12));
+    let tipTop = r.bottom + pad + 12;
+    // If not enough room below, place above
+    if (tipTop + 200 > window.innerHeight) {
+      tipTop = Math.max(12, r.top - pad - 200);
+    }
+    tooltip.style.left = tipLeft + 'px';
+    tooltip.style.top  = tipTop + 'px';
+  }, 350);
+}
+
+function nextTourStep() {
+  if (tourIndex >= TOUR_STEPS.length - 1) { endTour(); return; }
+  tourIndex++;
+  showTourStep();
+}
+
+function prevTourStep() {
+  if (tourIndex <= 0) return;
+  tourIndex--;
+  showTourStep();
+}
+
+function endTour() {
+  tourIndex = -1;
+  document.getElementById('tour-overlay').classList.add('hidden');
+  document.getElementById('tour-spotlight').classList.add('hidden');
+  document.getElementById('tour-tooltip').classList.add('hidden');
 }
 
 // ══════════════════════════════════════════════════════════════════════════
