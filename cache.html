@@ -196,6 +196,7 @@
 
   /* BTC loan collateral sub-line */
   .entry-collateral{font-family:var(--mono);font-size:10px;color:var(--btc);opacity:.7;display:block;text-align:right}
+  .entry-ltv{font-family:var(--mono);font-size:10px;display:block;text-align:right;margin-top:1px}
 
   /* ── ADD ROW ── */
   .add-row{padding:8px 14px 10px 36px;border-top:1px solid rgba(255,255,255,.03)}
@@ -1199,7 +1200,7 @@ function seedDemoData() {
   addRow('mortgage','liability','Primary Mortgage',310000,{institution:'Rocket Mortgage',accountType:'Primary',loginUrl:'https://rocketmortgage.com',interestRate:'6.75',originationDate:'2022-03-15'});
   addRow('credit','liability','Chase Sapphire',2400,{institution:'Chase Bank',accountType:'Visa',loginUrl:'https://chase.com/login',interestRate:'24.99'});
   addRow('auto-loan','liability','Toyota Tacoma',18000,{institution:'Toyota Financial',accountType:'Auto',loginUrl:'https://toyotafinancial.com',interestRate:'5.9',originationDate:'2023-06-01'});
-  addRow('btc-loan','liability','Vault Loan',50000,{institution:'Unchained Capital',accountType:'Unchained',loginUrl:'https://unchained.com',collateralSats:150000000,interestRate:'12.0',originationDate:'2024-01-10'});
+  addRow('btc-loan','liability','Vault Loan',50000,{institution:'Unchained Capital',accountType:'Unchained',loginUrl:'https://unchained.com',collateralSats:150000000,interestRate:'12.0',originationDate:'2024-01-10',loanAmount:50000});
   recalc(); markChanged();
 }
 
@@ -1340,8 +1341,11 @@ function uid() { return Math.random().toString(36).slice(2,9); }
 
 function addRow(cat, type, name='', value='', extra={}) {
   const row = {id:uid(), name, value, accountType:'', institution:'', loginUrl:'', address:'', interestRate:'', originationDate:'', ...extra};
-  // BTC-loan also has collateralSats
-  if (BTC_LIAB_CATS.has(cat)) row.collateralSats = row.collateralSats || '';
+  // BTC-loan also has collateralSats and loanAmount
+  if (BTC_LIAB_CATS.has(cat)) {
+    row.collateralSats = row.collateralSats || '';
+    row.loanAmount = row.loanAmount || '';
+  }
   data[cat].push(row);
   renderRows(cat);
   recalc(); markChanged();
@@ -1366,6 +1370,12 @@ function updateField(cat, id, field, val) {
   if (field==='value' && cat==='bitcoin') {
     const n = parseFloat(val)||0;
     row.value = btcUnit==='btc' ? Math.round(n*1e8) : Math.round(n);
+  } else if (field==='loanAmount' && BTC_LIAB_CATS.has(cat)) {
+    row.loanAmount = val;
+    syncBtcLoanBalance(row, id);
+  } else if ((field==='interestRate' || field==='originationDate') && BTC_LIAB_CATS.has(cat)) {
+    row[field] = val;
+    syncBtcLoanBalance(row, id);
   } else {
     row[field] = val;
   }
@@ -1423,7 +1433,8 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
         : `₿ ${colSats.toLocaleString()} sats`;
       colStr = `<span class="entry-collateral">${colDisplay}${colUsd>0?' ≈ '+fmtS(colUsd):''} collateral</span>`;
     }
-    valueSub = colStr + miStr;
+    const ltvStr = (loanUsd>0 && colUsd>0) ? `<span class="entry-ltv" style="color:${(loanUsd/colUsd)>0.7?'#e07070':'var(--text-dim)'}">LTV ${((loanUsd/colUsd)*100).toFixed(1)}%</span>` : '';
+    valueSub = colStr + ltvStr + miStr;
   } else {
     const isLiab = LIAB_CATS.includes(cat);
     valueDisplay = fmt(parseFloat(row.value)||0);
@@ -1594,14 +1605,14 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         </div>
       </div>
       <div class="field-group">
-        <div class="field-label">Loan Type</div>
-        <select class="field-input" onchange="updateField('${cat}','${id}','accountType',this.value)">
-          <option value="">— Select —</option>${typeOptions}
-        </select>
+        <div class="field-label">Original Principal ($)</div>
+        <input class="field-input mono" type="number" step="100"
+          value="${row.loanAmount!==''?row.loanAmount:''}" placeholder="0"
+          oninput="updateField('${cat}','${id}','loanAmount',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group">
         <div class="field-label">Outstanding Balance ($)</div>
-        <input class="field-input mono" type="number" step="100"
+        <input class="field-input mono btc-loan-balance" type="number" step="100"
           value="${row.value!==''?row.value:''}" placeholder="0"
           oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
@@ -1714,7 +1725,8 @@ function updateCardDisplay(rowId, cat) {
         : `₿ ${colSats.toLocaleString()} sats`;
       colStr = `<span class="entry-collateral">${colDisplay}${colUsd>0?' ≈ '+fmtS(colUsd):''} collateral</span>`;
     }
-    valueSub = colStr + miStr;
+    const ltvStr = (loanUsd>0 && colUsd>0) ? `<span class="entry-ltv" style="color:${(loanUsd/colUsd)>0.7?'#e07070':'var(--text-dim)'}">LTV ${((loanUsd/colUsd)*100).toFixed(1)}%</span>` : '';
+    valueSub = colStr + ltvStr + miStr;
   } else if (isLiab) {
     valueDisplay = fmt(parseFloat(row.value)||0);
     const mi = calcMonthlyInterest(row);
@@ -2129,6 +2141,36 @@ function syncCollateralEntry() {
   if (changed) renderRows('bitcoin');
 }
 
+// Compute outstanding balance = principal + accrued simple interest
+function calcBtcLoanBalance(row) {
+  const principal = parseFloat(row.loanAmount) || 0;
+  if (!principal) return 0;
+  const rate = parseFloat(row.interestRate) || 0;
+  const orig = row.originationDate ? new Date(row.originationDate) : null;
+  if (!rate || !orig || isNaN(orig)) return principal;
+  const years = (Date.now() - orig.getTime()) / (365.25 * 24 * 3600 * 1000);
+  return Math.round(principal + principal * (rate / 100) * Math.max(years, 0));
+}
+
+// Sync outstanding balance from computed value unless user has manually overridden
+function syncBtcLoanBalance(row, id) {
+  const principal = parseFloat(row.loanAmount) || 0;
+  if (!principal) return;
+  const computed = calcBtcLoanBalance(row);
+  const cur = parseFloat(row.value) || 0;
+  // Auto-fill if empty, matches principal exactly, or matches a previously computed value
+  if (!cur || cur === principal || row._lastComputed === cur) {
+    row.value = computed;
+    row._lastComputed = computed;
+    const valInput = id && document.querySelector(`#detail-${id} .btc-loan-balance`);
+    if (valInput) valInput.value = computed;
+  }
+}
+
+function syncAllBtcLoanBalances() {
+  data['btc-loan'].forEach(row => syncBtcLoanBalance(row, row.id));
+}
+
 // ── CALCULATE ─────────────────────────────────────────────────────────────
 function parseVal(v) { return parseFloat(v)||0; }
 function catSum(cat) {
@@ -2152,6 +2194,7 @@ function fmtS(n) {
 
 function recalc() {
   syncCollateralEntry();
+  syncAllBtcLoanBalances();
   ALL_CATS.forEach(c=>{
     const el=document.getElementById(`cat-total-${c}`);
     if(el) el.textContent=(c==='bitcoin'&&!btcPriceUSD)?'—':fmt(catSum(c));
