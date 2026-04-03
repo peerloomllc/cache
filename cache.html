@@ -1573,15 +1573,26 @@ function seedDemoData() {
 
 // ── GUIDED TOUR ──────────────────────────────────────────────────────────
 const TOUR_STEPS = [
-  { target: null, label: 'Welcome', body: 'Welcome to <strong>Cache</strong> — your encrypted personal wealth ledger.<br><br>Cache is a single-file, zero-dependency app. There are no servers, no accounts, no tracking. Your data is encrypted and stored in your browser\u2019s local storage \u2014 it never leaves this device.' },
-  { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private, and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser, on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
-  { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties, or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
-  { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet, and the balance syncs back here.' },
-  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong>, <strong>Redfin</strong>, and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
-  { target: 'button[onclick="exportJSON()"]', label: 'Backup & portability', body: 'Your data lives in this browser\u2019s local storage \u2014 it doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data, and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>To migrate: bring the HTML file + your exported JSON.' },
-  { target: 'button[onclick="saveData()"]', label: 'Save your data', body: 'Your data is encrypted with <strong>AES-256-GCM</strong> and stored locally. Save often — nothing ever leaves this device.' }
+  { target: null, label: 'Welcome', body: 'Welcome to <strong>Cache</strong>, your encrypted personal wealth ledger.<br><br>Cache is a single-file, zero-dependency app. There are no servers, no accounts, no tracking. Your data is encrypted and stored in your browser\u2019s local storage and never leaves this device.' },
+  { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
+  { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
+  { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet and the balance syncs back here.' },
+  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong>, <strong>Redfin</strong> and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
+  { target: 'button[onclick="openSettings()"]', label: 'Backup & portability', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>To migrate: bring the HTML file + your exported JSON.' },
+  { target: '.chart-card.wide', label: 'Charts', body: 'The <strong>Charts</strong> tab visualizes your wealth. Track <strong>net worth over time</strong>, see <strong>asset allocation</strong> and <strong>liability breakdown</strong> donuts and compare assets vs liabilities side by side.<br><br>The history chart records a snapshot each time you save.', onEnter: () => tourSwitchTab('charts') },
+  { target: '.cf-summary-row', label: 'Cash flow summary', body: 'The <strong>Cash Flow</strong> tab shows your monthly picture at a glance: <strong>income</strong>, <strong>obligations</strong> (recurring expenses + revolving interest) and <strong>net cash flow</strong>.', onEnter: () => tourSwitchTab('cashflow') },
+  { target: '#cf-rec-wrap', label: 'Recurring items', body: 'Add recurring <strong>income</strong> and <strong>expenses</strong> like salary, rent, subscriptions and loan payments. Supports weekly, biweekly, monthly, quarterly and annual frequencies.<br><br>Use <strong>Import from liabilities</strong> to auto-create expenses from your ledger.' },
+  { target: '#cf-table-wrap', label: 'Revolving interest', body: 'Interest burden is scoped to <strong>revolving debt</strong> (credit cards and BTC-backed loans) where paying down the balance directly reduces your interest cost. Fixed-term loan payments belong in recurring expenses instead.' },
+  { target: 'button[onclick="saveData()"]', label: 'Save your data', body: 'Your data is encrypted with <strong>AES-256-GCM</strong> and stored locally. Save often and nothing ever leaves this device.', onEnter: () => tourSwitchTab('ledger') }
 ];
 let tourIndex = -1;
+
+function tourSwitchTab(tab) {
+  const btns = document.querySelectorAll('.tab-btn');
+  const map = { ledger: 0, charts: 1, cashflow: 2 };
+  const btn = btns[map[tab]];
+  if (btn) switchTab(tab, btn);
+}
 
 function startTour() {
   // Open all category sections so tour targets are visible
@@ -1595,6 +1606,7 @@ function startTour() {
 
 function showTourStep() {
   const step = TOUR_STEPS[tourIndex];
+  if (step.onEnter) step.onEnter();
   const overlay   = document.getElementById('tour-overlay');
   const spotlight = document.getElementById('tour-spotlight');
   const tooltip   = document.getElementById('tour-tooltip');
@@ -1610,8 +1622,6 @@ function showTourStep() {
   backBtn.style.display = tourIndex === 0 ? 'none' : '';
   nextBtn.textContent = tourIndex === TOUR_STEPS.length - 1 ? 'Done' : 'Next';
 
-  tooltip.classList.remove('hidden');
-
   if (!step.target) {
     // Centered card, no spotlight
     spotlight.classList.add('hidden');
@@ -1619,13 +1629,18 @@ function showTourStep() {
     tooltip.style.left = '50%';
     tooltip.style.top = '50%';
     tooltip.style.transform = 'translate(-50%, -50%)';
+    tooltip.classList.remove('hidden');
     return;
   }
 
+  // Hide tooltip until positioned to prevent jump
+  tooltip.classList.add('hidden');
   overlay.style.background = 'transparent';
+  spotlight.classList.add('hidden');
   tooltip.style.transform = '';
+
   const el = document.querySelector(step.target);
-  if (!el) { spotlight.classList.add('hidden'); return; }
+  if (!el) { tooltip.classList.remove('hidden'); return; }
 
   // Scroll element into view if needed
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1640,22 +1655,25 @@ function showTourStep() {
     spotlight.style.width  = (r.width + pad * 2) + 'px';
     spotlight.style.height = (r.height + pad * 2) + 'px';
 
-    // Position tooltip: prefer above for bottom-anchored targets, below otherwise
+    // Position tooltip: measure actual height, prefer above target
     const tipW = 340;
-    const tipH = tooltip.offsetHeight || 220;
+    // Briefly show offscreen to measure
+    tooltip.style.left = '-9999px'; tooltip.style.top = '0';
+    tooltip.classList.remove('hidden');
+    const tipH = tooltip.offsetHeight;
+    tooltip.classList.add('hidden');
+
     let tipLeft = Math.max(12, Math.min(r.left, window.innerWidth - tipW - 12));
     let tipTop;
     if (r.top - pad - tipH - 12 > 0) {
-      // Place above the target
       tipTop = r.top - pad - tipH - 12;
     } else {
-      // Place below the target
       tipTop = r.bottom + pad + 12;
     }
-    // Keep tooltip fully on-screen vertically
     tipTop = Math.max(12, Math.min(tipTop, window.innerHeight - tipH - 12));
     tooltip.style.left = tipLeft + 'px';
     tooltip.style.top  = tipTop + 'px';
+    tooltip.classList.remove('hidden');
   }, 350);
 }
 
