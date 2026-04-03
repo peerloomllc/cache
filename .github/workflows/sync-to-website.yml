@@ -28,25 +28,14 @@ jobs:
         run: |
           git diff --quiet cache/app.html && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Create pull request
-        id: pr
+      - name: Commit and push
         if: steps.diff.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.WEBSITE_PAT }}
-          path: website
-          branch: sync/cache-app
-          delete-branch: true
-          title: "sync: update Cache app"
-          body: |
-            Automated sync of `cache.html` from [peerloomllc/cache](https://github.com/peerloomllc/cache).
-
-            Triggered by ${{ github.event.head_commit.url }}
-          commit-message: "sync: update cache/app.html from cache repo"
-
-      - name: Enable auto-merge
-        if: steps.pr.outputs.pull-request-number
         working-directory: website
-        env:
-          GH_TOKEN: ${{ secrets.WEBSITE_PAT }}
-        run: gh pr merge ${{ steps.pr.outputs.pull-request-number }} --auto --squash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cache/app.html
+          git commit -m "sync: update cache/app.html from cache repo
+
+          Triggered by ${{ github.event.head_commit.url }}"
+          git push
