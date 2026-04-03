@@ -35,6 +35,8 @@
     --bar-bg:rgba(244,246,244,.95);
   }
   *{margin:0;padding:0;box-sizing:border-box}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
   html{overflow-x:hidden}
   body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
@@ -278,11 +280,43 @@
   .cf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
   .cf-table th{text-align:left;padding:7px 16px;color:var(--text-dim);font-weight:400;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
   .cf-table td{padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-muted);vertical-align:middle}
-  .cf-table td.r{text-align:right} .cf-table td.hi{color:var(--text)} .cf-table td.red{color:var(--red)}
+  .cf-table th.r,.cf-table td.r{text-align:right} .cf-table td.hi{color:var(--text)} .cf-table td.red{color:var(--red)}
   .cf-table tr:last-child td{border-bottom:none}
   .cf-table tr:hover td{background:rgba(255,255,255,.02)}
   .cf-empty{padding:24px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:12px}
   .cf-bar{height:4px;border-radius:2px;background:var(--red);opacity:.7;min-width:2px}
+  .cf-inline-input{font-family:var(--mono);font-size:12px;background:transparent;border:1px solid transparent;border-radius:3px;color:var(--text);padding:4px 6px;width:100%;box-sizing:border-box;transition:border-color .15s}
+  .cf-inline-input:hover,.cf-inline-input:focus{border-color:var(--border-light);outline:none}
+  .cf-inline-amount{text-align:right;width:100px}
+  .cf-inline-select{font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid transparent;border-radius:3px;color:var(--text-muted);padding:4px 6px;cursor:pointer;transition:border-color .15s}
+  .cf-inline-select:hover,.cf-inline-select:focus{border-color:var(--border-light);outline:none}
+  .cf-delete-btn{font-family:var(--mono);font-size:11px;background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:2px 6px;border-radius:3px;opacity:0;transition:all .15s}
+  .cf-table tr:hover .cf-delete-btn{opacity:1}
+  .cf-delete-btn:hover{color:var(--red);background:rgba(255,80,80,.1)}
+  .cf-amt-cell{cursor:text}
+  .cf-rec-actions{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border)}
+  .cf-rec-section-header{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;user-select:none;transition:background .15s}
+  .cf-rec-section-header:hover{background:rgba(255,255,255,.02)}
+  .cf-rec-arrow{font-size:10px;color:var(--text-dim);width:12px;text-align:center}
+  .cf-rec-section-label{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted)}
+  .cf-rec-section-count{font-family:var(--mono);font-size:10px;color:var(--text-dim);background:var(--surface2);padding:1px 6px;border-radius:3px}
+  .cf-rec-section-total{font-family:var(--mono);font-size:12px;font-weight:500;margin-left:auto}
+  .cf-table th.sortable{cursor:pointer;user-select:none;transition:color .15s}
+  .cf-table th.sortable:hover{color:var(--text)}
+  .cf-table th.sortable .cf-sort-arrow{font-size:9px;margin-left:3px;opacity:.4}
+  .cf-table th.sortable.active .cf-sort-arrow{opacity:1;color:var(--accent)}
+  #liab-import-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  #liab-import-modal.hidden{display:none}
+  .liab-import-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:14px;animation:fadeUp .2s ease}
+  .liab-import-sub{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+  #liab-import-body{display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:50vh;padding:4px 0}
+  .liab-import-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px;cursor:pointer;transition:background .1s}
+  .liab-import-row:hover{background:var(--surface2)}
+  .liab-import-row input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0}
+  .liab-import-label{font-family:var(--mono);font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .liab-import-amt{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex-shrink:0}
+  .liab-import-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:4px}
+  .accent{color:var(--accent)}
   .interest-sub{display:block;font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:2px}
 
   /* ── SAVE BAR ── */
@@ -491,11 +525,11 @@
     .cf-summary-row{grid-template-columns:1fr}
     .cf-stat-value{font-size:22px}
     /* Cash flow tables: horizontal scroll */
-    #cf-table-wrap,#cf-cat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    #cf-table-wrap,#cf-cat-wrap,#cf-rec-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .cf-table{min-width:600px}
     .cf-table th,.cf-table td{padding:7px 10px;font-size:11px}
     /* Modals: full-width on small screens */
-    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
+    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card,.liab-import-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
     .about-card{max-height:80vh;gap:12px}
     .about-card .about-body{font-size:10px;line-height:1.5}
     .about-card .about-link{font-size:11px;padding:7px 10px}
@@ -679,6 +713,19 @@
       <a class="about-link" href="https://peerloomllc.com" target="_blank" rel="noopener" style="display:inline-flex">PeerLoom LLC &#8599;</a>
     </div>
     <button class="about-close-btn" onclick="closeAbout()">Close</button>
+  </div>
+</div>
+
+<!-- ══ LIABILITY IMPORT PICKER ══ -->
+<div id="liab-import-modal" class="hidden" onclick="if(event.target===this)closeLiabImport()">
+  <div class="liab-import-card">
+    <div class="settings-title">Import from Liabilities</div>
+    <div class="liab-import-sub">Select liabilities to add as recurring expenses.</div>
+    <div id="liab-import-body"></div>
+    <div class="liab-import-actions">
+      <button class="btn btn-ghost" onclick="closeLiabImport()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmLiabImport()">Import Selected</button>
+    </div>
   </div>
 </div>
 
@@ -1014,33 +1061,42 @@
 <div class="cf-grid">
   <div class="cf-summary-row">
     <div class="cf-stat">
-      <div class="cf-stat-label">Total Monthly Interest</div>
-      <div class="cf-stat-value" id="cf-total-monthly">—</div>
-      <div class="cf-stat-sub" id="cf-total-annual-sub">— / year</div>
+      <div class="cf-stat-label">Monthly Income</div>
+      <div class="cf-stat-value accent" id="cf-total-income">—</div>
+      <div class="cf-stat-sub" id="cf-income-annual-sub">— / year</div>
     </div>
     <div class="cf-stat">
-      <div class="cf-stat-label">Weighted Avg Rate</div>
-      <div class="cf-stat-value" id="cf-avg-rate">—</div>
-      <div class="cf-stat-sub">across all tracked loans</div>
+      <div class="cf-stat-label">Monthly Obligations</div>
+      <div class="cf-stat-value" id="cf-total-obligations">—</div>
+      <div class="cf-stat-sub" id="cf-obligations-annual-sub">— / year</div>
     </div>
     <div class="cf-stat">
-      <div class="cf-stat-label">Debts With Rate Entered</div>
-      <div class="cf-stat-value accent" id="cf-coverage">0 / 0</div>
-      <div class="cf-stat-sub">add rates in the Ledger tab</div>
+      <div class="cf-stat-label">Net Monthly Cash Flow</div>
+      <div class="cf-stat-value" id="cf-net-cashflow">—</div>
+      <div class="cf-stat-sub" id="cf-net-annual-sub">— / year</div>
     </div>
   </div>
   <div class="cf-card">
     <div class="cf-card-header">
-      <div class="cf-card-title">Monthly Interest by Liability</div>
+      <div class="cf-card-title">Recurring Cash Flow</div>
+      <div class="cf-card-total" id="cf-rec-total"></div>
+    </div>
+    <div id="cf-rec-wrap">
+      <div class="cf-empty">No recurring items yet.</div>
+    </div>
+  </div>
+  <div class="cf-card">
+    <div class="cf-card-header">
+      <div class="cf-card-title">Revolving Interest by Account</div>
       <div class="cf-card-total" id="cf-table-total"></div>
     </div>
     <div id="cf-table-wrap">
-      <div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>
+      <div class="cf-empty">No revolving debt with interest rates yet.</div>
     </div>
   </div>
   <div class="cf-card">
     <div class="cf-card-header">
-      <div class="cf-card-title">Interest Burden by Category</div>
+      <div class="cf-card-title">Revolving Interest by Category</div>
       <div class="cf-card-total" id="cf-cat-total"></div>
     </div>
     <div id="cf-cat-wrap">
@@ -1178,6 +1234,7 @@ let isLocked         = true;
 let isFirstRun       = false;
 let rentcastApiKey      = '';   // stored encrypted with data
 let snapshots           = [];   // [{ ts, nw, cats:{cat:value} }]
+let recurring           = [];   // [{ id, name, amount, frequency, direction }]
 let pendingBalanceUpdate = null; // { rowId, cat } — set when opening a bank tab
 let isChangingPw     = false;
 
@@ -1371,6 +1428,7 @@ function lockApp() {
   clearIdleTimer();
   // Clear in-memory data so it can't be extracted from JS console
   ALL_CATS.forEach(c=>{ data[c]=[]; });
+  recurring = [];
   renderAll(); recalc();
   showLockScreen('unlock');
 }
@@ -1395,7 +1453,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, theme, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, theme, snapshots, recurring, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1431,6 +1489,7 @@ function applyLoadedPayload(p) {
   }
   if (p.rentcastApiKey) rentcastApiKey = p.rentcastApiKey;
   if (p.snapshots)     snapshots = p.snapshots;
+  if (p.recurring)     recurring = p.recurring;
   if (p.catOrder)      applyCatOrder(p.catOrder.assets, p.catOrder.liabs);
   if (p.savedAt) document.getElementById('lastUpdated').textContent='Last saved '+new Date(p.savedAt).toLocaleString();
   // Seed LTV bands so first price fetch doesn't false-trigger alerts
@@ -2764,6 +2823,209 @@ function calcMonthlyInterestBtcLoan(row) {
   return (balance * rate / 100) / 12;
 }
 
+// ── RECURRING CASH FLOW ──────────────────────────────────────────────────
+function toMonthly(item) {
+  const amt = parseFloat(item.amount) || 0;
+  if (item.frequency === 'weekly')    return amt * 52 / 12;
+  if (item.frequency === 'biweekly')  return amt * 26 / 12;
+  if (item.frequency === 'quarterly') return amt / 3;
+  if (item.frequency === 'annual')    return amt / 12;
+  return amt;
+}
+
+function addRecurring(dir) {
+  const d = dir || 'expense';
+  const newId = uid();
+  recurring.unshift({ id: newId, name: '', amount: '', frequency: 'monthly', direction: d });
+  const sortKey = d === 'income' ? 'recIncome' : 'recExpense';
+  cfSort[sortKey].col = null;
+  renderRecurringTable();
+  buildCashFlowSummary();
+  markChanged();
+  setTimeout(() => {
+    const input = document.getElementById('cf-rec-name-' + newId);
+    if (input) { input.scrollIntoView({ block: 'nearest' }); input.focus(); }
+  }, 30);
+}
+
+function updateRecurring(id, field, val) {
+  const item = recurring.find(r => r.id === id);
+  if (!item) return;
+  item[field] = val;
+  renderRecurringTable();
+  buildCashFlowSummary();
+  markChanged();
+}
+
+function deleteRecurring(id) {
+  recurring = recurring.filter(r => r.id !== id);
+  renderRecurringTable();
+  buildCashFlowSummary();
+  markChanged();
+}
+
+function buildLiabLabel(cat, row) {
+  const parts = [CAT_META[cat]?.label || cat];
+  if (row.institution) parts.push(row.institution);
+  if (row.name) parts.push(row.name);
+  return parts.join(' / ');
+}
+
+function getImportableLiabilities() {
+  const linked = new Set(recurring.filter(r => r._liabId).map(r => r._liabId));
+  const items = [];
+  LIAB_CATS.forEach(cat => {
+    (data[cat]||[]).forEach(row => {
+      if (linked.has(row.id)) return;
+      const bal = parseFloat(row.value) || 0;
+      if (!bal) return;
+      const mi = REVOLVING_CATS.includes(cat) ? calcMonthlyInterest(row) : 0;
+      items.push({ cat, row, label: buildLiabLabel(cat, row), mi, bal });
+    });
+  });
+  return items;
+}
+
+function openLiabImport() {
+  const items = getImportableLiabilities();
+  if (!items.length) {
+    showToast('All liabilities already imported', 'warning');
+    return;
+  }
+  const modal = document.getElementById('liab-import-modal');
+  const body = document.getElementById('liab-import-body');
+  body.innerHTML = items.map((it, i) => {
+    const amtStr = it.mi > 0 ? fmtS(fx(it.mi)) + '/mo interest' : fmt(fx(it.bal)) + ' balance';
+    return `<label class="liab-import-row">
+      <input type="checkbox" value="${i}" checked>
+      <span class="liab-import-label">${escHtml(it.label)}</span>
+      <span class="liab-import-amt">${amtStr}</span>
+    </label>`;
+  }).join('');
+  modal._items = items;
+  modal.classList.remove('hidden');
+}
+
+function closeLiabImport() {
+  document.getElementById('liab-import-modal').classList.add('hidden');
+}
+
+function confirmLiabImport() {
+  const modal = document.getElementById('liab-import-modal');
+  const items = modal._items || [];
+  const checked = [...modal.querySelectorAll('input[type=checkbox]:checked')].map(cb => parseInt(cb.value));
+  let added = 0;
+  checked.forEach(i => {
+    const it = items[i];
+    if (!it) return;
+    recurring.push({
+      id: uid(), name: buildLiabLabel(it.cat, it.row),
+      amount: it.mi > 0 ? it.mi.toFixed(2) : '',
+      frequency: 'monthly', direction: 'expense', _liabId: it.row.id
+    });
+    added++;
+  });
+  closeLiabImport();
+  if (added) {
+    renderRecurringTable();
+    buildCashFlowSummary();
+    markChanged();
+    showToast(added + ' expense' + (added > 1 ? 's' : '') + ' imported', 'success');
+  }
+}
+
+function startAmountEdit(el, id) {
+  const item = recurring.find(r => r.id === id);
+  if (!item) return;
+  el.innerHTML = `<input class="cf-inline-input cf-inline-amount" value="${item.amount}" placeholder="0" type="number" step="any" min="0" onchange="updateRecurring('${id}','amount',this.value)" onblur="updateRecurring('${id}','amount',this.value)">`;
+  const input = el.querySelector('input');
+  if (input) input.focus();
+}
+
+const cfRecCollapsed = { income: false, expense: false };
+
+function toggleRecSection(dir) {
+  cfRecCollapsed[dir] = !cfRecCollapsed[dir];
+  renderRecurringTable();
+}
+
+function buildRecRows(items) {
+  return items.map(r => {
+    const mo = toMonthly(r);
+    const amt = parseFloat(r.amount) || 0;
+    const isInc = r.direction === 'income';
+    const amtDisplay = amt > 0 ? fmtS(fx(amt)) : '<span style="color:var(--text-dim)">--</span>';
+    return `<tr>
+      <td><input class="cf-inline-input cf-rec-name" id="cf-rec-name-${r.id}" value="${escHtml(r.name)}" placeholder="Name" onchange="updateRecurring('${r.id}','name',this.value)"></td>
+      <td><select class="cf-inline-select" onchange="updateRecurring('${r.id}','frequency',this.value)">
+        <option value="weekly"${r.frequency==='weekly'?' selected':''}>Weekly</option>
+        <option value="biweekly"${r.frequency==='biweekly'?' selected':''}>Biweekly</option>
+        <option value="monthly"${r.frequency==='monthly'?' selected':''}>Monthly</option>
+        <option value="quarterly"${r.frequency==='quarterly'?' selected':''}>Quarterly</option>
+        <option value="annual"${r.frequency==='annual'?' selected':''}>Annual</option>
+      </select></td>
+      <td class="r cf-amt-cell" onclick="startAmountEdit(this,'${r.id}')">${amtDisplay}</td>
+      <td class="r ${isInc?'accent':'red'}">${isInc?'+':'−'}${fmtS(fx(mo))}</td>
+      <td class="r"><button class="cf-delete-btn" onclick="deleteRecurring('${r.id}')" title="Remove">&#x2715;</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildRecSection(dir, items, label, colorClass) {
+  const total = items.reduce((s, r) => s + toMonthly(r), 0);
+  const collapsed = cfRecCollapsed[dir];
+  const arrow = collapsed ? '▸' : '▾';
+  const totalStr = items.length ? fmtS(fx(total)) + '/mo' : '';
+  const sortTable = dir === 'income' ? 'recIncome' : 'recExpense';
+  const sorted = applyCfSort(sortTable, items, {
+    name: r => (r.name || '').toLowerCase(),
+    frequency: r => r.frequency,
+    amount: r => parseFloat(r.amount) || 0,
+    monthly: r => toMonthly(r)
+  });
+  const rows = collapsed ? '' : buildRecRows(sorted);
+  const addBtn = collapsed ? '' : `<div style="padding:6px 16px"><button class="add-row-btn" onclick="addRecurring('${dir}')">+ Add ${dir}</button></div>`;
+
+  return `<div id="cf-rec-${dir}">
+    <div class="cf-rec-section-header" onclick="toggleRecSection('${dir}')">
+      <span class="cf-rec-arrow">${arrow}</span>
+      <span class="cf-rec-section-label">${label}</span>
+      <span class="cf-rec-section-count">${items.length}</span>
+      <span class="cf-rec-section-total ${colorClass}">${totalStr}</span>
+    </div>
+    ${addBtn}
+    ${!collapsed && items.length ? `<table class="cf-table">
+      <thead><tr>${cfSortTh(sortTable,'name','Name','')}${cfSortTh(sortTable,'frequency','Frequency','')}${cfSortTh(sortTable,'amount','Amount','r')}${cfSortTh(sortTable,'monthly','Monthly','r')}<th style="width:40px"></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : (!collapsed && !items.length ? '' : '')}
+  </div>`;
+}
+
+function renderRecurringTable() {
+  const wrap = document.getElementById('cf-rec-wrap');
+  if (!wrap) return;
+  const total = recurring.reduce((s, r) => s + (r.direction === 'income' ? toMonthly(r) : -toMonthly(r)), 0);
+  const recTotalEl = document.getElementById('cf-rec-total');
+  if (recurring.length) {
+    recTotalEl.textContent = (total >= 0 ? '+' : '−') + fmtS(fx(Math.abs(total))) + '/mo';
+    recTotalEl.style.color = total >= 0 ? 'var(--accent)' : 'var(--red)';
+  } else {
+    recTotalEl.textContent = '';
+    recTotalEl.style.color = '';
+  }
+
+  const actionBar = `<div class="cf-rec-actions">
+    <button class="add-row-btn" onclick="openLiabImport()">+ Import from liabilities</button>
+  </div>`;
+
+  const incomeItems = recurring.filter(r => r.direction === 'income');
+  const expenseItems = recurring.filter(r => r.direction === 'expense');
+
+  wrap.innerHTML = actionBar
+    + buildRecSection('income', incomeItems, 'Income', 'accent')
+    + buildRecSection('expense', expenseItems, 'Expenses', 'red');
+}
+
 // ── AUTO-COLLATERAL SYNC ─────────────────────────────────────────────────
 function syncCollateralEntry() {
   const totalSats = data['btc-loan'].reduce((s,r) => s + (parseFloat(r.collateralSats)||0), 0);
@@ -2835,7 +3097,8 @@ function fmt(n) {
 function fmtS(n) {
   const abs=Math.abs(n),sign=n<0?'-':'',s=csym();
   if(abs>=1e6)return sign+s+(abs/1e6).toFixed(1)+'M';
-  if(abs>=1e3)return sign+s+(abs/1e3).toFixed(0)+'K';
+  if(abs>=1e5)return sign+s+(abs/1e3).toFixed(0)+'K';
+  if(abs>=1e4)return sign+s+(abs/1e3).toFixed(1)+'K';
   return sign+s+Math.round(abs).toLocaleString();
 }
 
@@ -2944,46 +3207,112 @@ function refreshCharts(tA,tL,nw){
 }
 
 // ── CASH FLOW TAB ─────────────────────────────────────────────────────────
-function buildCashFlowTab() {
-  // Collect all liability rows that have a balance and rate
+const REVOLVING_CATS = ['credit', 'btc-loan'];
+
+// Sort state for cash flow tables
+const cfSort = {
+  rev: { col: 'mi', asc: false },
+  recIncome: { col: null, asc: false },
+  recExpense: { col: null, asc: false }
+};
+
+function setCfSort(table, col) {
+  const s = cfSort[table];
+  if (s.col === col) { s.asc = !s.asc; }
+  else { s.col = col; s.asc = col === 'name' || col === 'label'; }
+  buildCashFlowTab();
+}
+
+function cfSortArrow(table, col) {
+  const s = cfSort[table];
+  const active = s.col === col;
+  const arrow = active ? (s.asc ? '▲' : '▼') : '▼';
+  return `<span class="cf-sort-arrow">${arrow}</span>`;
+}
+
+function cfSortTh(table, col, label, cls) {
+  const active = cfSort[table].col === col ? ' active' : '';
+  return `<th class="${cls||''} sortable${active}" onclick="setCfSort('${table}','${col}')">${label}${cfSortArrow(table,col)}</th>`;
+}
+
+function applyCfSort(table, items, getters) {
+  const s = cfSort[table];
+  const getter = getters[s.col];
+  if (!getter) return items;
+  const sorted = [...items].sort((a,b) => {
+    const va = getter(a), vb = getter(b);
+    if (typeof va === 'string') return va.localeCompare(vb);
+    return va - vb;
+  });
+  return s.asc ? sorted : sorted.reverse();
+}
+
+function getRevolvingInterest() {
   const rows = [];
-  LIAB_CATS.forEach(cat => {
+  REVOLVING_CATS.forEach(cat => {
     (data[cat]||[]).forEach(row => {
       const bal  = parseFloat(row.value)||0;
       const rate = parseFloat(row.interestRate)||0;
       const mi   = BTC_LIAB_CATS.has(cat) ? calcMonthlyInterestBtcLoan(row) : calcMonthlyInterest(row);
-      const label = row.name || 'Untitled';
-      const inst  = row.institution || '';
-      const orig  = row.originationDate || '';
-      rows.push({ cat, label, inst, bal, rate, mi, orig, hasRate: rate > 0 });
+      rows.push({ cat, label: row.name || 'Untitled', inst: row.institution || '', bal, rate, mi, orig: row.originationDate || '', hasRate: rate > 0 });
     });
   });
+  return rows;
+}
 
-  const totalEntries  = rows.length;
-  const withRate      = rows.filter(r => r.hasRate);
-  const totalMonthly  = withRate.reduce((s,r) => s+r.mi, 0);
-  const totalAnnual   = totalMonthly * 12;
-  const totalBal      = withRate.reduce((s,r) => s+r.bal, 0);
-  const weightedRate  = totalBal > 0
-    ? withRate.reduce((s,r) => s + r.rate*(r.bal/totalBal), 0)
-    : 0;
+function buildCashFlowSummary() {
+  const revRows = getRevolvingInterest();
+  const withRate = revRows.filter(r => r.hasRate);
+  const revInterest = withRate.reduce((s,r) => s+r.mi, 0);
 
-  // Summary stats
-  document.getElementById('cf-total-monthly').textContent = fmtS(fx(totalMonthly));
-  document.getElementById('cf-total-annual-sub').textContent = `${fmt(fx(totalAnnual))} / year`;
-  document.getElementById('cf-avg-rate').textContent = weightedRate > 0 ? weightedRate.toFixed(2)+'%' : '—';
-  document.getElementById('cf-coverage').textContent = `${withRate.length} / ${totalEntries}`;
+  const monthlyIncome = recurring.filter(r => r.direction === 'income').reduce((s,r) => s + toMonthly(r), 0);
+  const monthlyExpenses = recurring.filter(r => r.direction === 'expense').reduce((s,r) => s + toMonthly(r), 0);
+  const totalObligations = monthlyExpenses + revInterest;
+  const netCashFlow = monthlyIncome - totalObligations;
 
-  // Detailed table
+  const incEl = document.getElementById('cf-total-income');
+  incEl.textContent = monthlyIncome > 0 ? fmtS(fx(monthlyIncome)) : '—';
+
+  const oblEl = document.getElementById('cf-total-obligations');
+  oblEl.textContent = totalObligations > 0 ? fmtS(fx(totalObligations)) : '—';
+
+  const netEl = document.getElementById('cf-net-cashflow');
+  if (monthlyIncome > 0 || totalObligations > 0) {
+    netEl.textContent = (netCashFlow < 0 ? '−' : '+') + fmtS(fx(Math.abs(netCashFlow)));
+    netEl.className = 'cf-stat-value' + (netCashFlow >= 0 ? ' accent' : '');
+  } else {
+    netEl.textContent = '—';
+    netEl.className = 'cf-stat-value';
+  }
+
+  document.getElementById('cf-income-annual-sub').textContent = monthlyIncome > 0 ? fmt(fx(monthlyIncome * 12)) + ' / year' : '— / year';
+  document.getElementById('cf-obligations-annual-sub').textContent = totalObligations > 0 ? fmt(fx(totalObligations * 12)) + ' / year' : '— / year';
+  document.getElementById('cf-net-annual-sub').textContent = (monthlyIncome > 0 || totalObligations > 0) ? fmt(fx(Math.abs(netCashFlow * 12))) + ' / year' : '— / year';
+}
+
+function buildCashFlowTab() {
+  renderRecurringTable();
+
+  const revRows = getRevolvingInterest();
+  const withRate = revRows.filter(r => r.hasRate);
+  const totalMonthly = withRate.reduce((s,r) => s+r.mi, 0);
+
+  // Revolving interest detail table
   const tableWrap = document.getElementById('cf-table-wrap');
   document.getElementById('cf-table-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   if (!withRate.length) {
-    tableWrap.innerHTML = '<div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>';
+    tableWrap.innerHTML = '<div class="cf-empty">No revolving debt with interest rates yet.</div>';
   } else {
-    const sorted = [...withRate].sort((a,b) => b.mi - a.mi);
-    const maxMi  = sorted[0].mi;
+    const sorted = applyCfSort('rev', withRate, {
+      label: r => (r.label || '').toLowerCase(),
+      inst: r => (r.inst || '').toLowerCase(),
+      bal: r => r.bal,
+      rate: r => r.rate,
+      mi: r => r.mi
+    });
+    const maxMi = Math.max(...withRate.map(r => r.mi));
     tableWrap.innerHTML = `<table class="cf-table">
-      <thead><tr><th>Account</th><th>Institution</th><th>Origination</th><th class="r">Balance</th><th class="r">Rate</th><th class="r">Monthly Interest</th><th style="width:80px"></th></tr></thead>
+      <thead><tr>${cfSortTh('rev','label','Account','')}${cfSortTh('rev','inst','Institution','')}<th>Origination</th>${cfSortTh('rev','bal','Balance','r')}${cfSortTh('rev','rate','Rate','r')}${cfSortTh('rev','mi','Monthly Interest','r')}<th style="width:80px"></th></tr></thead>
       <tbody>${sorted.map(r => `<tr>
         <td class="hi">${escHtml(r.label)}</td>
         <td>${escHtml(r.inst)||'—'}</td>
@@ -3002,7 +3331,7 @@ function buildCashFlowTab() {
     </table>`;
   }
 
-  // Category roll-up
+  // Category roll-up (revolving only)
   const catWrap = document.getElementById('cf-cat-wrap');
   document.getElementById('cf-cat-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   const byCat = {};
@@ -3034,6 +3363,8 @@ function buildCashFlowTab() {
       </tbody>
     </table>`;
   }
+
+  buildCashFlowSummary();
 }
 
 // ── TAB ───────────────────────────────────────────────────────────────────
