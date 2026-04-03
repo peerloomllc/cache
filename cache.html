@@ -35,7 +35,8 @@
     --bar-bg:rgba(244,246,244,.95);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden}
+  html{overflow-x:hidden}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
   /* ── HEADER ── */
