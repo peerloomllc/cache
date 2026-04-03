@@ -511,7 +511,6 @@
     <div class="subtitle">Personal Wealth Ledger &nbsp;·&nbsp; Local Only</div>
   </div>
   <div class="header-right" style="display:flex;align-items:flex-end;gap:16px">
-    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
     <div>
       <div class="net-worth-label">Net Worth <span class="changed-indicator" id="changedDot"></span></div>
       <div class="net-worth-value" id="netWorthDisplay">—</div>
@@ -527,18 +526,18 @@
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
       <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
-      <div class="settings-help" style="margin-top:6px">Changes the display symbol and BTC price quote. Does not convert existing values.</div>
+      <div class="settings-help" style="margin-top:6px">Converts all values using live exchange rates. BTC price is quoted in the selected currency.</div>
     </div>
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
-      <div class="settings-row">
-        <input class="settings-input" type="password" id="settings-rentcast-key" placeholder="Paste your API key…"
-          onkeydown="if(event.key==='Enter')saveSettings()">
-        <button class="settings-save-btn" onclick="saveSettings()">Save</button>
-      </div>
+      <input class="settings-input" type="password" id="settings-rentcast-key" placeholder="Paste your API key…"
+        onkeydown="if(event.key==='Enter')saveSettings()">
       <div class="settings-help" style="margin-top:8px">Used to fetch automated property value estimates (AVM). Free tier: 50 calls/month. Sign up at rentcast.io → API Keys. Stored encrypted with your data.</div>
     </div>
-    <button class="settings-close-btn" onclick="closeSettings()">Close</button>
+    <div style="display:flex;gap:8px">
+      <button class="settings-save-btn" onclick="saveSettings()" style="flex:1">Save Settings</button>
+      <button class="settings-close-btn" onclick="closeSettings()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -982,6 +981,7 @@
   <div class="save-hint">All data saved locally — <span>never leaves this device</span></div>
   <div class="btn-group">
     <button class="btn btn-about" onclick="openAbout()"><span class="about-icon">i</span> About</button>
+    <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ Settings</button>
     <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
     <button class="btn btn-lock" onclick="showChangePassword()" title="Change password">🔑 Password</button>
     <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
@@ -1291,6 +1291,7 @@ function applyLoadedPayload(p) {
     currency = 'USD';
   }
   document.getElementById('btcPairLabel').textContent = 'BTC / ' + currency;
+  fetchFxRate().then(() => recalc());
   if (p.data) {
     if (p.data.crypto && !p.data.bitcoin) p.data.bitcoin = p.data.crypto;
     ALL_CATS.forEach(c=>{ if(p.data[c]) data[c]=p.data[c]; });
@@ -1576,6 +1577,7 @@ const CURRENCIES = {
   JPY: { symbol:'¥', code:'jpy', label:'JPY (¥)' },
 };
 let currency = 'USD';
+let fxRate = 1;
 function csym() { return CURRENCIES[currency].symbol; }
 
 // ── STATE ─────────────────────────────────────────────────────────────────
@@ -1596,6 +1598,7 @@ function init() {
   // Lock system handles data loading — it will call applyLoadedPayload after unlock
   // For legacy plaintext path, loadData() is called from initLockSystem
   recalc();
+  fetchFxRate().then(()=>recalc());
   fetchBtcPrice(false);
   setInterval(() => fetchBtcPrice(false), 5 * 60 * 1000);
   setTimeout(()=>initAllDragDrop(), 300);
@@ -1649,6 +1652,17 @@ setInterval(updateBtcAge, 30000);
 function satsToFiat(sats) {
   if (!btcPrice || !sats) return 0;
   return (parseFloat(sats)/1e8)*btcPrice;
+}
+
+// Apply exchange rate to a non-BTC value for display
+function fx(n) { return n * fxRate; }
+
+async function fetchFxRate() {
+  if (currency === 'USD') { fxRate = 1; return; }
+  try {
+    const r = await fetch(`https://api.frankfurter.app/latest?from=USD&to=${currency}`,{cache:'no-store'});
+    if (r.ok) { const j = await r.json(); fxRate = j.rates[currency] || 1; }
+  } catch(_) { fxRate = 1; }
 }
 
 function setBtcUnit(unit) {
@@ -1790,9 +1804,9 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     const loanUsd = parseFloat(row.value)||0;
     const colSats = parseFloat(row.collateralSats)||0;
     const colUsd  = satsToFiat(colSats);
-    valueDisplay = fmt(loanUsd);
+    valueDisplay = fmt(fx(loanUsd));
     const mi = calcMonthlyInterest(row);
-    const miStr = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+    const miStr = mi>0 ? `<span class="interest-sub">≈ ${fmtS(fx(mi))}/mo interest</span>` : '';
     // Bug 1 fix: show collateral using btcLoanUnit
     let colStr = '';
     if (colSats > 0) {
@@ -1805,14 +1819,14 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     valueSub = colStr + ltvStr + miStr;
   } else {
     const isLiab = LIAB_CATS.includes(cat);
-    valueDisplay = fmt(parseFloat(row.value)||0);
+    valueDisplay = fmt(fx(parseFloat(row.value)||0));
     if (isLiab) {
       const mi = calcMonthlyInterest(row);
-      valueSub = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
+      valueSub = mi>0 ? `<span class="interest-sub">≈ ${fmtS(fx(mi))}/mo interest</span>` : '';
     }
     if (cat === 'real-estate') {
       const ltv = getPropertyLtv(row.id);
-      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(ltv.totalDebt)} owed</span>`;
+      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(fx(ltv.totalDebt))} owed</span>`;
     }
   }
 
@@ -2169,8 +2183,8 @@ function saveSettings() {
   if (currencyChanged) {
     btcPrice = null;
     document.getElementById('btcPairLabel').textContent = 'BTC / ' + currency;
+    fetchFxRate().then(() => { recalc(); renderAll(); });
     fetchBtcPrice(false);
-    recalc();
   }
   encryptAndSave().then(() => showToast('Settings saved'));
 }
@@ -2460,7 +2474,7 @@ function renderGrouped(cat, container) {
     // Group header
     const groupTotal = rows.reduce((s,r)=>{
       if (isBtc) return s+satsToFiat(parseFloat(r.value)||0);
-      return s+(parseFloat(r.value)||0);
+      return s+fx(parseFloat(r.value)||0);
     },0);
     const gh = document.createElement('div');
     gh.className = 'inst-group-header';
@@ -2661,15 +2675,18 @@ function fmtS(n) {
   return sign+s+Math.round(abs).toLocaleString();
 }
 
+function catSumDisplay(cat) {
+  return cat==='bitcoin' ? catSum(cat) : fx(catSum(cat));
+}
 function recalc() {
   syncCollateralEntry();
   syncAllBtcLoanBalances();
   ALL_CATS.forEach(c=>{
     const el=document.getElementById(`cat-total-${c}`);
-    if(el) el.textContent=(c==='bitcoin'&&!btcPrice)?'—':fmt(catSum(c));
+    if(el) el.textContent=(c==='bitcoin'&&!btcPrice)?'—':fmt(catSumDisplay(c));
   });
-  const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0);
-  const tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
+  const tA=ASSET_CATS.reduce((s,c)=>s+catSumDisplay(c),0);
+  const tL=LIAB_CATS.reduce((s,c)=>s+catSumDisplay(c),0);
   const nw=tA-tL;
   document.getElementById('assetSectionTotal').textContent=fmt(tA);
   document.getElementById('liabSectionTotal').textContent=fmt(tL);
@@ -2705,10 +2722,10 @@ function mkDonut(id,labels,colors,values){
 function mkBarAvsL(){
   if(chartInst['avsl'])chartInst['avsl'].destroy();
   const ctx=document.getElementById('chartAvsL'); if(!ctx)return;
-  const idx=ALL_CATS.map((_,i)=>i).filter(i=>catSum(ALL_CATS[i])>0);
+  const idx=ALL_CATS.map((_,i)=>i).filter(i=>catSumDisplay(ALL_CATS[i])>0);
   const labels=idx.map(i=>CAT_META[ALL_CATS[i]].label);
-  const aVals=idx.map(i=>ASSET_CATS.includes(ALL_CATS[i])?catSum(ALL_CATS[i]):0);
-  const lVals=idx.map(i=>LIAB_CATS.includes(ALL_CATS[i])?catSum(ALL_CATS[i]):0);
+  const aVals=idx.map(i=>ASSET_CATS.includes(ALL_CATS[i])?catSumDisplay(ALL_CATS[i]):0);
+  const lVals=idx.map(i=>LIAB_CATS.includes(ALL_CATS[i])?catSumDisplay(ALL_CATS[i]):0);
   chartInst['avsl']=new Chart(ctx,{type:'bar',data:{labels:labels.length?labels:['No data'],datasets:[{label:'Assets',data:aVals,backgroundColor:'rgba(168,208,141,.75)',borderColor:'#a8d08d',borderWidth:1,borderRadius:3},{label:'Liabilities',data:lVals,backgroundColor:'rgba(224,112,112,.65)',borderColor:'#e07070',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#4a5a4a',font:{size:11},maxRotation:35,autoSkip:false},grid:{color:'#1a1e1a'}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
 }
 function mkNWChart(tA,tL,nw){
@@ -2720,7 +2737,7 @@ function mkNWChart(tA,tL,nw){
 }
 function mkTable(tA,tL){
   const grand=tA+tL;
-  const rows=ALL_CATS.map(c=>({c,val:catSum(c),type:ASSET_CATS.includes(c)?'Asset':'Liability',color:CAT_META[c].color,label:CAT_META[c].label})).filter(r=>r.val>0).sort((a,b)=>b.val-a.val);
+  const rows=ALL_CATS.map(c=>({c,val:catSumDisplay(c),type:ASSET_CATS.includes(c)?'Asset':'Liability',color:CAT_META[c].color,label:CAT_META[c].label})).filter(r=>r.val>0).sort((a,b)=>b.val-a.val);
   const tbody=document.getElementById('breakdownBody'); if(!tbody)return;
   tbody.innerHTML=rows.length?rows.map(r=>{const pct=grand>0?((r.val/grand)*100).toFixed(1):'0.0';const tc=r.type==='Asset'?'#a8d08d':'#e07070';return `<tr><td><span class="swatch" style="background:${r.color}"></span>${r.label}</td><td><span style="color:${tc};font-size:11px">${r.type}</span></td><td class="val">${fmt(r.val)}</td><td class="pct">${pct}%</td></tr>`;}).join(''):`<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px">No data yet — add entries in the Ledger tab</td></tr>`;
 }
@@ -2748,9 +2765,9 @@ function mkHistoryChart(){
 }
 function refreshCharts(tA,tL,nw){
   mkHistoryChart();
-  const aL=ASSET_CATS.map(c=>CAT_META[c].label),aC=ASSET_CATS.map(c=>CAT_META[c].color),aV=ASSET_CATS.map(c=>catSum(c));
+  const aL=ASSET_CATS.map(c=>CAT_META[c].label),aC=ASSET_CATS.map(c=>CAT_META[c].color),aV=ASSET_CATS.map(c=>catSumDisplay(c));
   buildLegend('legend-asset',aL,aC,aV,tA); mkDonut('chartAsset',aL,aC,aV);
-  const lL=LIAB_CATS.map(c=>CAT_META[c].label),lC=LIAB_CATS.map(c=>CAT_META[c].color),lV=LIAB_CATS.map(c=>catSum(c));
+  const lL=LIAB_CATS.map(c=>CAT_META[c].label),lC=LIAB_CATS.map(c=>CAT_META[c].color),lV=LIAB_CATS.map(c=>catSumDisplay(c));
   buildLegend('legend-liab',lL,lC,lV,tL); mkDonut('chartLiab',lL,lC,lV);
   mkBarAvsL(); mkNWChart(tA,tL,nw); mkTable(tA,tL);
 }
@@ -2781,14 +2798,14 @@ function buildCashFlowTab() {
     : 0;
 
   // Summary stats
-  document.getElementById('cf-total-monthly').textContent = fmtS(totalMonthly);
-  document.getElementById('cf-total-annual-sub').textContent = `${fmt(totalAnnual)} / year`;
+  document.getElementById('cf-total-monthly').textContent = fmtS(fx(totalMonthly));
+  document.getElementById('cf-total-annual-sub').textContent = `${fmt(fx(totalAnnual))} / year`;
   document.getElementById('cf-avg-rate').textContent = weightedRate > 0 ? weightedRate.toFixed(2)+'%' : '—';
   document.getElementById('cf-coverage').textContent = `${withRate.length} / ${totalEntries}`;
 
   // Detailed table
   const tableWrap = document.getElementById('cf-table-wrap');
-  document.getElementById('cf-table-total').textContent = withRate.length ? fmtS(totalMonthly)+'/mo' : '';
+  document.getElementById('cf-table-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   if (!withRate.length) {
     tableWrap.innerHTML = '<div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>';
   } else {
@@ -2800,14 +2817,14 @@ function buildCashFlowTab() {
         <td class="hi">${escHtml(r.label)}</td>
         <td>${escHtml(r.inst)||'—'}</td>
         <td>${r.orig ? new Date(r.orig+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short'}) : '—'}</td>
-        <td class="r">${fmt(r.bal)}</td>
+        <td class="r">${fmt(fx(r.bal))}</td>
         <td class="r">${r.rate.toFixed(2)}%</td>
-        <td class="r red">${fmtS(r.mi)}</td>
+        <td class="r red">${fmtS(fx(r.mi))}</td>
         <td><div class="cf-bar" style="width:${Math.round((r.mi/maxMi)*76)}px"></div></td>
       </tr>`).join('')}
       <tr style="border-top:1px solid var(--border-light)">
         <td colspan="5" style="color:var(--text-dim);font-size:10px;letter-spacing:1px;text-transform:uppercase">Total</td>
-        <td class="r red" style="font-weight:500">${fmtS(totalMonthly)}</td>
+        <td class="r red" style="font-weight:500">${fmtS(fx(totalMonthly))}</td>
         <td></td>
       </tr>
       </tbody>
@@ -2816,7 +2833,7 @@ function buildCashFlowTab() {
 
   // Category roll-up
   const catWrap = document.getElementById('cf-cat-wrap');
-  document.getElementById('cf-cat-total').textContent = withRate.length ? fmtS(totalMonthly)+'/mo' : '';
+  document.getElementById('cf-cat-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   const byCat = {};
   withRate.forEach(r => {
     if (!byCat[r.cat]) byCat[r.cat] = { mi:0, bal:0, count:0 };
@@ -2837,8 +2854,8 @@ function buildCashFlowTab() {
         return `<tr>
           <td class="hi"><span class="swatch" style="background:${color}"></span>${CAT_META[cat]?.label||cat}</td>
           <td class="r">${d.count}</td>
-          <td class="r">${fmt(d.bal)}</td>
-          <td class="r red">${fmtS(d.mi)}</td>
+          <td class="r">${fmt(fx(d.bal))}</td>
+          <td class="r red">${fmtS(fx(d.mi))}</td>
           <td class="r">${pct}%</td>
           <td><div class="cf-bar" style="width:${Math.round((d.mi/maxCatMi)*76)}px;background:${color}"></div></td>
         </tr>`;
