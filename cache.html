@@ -309,16 +309,19 @@
   .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
   .changed-indicator.visible{opacity:1}
 
-  /* ── PWA INSTALL BANNER ── */
-  #pwa-install-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);z-index:500;background:var(--surface2);border:1px solid var(--accent-dim);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:14px;max-width:480px;width:calc(100% - 48px);opacity:0;transition:all .35s ease;pointer-events:none}
-  #pwa-install-banner.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
-  #pwa-install-banner .pwa-icon{font-size:24px;flex-shrink:0}
-  #pwa-install-banner .pwa-text{flex:1;font-family:var(--mono);font-size:12px;color:var(--text-muted);line-height:1.5}
-  #pwa-install-banner .pwa-text strong{color:var(--text);font-weight:500}
-  #pwa-install-banner .pwa-btn{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--accent-dim);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap;transition:all .15s}
-  #pwa-install-banner .pwa-btn:hover{background:var(--accent-glow);border-color:var(--accent)}
-  #pwa-install-banner .pwa-dismiss{font-family:var(--mono);font-size:14px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;line-height:1;transition:color .15s}
-  #pwa-install-banner .pwa-dismiss:hover{color:var(--text-muted)}
+  /* ── PWA INSTALL GATE ── */
+  #pwa-install-gate{position:fixed;inset:0;z-index:1001;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+  #pwa-install-gate.hidden{display:none}
+  .pwa-gate-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:40px 44px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .3s ease;text-align:center}
+  .pwa-gate-icon{font-size:48px;line-height:1}
+  .pwa-gate-title{font-family:var(--serif);font-size:22px;font-weight:400}
+  .pwa-gate-title span{color:var(--accent);font-style:italic}
+  .pwa-gate-body{font-family:var(--mono);font-size:12px;color:var(--text-muted);line-height:1.7;text-align:left}
+  .pwa-gate-body strong{color:var(--text);font-weight:500}
+  .pwa-gate-btn{font-family:var(--mono);font-size:13px;padding:12px 20px;border-radius:var(--radius);border:1px solid var(--accent);background:var(--accent-glow);color:var(--accent);cursor:pointer;transition:all .15s;width:100%}
+  .pwa-gate-btn:hover{background:var(--accent);color:var(--bg)}
+  .pwa-gate-skip{font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;transition:color .15s}
+  .pwa-gate-skip:hover{color:var(--text-muted)}
 
   /* ── LOCK SCREEN ── */
   #lock-screen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
@@ -481,7 +484,7 @@
     .cf-table{min-width:600px}
     .cf-table th,.cf-table td{padding:7px 10px;font-size:11px}
     /* Modals: full-width on small screens */
-    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
+    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
     .about-card{max-height:80vh;gap:12px}
     .about-card .about-body{font-size:10px;line-height:1.5}
     .about-card .about-link{font-size:11px;padding:7px 10px}
@@ -1045,12 +1048,20 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ══ PWA INSTALL BANNER ══ -->
-<div id="pwa-install-banner">
-  <div class="pwa-icon">&#11015;&#65039;</div>
-  <div class="pwa-text"><strong>Install Cache</strong> for quick access and offline use. Works like a native app.</div>
-  <button class="pwa-btn" id="pwa-install-btn" onclick="triggerPWAInstall()">Install</button>
-  <button class="pwa-dismiss" onclick="dismissPWABanner()" title="Dismiss">&times;</button>
+<!-- ══ PWA INSTALL GATE ══ -->
+<div id="pwa-install-gate" class="hidden">
+  <div class="pwa-gate-card">
+    <div class="pwa-gate-icon">&#11015;&#65039;</div>
+    <div class="pwa-gate-title">Install Ca<span>che</span></div>
+    <div class="pwa-gate-body">
+      For the best experience, install Cache as an app on your device.<br><br>
+      <strong>Quick access</strong> from your home screen<br>
+      <strong>Offline support</strong> with no internet needed<br>
+      <strong>Full screen</strong> with no browser chrome
+    </div>
+    <button class="pwa-gate-btn" onclick="triggerPWAInstall()">Install App</button>
+    <button class="pwa-gate-skip" onclick="dismissPWAGate()">Continue in browser</button>
+  </div>
 </div>
 
 <!-- ══ GUIDED TOUR ══ -->
@@ -1430,10 +1441,32 @@ function initLockSystem() {
     return;
   }
 
-  // First run — no data at all — ask to set password
+  // First run — no data at all
   isFirstRun = true;
   isLocked   = false;
-  showLockScreen('set');
+
+  // Show PWA install gate before password setup (only on first visit, if eligible)
+  if (!localStorage.getItem('cache-pwa-gate-dismissed')) {
+    if (deferredInstallPrompt) {
+      // beforeinstallprompt already fired — show gate immediately
+      showPWAGate();
+    } else if (location.protocol !== 'file:') {
+      // Wait briefly for beforeinstallprompt to fire
+      pwaGateWaiting = true;
+      setTimeout(() => {
+        if (pwaGateWaiting) {
+          // Timed out — browser won't offer install, skip to password
+          pwaGateWaiting = false;
+          showLockScreen('set');
+        }
+      }, 3000);
+      return;
+    } else {
+      showLockScreen('set');
+    }
+  } else {
+    showLockScreen('set');
+  }
 }
 
 // ── SEED DEMO DATA (extracted from bottom of file) ──────────────────────────
@@ -3051,16 +3084,24 @@ function showToast(msg,type=''){
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(!isLocked)saveData();}});
 window.addEventListener('beforeunload',e=>{if(hasUnsavedChanges){e.preventDefault();e.returnValue='';}});
 
-// ── PWA INSTALL BANNER ───────────────────────────────────────────────────
+// ── PWA INSTALL GATE ─────────────────────────────────────────────────────
 let deferredInstallPrompt = null;
+let pwaGateWaiting = false;
 
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  if (!localStorage.getItem('cache-pwa-banner-dismissed')) {
-    document.getElementById('pwa-install-banner').classList.add('show');
+  // If initLockSystem is waiting for this event, show the gate now
+  if (pwaGateWaiting) {
+    pwaGateWaiting = false;
+    showPWAGate();
   }
 });
+
+function showPWAGate() {
+  document.getElementById('lock-screen').classList.add('hidden');
+  document.getElementById('pwa-install-gate').classList.remove('hidden');
+}
 
 function triggerPWAInstall() {
   if (!deferredInstallPrompt) return;
@@ -3070,18 +3111,19 @@ function triggerPWAInstall() {
       showToast('App installed', 'success');
     }
     deferredInstallPrompt = null;
-    document.getElementById('pwa-install-banner').classList.remove('show');
-    localStorage.setItem('cache-pwa-banner-dismissed', '1');
+    dismissPWAGate();
   });
 }
 
-function dismissPWABanner() {
-  document.getElementById('pwa-install-banner').classList.remove('show');
-  localStorage.setItem('cache-pwa-banner-dismissed', '1');
+function dismissPWAGate() {
+  document.getElementById('pwa-install-gate').classList.add('hidden');
+  localStorage.setItem('cache-pwa-gate-dismissed', '1');
+  // Proceed to password setup
+  showLockScreen('set');
 }
 
 window.addEventListener('appinstalled', () => {
-  document.getElementById('pwa-install-banner').classList.remove('show');
+  document.getElementById('pwa-install-gate').classList.add('hidden');
   deferredInstallPrompt = null;
 });
 
