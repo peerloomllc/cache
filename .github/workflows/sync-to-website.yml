@@ -1,0 +1,52 @@
+name: Sync to PeerLoom website
+
+on:
+  push:
+    branches: [main]
+    paths: [cache.html]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout cache repo
+        uses: actions/checkout@v4
+
+      - name: Checkout website repo
+        uses: actions/checkout@v4
+        with:
+          repository: peerloomllc/website
+          token: ${{ secrets.WEBSITE_PAT }}
+          path: website
+
+      - name: Copy cache.html to website
+        run: cp cache.html website/cache/app.html
+
+      - name: Check for changes
+        id: diff
+        working-directory: website
+        run: |
+          git diff --quiet cache/app.html && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        id: pr
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.WEBSITE_PAT }}
+          path: website
+          branch: sync/cache-app
+          delete-branch: true
+          title: "sync: update Cache app"
+          body: |
+            Automated sync of `cache.html` from [peerloomllc/cache](https://github.com/peerloomllc/cache).
+
+            Triggered by ${{ github.event.head_commit.url }}
+          commit-message: "sync: update cache/app.html from cache repo"
+
+      - name: Enable auto-merge
+        if: steps.pr.outputs.pull-request-number
+        working-directory: website
+        env:
+          GH_TOKEN: ${{ secrets.WEBSITE_PAT }}
+        run: gh pr merge ${{ steps.pr.outputs.pull-request-number }} --auto --squash
