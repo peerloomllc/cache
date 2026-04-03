@@ -514,7 +514,7 @@
     <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
     <div>
       <div class="net-worth-label">Net Worth <span class="changed-indicator" id="changedDot"></span></div>
-      <div class="net-worth-value" id="netWorthDisplay">$0</div>
+      <div class="net-worth-value" id="netWorthDisplay">—</div>
       <div class="last-updated" id="lastUpdated">—</div>
     </div>
   </div>
@@ -524,6 +524,11 @@
 <div id="settings-modal" class="hidden" onclick="if(event.target===this)closeSettings()">
   <div class="settings-card">
     <div class="settings-title">Settings</div>
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
+      <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
+      <div class="settings-help" style="margin-top:6px">Changes the display symbol and BTC price quote. Does not convert existing values.</div>
+    </div>
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
       <div class="settings-row">
@@ -642,15 +647,15 @@
 </div>
 
 <div class="summary-bar">
-  <div class="summary-item"><div class="s-label">Total Assets</div><div class="s-value assets" id="totalAssetsDisplay">$0</div></div>
-  <div class="summary-item"><div class="s-label">Total Liabilities</div><div class="s-value liabilities" id="totalLiabDisplay">$0</div></div>
+  <div class="summary-item"><div class="s-label">Total Assets</div><div class="s-value assets" id="totalAssetsDisplay">—</div></div>
+  <div class="summary-item"><div class="s-label">Total Liabilities</div><div class="s-value liabilities" id="totalLiabDisplay">—</div></div>
   <div class="summary-item"><div class="s-label">Asset / Debt Ratio</div><div class="s-value ratio" id="ratioDisplay">—</div></div>
 </div>
 
 <div class="btc-bar">
   <div class="btc-bar-left">
     <span class="btc-logo">₿</span>
-    <span class="btc-price-label">BTC / USD</span>
+    <span class="btc-price-label" id="btcPairLabel">BTC / USD</span>
     <span class="btc-price-val loading" id="btcPriceDisplay">Fetching…</span>
   </div>
   <div class="btc-bar-right">
@@ -679,7 +684,7 @@
       <div class="section-header-controls">
         <button class="collapse-all-btn" onclick="toggleSection('assets')" id="collapse-btn-assets">Collapse All</button>
         <button class="collapse-all-btn" onclick="toggleGroupBy('assets')" id="group-btn-assets" title="Group by institution">Group ⊞</button>
-        <div class="section-total asset" id="assetSectionTotal">$0</div>
+        <div class="section-total asset" id="assetSectionTotal">—</div>
       </div>
     </div>
 
@@ -689,7 +694,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-real-estate" onclick="sortCat(event,'real-estate')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot real-estate"></span>Real Estate</div>
-        <div class="category-total" id="cat-total-real-estate">$0</div>
+        <div class="category-total" id="cat-total-real-estate">—</div>
         <span class="toggle-btn open" id="toggle-real-estate">▾</span>
       </div>
       <div class="rows" id="rows-real-estate"></div>
@@ -702,7 +707,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-stocks" onclick="sortCat(event,'stocks')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot stocks"></span>Stocks &amp; Brokerage</div>
-        <div class="category-total" id="cat-total-stocks">$0</div>
+        <div class="category-total" id="cat-total-stocks">—</div>
         <span class="toggle-btn open" id="toggle-stocks">▾</span>
       </div>
       <div class="rows" id="rows-stocks"></div>
@@ -715,7 +720,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-bitcoin" onclick="sortCat(event,'bitcoin')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot bitcoin"></span>Bitcoin ₿</div>
-        <div class="category-total" id="cat-total-bitcoin">$0</div>
+        <div class="category-total" id="cat-total-bitcoin">—</div>
         <span class="toggle-btn open" id="toggle-bitcoin">▾</span>
       </div>
       <div class="unit-toggle">
@@ -732,7 +737,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-business" onclick="sortCat(event,'business')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot business"></span>Business Interests</div>
-        <div class="category-total" id="cat-total-business">$0</div>
+        <div class="category-total" id="cat-total-business">—</div>
         <span class="toggle-btn open" id="toggle-business">▾</span>
       </div>
       <div class="rows" id="rows-business"></div>
@@ -745,7 +750,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-retirement" onclick="sortCat(event,'retirement')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot retirement"></span>Retirement Accounts</div>
-        <div class="category-total" id="cat-total-retirement">$0</div>
+        <div class="category-total" id="cat-total-retirement">—</div>
         <span class="toggle-btn open" id="toggle-retirement">▾</span>
       </div>
       <div class="rows" id="rows-retirement"></div>
@@ -758,7 +763,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-cash" onclick="sortCat(event,'cash')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot cash"></span>Cash &amp; Bank Accounts</div>
-        <div class="category-total" id="cat-total-cash">$0</div>
+        <div class="category-total" id="cat-total-cash">—</div>
         <span class="toggle-btn open" id="toggle-cash">▾</span>
       </div>
       <div class="rows" id="rows-cash"></div>
@@ -771,7 +776,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-other-asset" onclick="sortCat(event,'other-asset')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot other-asset"></span>Other Assets</div>
-        <div class="category-total" id="cat-total-other-asset">$0</div>
+        <div class="category-total" id="cat-total-other-asset">—</div>
         <span class="toggle-btn open" id="toggle-other-asset">▾</span>
       </div>
       <div class="rows" id="rows-other-asset"></div>
@@ -790,7 +795,7 @@
       <div class="section-header-controls">
         <button class="collapse-all-btn" onclick="toggleSection('liabilities')" id="collapse-btn-liabilities">Collapse All</button>
         <button class="collapse-all-btn" onclick="toggleGroupBy('liabilities')" id="group-btn-liabilities" title="Group by institution">Group ⊞</button>
-        <div class="section-total liability" id="liabSectionTotal">$0</div>
+        <div class="section-total liability" id="liabSectionTotal">—</div>
       </div>
     </div>
 
@@ -800,7 +805,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-mortgage" onclick="sortCat(event,'mortgage')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot mortgage"></span>Mortgages</div>
-        <div class="category-total" id="cat-total-mortgage">$0</div>
+        <div class="category-total" id="cat-total-mortgage">—</div>
         <span class="toggle-btn open" id="toggle-mortgage">▾</span>
       </div>
       <div class="rows" id="rows-mortgage"></div>
@@ -813,7 +818,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-auto-loan" onclick="sortCat(event,'auto-loan')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot auto-loan"></span>Auto &amp; Vehicle Loans</div>
-        <div class="category-total" id="cat-total-auto-loan">$0</div>
+        <div class="category-total" id="cat-total-auto-loan">—</div>
         <span class="toggle-btn open" id="toggle-auto-loan">▾</span>
       </div>
       <div class="rows" id="rows-auto-loan"></div>
@@ -826,7 +831,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-credit" onclick="sortCat(event,'credit')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot credit"></span>Credit Cards</div>
-        <div class="category-total" id="cat-total-credit">$0</div>
+        <div class="category-total" id="cat-total-credit">—</div>
         <span class="toggle-btn open" id="toggle-credit">▾</span>
       </div>
       <div class="rows" id="rows-credit"></div>
@@ -839,7 +844,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-student" onclick="sortCat(event,'student')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot student"></span>Student Loans</div>
-        <div class="category-total" id="cat-total-student">$0</div>
+        <div class="category-total" id="cat-total-student">—</div>
         <span class="toggle-btn open" id="toggle-student">▾</span>
       </div>
       <div class="rows" id="rows-student"></div>
@@ -852,7 +857,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-btc-loan" onclick="sortCat(event,'btc-loan')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot btc-loan"></span>Bitcoin-Backed Loans</div>
-        <div class="category-total" id="cat-total-btc-loan">$0</div>
+        <div class="category-total" id="cat-total-btc-loan">—</div>
         <span class="toggle-btn open" id="toggle-btc-loan">▾</span>
       </div>
       <div class="unit-toggle">
@@ -869,7 +874,7 @@
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-other-liab" onclick="sortCat(event,'other-liab')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot other-liab"></span>Other Liabilities</div>
-        <div class="category-total" id="cat-total-other-liab">$0</div>
+        <div class="category-total" id="cat-total-other-liab">—</div>
         <span class="toggle-btn open" id="toggle-other-liab">▾</span>
       </div>
       <div class="rows" id="rows-other-liab"></div>
@@ -936,8 +941,8 @@
   <div class="cf-summary-row">
     <div class="cf-stat">
       <div class="cf-stat-label">Total Monthly Interest</div>
-      <div class="cf-stat-value" id="cf-total-monthly">$0</div>
-      <div class="cf-stat-sub" id="cf-total-annual-sub">$0 / year</div>
+      <div class="cf-stat-value" id="cf-total-monthly">—</div>
+      <div class="cf-stat-sub" id="cf-total-annual-sub">— / year</div>
     </div>
     <div class="cf-stat">
       <div class="cf-stat-label">Weighted Avg Rate</div>
@@ -1268,7 +1273,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1280,6 +1285,12 @@ async function encryptAndSave() {
 }
 
 function applyLoadedPayload(p) {
+  if (p.currency && CURRENCIES[p.currency]) {
+    currency = p.currency;
+  } else {
+    currency = 'USD';
+  }
+  document.getElementById('btcPairLabel').textContent = 'BTC / ' + currency;
   if (p.data) {
     if (p.data.crypto && !p.data.bitcoin) p.data.bitcoin = p.data.crypto;
     ALL_CATS.forEach(c=>{ if(p.data[c]) data[c]=p.data[c]; });
@@ -1301,7 +1312,7 @@ function applyLoadedPayload(p) {
   (data['btc-loan']||[]).forEach(row => {
     const loanUsd = parseFloat(row.value)||0;
     const colSats = parseFloat(row.collateralSats)||0;
-    const colUsd = satsToUSD(colSats);
+    const colUsd = satsToFiat(colSats);
     if (loanUsd > 0 && colUsd > 0) prevLtvBands[row.id] = ltvBand(loanUsd / colUsd);
   });
 }
@@ -1492,7 +1503,7 @@ function checkLtvAlerts() {
   (data['btc-loan']||[]).forEach(row => {
     const loanUsd = parseFloat(row.value)||0;
     const colSats = parseFloat(row.collateralSats)||0;
-    const colUsd = satsToUSD(colSats);
+    const colUsd = satsToFiat(colSats);
     if (loanUsd <= 0 || colUsd <= 0) return;
     const ratio = loanUsd / colUsd;
     const band = ltvBand(ratio);
@@ -1554,10 +1565,23 @@ const ACCT_TYPES = {
   'other-liab':  ['Personal Loan','Medical','Tax','Other'],
 };
 
+// ── CURRENCY CONFIG ───────────────────────────────────────────────────────
+const CURRENCIES = {
+  USD: { symbol:'$', code:'usd', label:'USD ($)' },
+  EUR: { symbol:'€', code:'eur', label:'EUR (€)' },
+  GBP: { symbol:'£', code:'gbp', label:'GBP (£)' },
+  CAD: { symbol:'C$', code:'cad', label:'CAD (C$)' },
+  AUD: { symbol:'A$', code:'aud', label:'AUD (A$)' },
+  CHF: { symbol:'CHF ', code:'chf', label:'CHF' },
+  JPY: { symbol:'¥', code:'jpy', label:'JPY (¥)' },
+};
+let currency = 'USD';
+function csym() { return CURRENCIES[currency].symbol; }
+
 // ── STATE ─────────────────────────────────────────────────────────────────
 let data = {};
 let hasUnsavedChanges = false;
-let btcPriceUSD = null;
+let btcPrice = null;
 let btcUnit = 'sats';
 let btcLoanUnit = 'sats';
 let btcFetchedAt = null;
@@ -1586,21 +1610,22 @@ async function fetchBtcPrice(manual) {
   disp.textContent = 'Fetching…';
   let price = null;
   try {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',{cache:'no-store'});
-    if (r.ok) { const j=await r.json(); price=j?.bitcoin?.usd; }
+    const cc = CURRENCIES[currency].code;
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${cc}`,{cache:'no-store'});
+    if (r.ok) { const j=await r.json(); price=j?.bitcoin?.[cc]; }
   } catch(_){}
   if (!price) {
     try {
-      const r = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot',{cache:'no-store'});
+      const r = await fetch(`https://api.coinbase.com/v2/prices/BTC-${currency}/spot`,{cache:'no-store'});
       if (r.ok) { const j=await r.json(); price=parseFloat(j?.data?.amount); }
     } catch(_){}
   }
   btn.classList.remove('spinning');
   if (price && price > 0) {
-    btcPriceUSD = price;
+    btcPrice = price;
     btcFetchedAt = new Date();
     disp.className = 'btc-price-val';
-    disp.textContent = '$' + price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    disp.textContent = csym() + price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     updateBtcAge();
     recalc();
     checkLtvAlerts();
@@ -1621,9 +1646,9 @@ function updateBtcAge() {
 }
 setInterval(updateBtcAge, 30000);
 
-function satsToUSD(sats) {
-  if (!btcPriceUSD || !sats) return 0;
-  return (parseFloat(sats)/1e8)*btcPriceUSD;
+function satsToFiat(sats) {
+  if (!btcPrice || !sats) return 0;
+  return (parseFloat(sats)/1e8)*btcPrice;
 }
 
 function setBtcUnit(unit) {
@@ -1758,13 +1783,13 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     const displayVal = btcUnit==='btc'
       ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0'
       : sats.toLocaleString();
-    const usd = satsToUSD(sats);
+    const usd = satsToFiat(sats);
     valueDisplay = `${displayVal} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
     valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
   } else if (isBtcLoan) {
     const loanUsd = parseFloat(row.value)||0;
     const colSats = parseFloat(row.collateralSats)||0;
-    const colUsd  = satsToUSD(colSats);
+    const colUsd  = satsToFiat(colSats);
     valueDisplay = fmt(loanUsd);
     const mi = calcMonthlyInterest(row);
     const miStr = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
@@ -1851,7 +1876,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     const displayVal = btcUnit==='btc'
       ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0'
       : sats.toLocaleString();
-    const usd = satsToUSD(sats);
+    const usd = satsToFiat(sats);
     const loanCount = data['btc-loan'].filter(r=>(parseFloat(r.collateralSats)||0)>0).length;
     return `<div class="entry-fields" style="opacity:.85">
       <div class="field-group" style="grid-column:span 2">
@@ -2066,13 +2091,13 @@ function updateCardDisplay(rowId, cat) {
   if (isBtc) {
     const sats = parseFloat(row.value)||0;
     const dv = btcUnit==='btc' ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0' : sats.toLocaleString();
-    const usd = satsToUSD(sats);
+    const usd = satsToFiat(sats);
     valueDisplay = `${dv} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
     valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
   } else if (isBtcLoan) {
     const loanUsd=parseFloat(row.value)||0;
     const colSats=parseFloat(row.collateralSats)||0;
-    const colUsd=satsToUSD(colSats);
+    const colUsd=satsToFiat(colSats);
     valueDisplay=fmt(loanUsd);
     const mi = calcMonthlyInterest(row);
     const miStr = mi>0 ? `<span class="interest-sub">≈ ${fmtS(mi)}/mo interest</span>` : '';
@@ -2122,6 +2147,10 @@ const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
 
 // ── SETTINGS MODAL ───────────────────────────────────────────────────────────
 function openSettings() {
+  const sel = document.getElementById('settings-currency');
+  sel.innerHTML = Object.entries(CURRENCIES).map(([k,v]) =>
+    `<option value="${k}" ${k===currency?'selected':''}>${v.label}</option>`
+  ).join('');
   const el = document.getElementById('settings-rentcast-key');
   el.value = rentcastApiKey;
   el.type = 'password';
@@ -2132,8 +2161,17 @@ function closeSettings() {
   document.getElementById('settings-modal').classList.add('hidden');
 }
 function saveSettings() {
+  const newCurrency = document.getElementById('settings-currency').value;
+  const currencyChanged = newCurrency !== currency;
+  currency = newCurrency;
   rentcastApiKey = document.getElementById('settings-rentcast-key').value.trim();
   closeSettings();
+  if (currencyChanged) {
+    btcPrice = null;
+    document.getElementById('btcPairLabel').textContent = 'BTC / ' + currency;
+    fetchBtcPrice(false);
+    recalc();
+  }
   encryptAndSave().then(() => showToast('Settings saved'));
 }
 
@@ -2149,7 +2187,7 @@ function closeOnboarding() {
 function buildAvmResult(row, id) {
   const avm = row.avm;
   if (!avm) return '';
-  const fmt = v => '$' + Math.round(v).toLocaleString();
+  const fmt = v => csym() + Math.round(v).toLocaleString();
   const conf = avm.confidence ? ` · ${avm.confidence} confidence` : '';
   const fetched = avm.fetchedAt ? 'Fetched ' + new Date(avm.fetchedAt).toLocaleDateString() : '';
   return `<div class="avm-result" id="re-avm-result-${id}">
@@ -2222,7 +2260,7 @@ function useAvmValue(rowId) {
   const input = document.getElementById(`detail-${rowId}`)?.querySelector('input[type="number"]');
   if (input) input.value = price;
   recalc(); markChanged();
-  showToast('Value updated to ' + '$' + price.toLocaleString());
+  showToast('Value updated to ' + csym() + price.toLocaleString());
 }
 
 // ── BOOKMARKLET ───────────────────────────────────────────────────────────────
@@ -2421,7 +2459,7 @@ function renderGrouped(cat, container) {
   Object.entries(buckets).sort(([a],[b])=>a.localeCompare(b)).forEach(([inst, rows])=>{
     // Group header
     const groupTotal = rows.reduce((s,r)=>{
-      if (isBtc) return s+satsToUSD(parseFloat(r.value)||0);
+      if (isBtc) return s+satsToFiat(parseFloat(r.value)||0);
       return s+(parseFloat(r.value)||0);
     },0);
     const gh = document.createElement('div');
@@ -2521,8 +2559,8 @@ function sortCat(event, cat) {
   const next = sortState[cat]==='desc'?'asc':'desc';
   sortState[cat] = next;
   data[cat].sort((a,b)=>{
-    const va = cat==='bitcoin' ? satsToUSD(parseFloat(a.value)||0) : (parseFloat(a.value)||0);
-    const vb = cat==='bitcoin' ? satsToUSD(parseFloat(b.value)||0) : (parseFloat(b.value)||0);
+    const va = cat==='bitcoin' ? satsToFiat(parseFloat(a.value)||0) : (parseFloat(a.value)||0);
+    const vb = cat==='bitcoin' ? satsToFiat(parseFloat(b.value)||0) : (parseFloat(b.value)||0);
     return next==='desc' ? vb-va : va-vb;
   });
   const btn=document.getElementById(`sort-${cat}`);
@@ -2605,22 +2643,22 @@ function syncAllBtcLoanBalances() {
 // ── CALCULATE ─────────────────────────────────────────────────────────────
 function parseVal(v) { return parseFloat(v)||0; }
 function catSum(cat) {
-  if (cat==='bitcoin') return data[cat].reduce((s,r)=>s+satsToUSD(parseVal(r.value)),0);
+  if (cat==='bitcoin') return data[cat].reduce((s,r)=>s+satsToFiat(parseVal(r.value)),0);
   if (BTC_LIAB_CATS.has(cat)) return data[cat].reduce((s,r)=>s+parseVal(r.value),0);
   return data[cat].reduce((s,r)=>s+parseVal(r.value),0);
 }
 function fmt(n) {
-  const abs=Math.abs(n),sign=n<0?'-':'';
-  if(abs>=1e9)return sign+'$'+(abs/1e9).toFixed(2)+'B';
-  if(abs>=1e6)return sign+'$'+(abs/1e6).toFixed(2)+'M';
-  if(abs>=1e3)return sign+'$'+abs.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
-  return sign+'$'+abs.toFixed(0);
+  const abs=Math.abs(n),sign=n<0?'-':'',s=csym();
+  if(abs>=1e9)return sign+s+(abs/1e9).toFixed(2)+'B';
+  if(abs>=1e6)return sign+s+(abs/1e6).toFixed(2)+'M';
+  if(abs>=1e3)return sign+s+abs.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0});
+  return sign+s+abs.toFixed(0);
 }
 function fmtS(n) {
-  const abs=Math.abs(n),sign=n<0?'-':'';
-  if(abs>=1e6)return sign+'$'+(abs/1e6).toFixed(1)+'M';
-  if(abs>=1e3)return sign+'$'+(abs/1e3).toFixed(0)+'K';
-  return sign+'$'+Math.round(abs).toLocaleString();
+  const abs=Math.abs(n),sign=n<0?'-':'',s=csym();
+  if(abs>=1e6)return sign+s+(abs/1e6).toFixed(1)+'M';
+  if(abs>=1e3)return sign+s+(abs/1e3).toFixed(0)+'K';
+  return sign+s+Math.round(abs).toLocaleString();
 }
 
 function recalc() {
@@ -2628,7 +2666,7 @@ function recalc() {
   syncAllBtcLoanBalances();
   ALL_CATS.forEach(c=>{
     const el=document.getElementById(`cat-total-${c}`);
-    if(el) el.textContent=(c==='bitcoin'&&!btcPriceUSD)?'—':fmt(catSum(c));
+    if(el) el.textContent=(c==='bitcoin'&&!btcPrice)?'—':fmt(catSum(c));
   });
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0);
   const tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
@@ -2849,7 +2887,7 @@ function markChanged(){hasUnsavedChanges=true;document.getElementById('changedDo
 
 function exportJSON(){
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),btcPriceAtExport:btcPriceUSD,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
   showToast('Exported as JSON');
 }
