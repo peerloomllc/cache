@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cache — Personal Wealth Ledger</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%230d0f0e'/><text x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='20' font-style='italic' fill='%23a8d08d'>C</text></svg>">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cache">
+<meta name="theme-color" content="#0d0f0e">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230d0f0e'/><text x='90' y='125' text-anchor='middle' font-family='Georgia,serif' font-size='110' font-style='italic' fill='%23a8d08d'>C</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -3003,6 +3008,47 @@ function showToast(msg,type=''){
 
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(!isLocked)saveData();}});
 window.addEventListener('beforeunload',e=>{if(hasUnsavedChanges){e.preventDefault();e.returnValue='';}});
+
+// ── PWA ──────────────────────────────────────────────────────────────────
+(function setupPWA() {
+  if (location.protocol === 'file:') return; // PWA requires HTTP(S)
+  // Inline manifest
+  const icon = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d0f0e'/><text x='256' y='370' text-anchor='middle' font-family='Georgia,serif' font-size='320' font-style='italic' fill='%23a8d08d'>C</text></svg>";
+  const manifest = {
+    name: 'Cache — Personal Wealth Ledger',
+    short_name: 'Cache',
+    start_url: location.href.split('?')[0],
+    display: 'standalone',
+    background_color: '#0d0f0e',
+    theme_color: '#0d0f0e',
+    icons: [{ src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
+  };
+  const mLink = document.createElement('link');
+  mLink.rel = 'manifest';
+  mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
+  document.head.appendChild(mLink);
+  // Inline service worker — cache page for offline use
+  const swCode = `
+    const CACHE = 'cache-pwa-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.add(self.registration.scope)));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+      self.clients.claim();
+    });
+    self.addEventListener('fetch', e => {
+      if (e.request.mode === 'navigate') {
+        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+      }
+    });
+  `;
+  try {
+    const swBlob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob), {scope: location.pathname}).catch(()=>{});
+  } catch(_){}
+})();
 
 // ── START ─────────────────────────────────────────────────────────────────
 init();
