@@ -309,6 +309,14 @@
   .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
   .changed-indicator.visible{opacity:1}
 
+  /* ── PWA INSTALL REMINDER ── */
+  #pwa-reminder{display:none;align-items:center;justify-content:center;gap:10px;padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  #pwa-reminder.show{display:flex}
+  #pwa-reminder strong{color:var(--text);font-weight:500}
+  #pwa-reminder .pwa-r-btn{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:var(--radius);border:1px solid var(--accent-dim);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap;transition:all .15s}
+  #pwa-reminder .pwa-r-btn:hover{background:var(--accent-glow);border-color:var(--accent)}
+  #pwa-reminder .pwa-r-dismiss{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 4px;line-height:1}
+
   /* ── PWA INSTALL GATE ── */
   #pwa-install-gate{position:fixed;inset:0;z-index:1001;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
   #pwa-install-gate.hidden{display:none}
@@ -451,8 +459,10 @@
 
   @media(max-width:900px){
     .main,.charts-grid{grid-template-columns:1fr;padding:20px 16px 100px}
-    header{padding:20px 24px 18px;flex-direction:column;align-items:flex-start;gap:12px}
-    .header-right{flex-wrap:wrap;gap:10px}
+    header{padding:20px 24px 18px;flex-direction:column;align-items:center;text-align:center;gap:12px}
+    .header-left{text-align:center}
+    .header-right{flex-wrap:wrap;gap:10px;text-align:center}
+    .btn-bookmarklet{display:none}
     .net-worth-value{font-size:28px}
     .summary-bar{grid-template-columns:1fr}
     .summary-item{border-right:none;border-bottom:1px solid var(--border);padding:12px 20px}
@@ -529,7 +539,6 @@
       <div class="lock-progress" id="lock-set-progress"><div class="lock-progress-bar" id="lock-set-progress-bar"></div></div>
       <div class="lock-error" id="lock-set-error"></div>
       <button class="lock-btn" onclick="submitSetPassword()">Set Password &amp; Continue</button>
-      <button class="lock-btn secondary" id="lock-set-skip" onclick="skipPassword()" style="display:none">Continue without password</button>
       <button class="lock-btn secondary" id="lock-set-cancel" onclick="cancelChangePassword()" style="display:none">Cancel</button>
     </div>
     <div class="lock-hint" id="lock-hint">Your data is encrypted with AES-256-GCM. The password is never stored.</div>
@@ -549,6 +558,13 @@
     </div>
   </div>
 </header>
+
+<!-- ══ PWA INSTALL REMINDER ══ -->
+<div id="pwa-reminder">
+  <span>Install as an app for the best experience on mobile</span>
+  <button class="pwa-r-btn" onclick="triggerPWAInstall()">Install</button>
+  <button class="pwa-r-dismiss" onclick="dismissPWAReminder()" title="Dismiss">&times;</button>
+</div>
 
 <!-- ══ SETTINGS MODAL ══ -->
 <div id="settings-modal" class="hidden" onclick="if(event.target===this)closeSettings()">
@@ -1041,7 +1057,7 @@
     <button class="btn btn-about" onclick="openAbout()"><span class="about-icon">i</span> About</button>
     <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ Settings</button>
     <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
-    <button class="btn btn-lock" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
+    <button class="btn btn-lock btn-bookmarklet" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
     <button class="btn btn-primary" onclick="saveData()">Save ✓</button>
   </div>
 </div>
@@ -1188,13 +1204,7 @@ function showLockScreen(mode='unlock') {
   if (mode==='set') {
     document.getElementById('lock-subtitle').textContent = isChangingPw ? 'Change your password' : 'Set a password to protect your data';
     document.getElementById('lock-hint').textContent = 'AES-256-GCM encryption · PBKDF2 310k iterations · password never stored';
-    if (!isChangingPw) {
-      document.getElementById('lock-set-skip').style.display = 'block';
-      document.getElementById('lock-set-cancel').style.display = 'none';
-    } else {
-      document.getElementById('lock-set-skip').style.display = 'none';
-      document.getElementById('lock-set-cancel').style.display = 'block';
-    }
+    document.getElementById('lock-set-cancel').style.display = isChangingPw ? 'block' : 'none';
     setTimeout(()=>document.getElementById('lock-set-pw').focus(), 80);
   } else {
     document.getElementById('lock-subtitle').textContent = 'Enter your password to unlock';
@@ -1308,15 +1318,6 @@ async function submitSetPassword() {
   }, 300);
 }
 
-async function skipPassword() {
-  // No password — store plaintext (legacy compatible)
-  sessionKey = null;
-  isChangingPw = false;
-  hideLockScreen();
-  isLocked = false;
-  if (isFirstRun) { isFirstRun=false; startTour(); }
-  showToast('Running without password — data stored unencrypted');
-}
 
 function showChangePassword() {
   isChangingPw = true;
@@ -3096,6 +3097,10 @@ window.addEventListener('beforeinstallprompt', e => {
     pwaGateWaiting = false;
     showPWAGate();
   }
+  // Show persistent reminder if gate was previously dismissed
+  if (localStorage.getItem('cache-pwa-gate-dismissed') && !localStorage.getItem('cache-pwa-reminder-dismissed')) {
+    document.getElementById('pwa-reminder').classList.add('show');
+  }
 });
 
 function showPWAGate() {
@@ -3111,6 +3116,8 @@ function triggerPWAInstall() {
       showToast('App installed', 'success');
     }
     deferredInstallPrompt = null;
+    document.getElementById('pwa-reminder').classList.remove('show');
+    localStorage.setItem('cache-pwa-reminder-dismissed', '1');
     dismissPWAGate();
   });
 }
@@ -3118,12 +3125,22 @@ function triggerPWAInstall() {
 function dismissPWAGate() {
   document.getElementById('pwa-install-gate').classList.add('hidden');
   localStorage.setItem('cache-pwa-gate-dismissed', '1');
+  // Show persistent reminder if they didn't install
+  if (deferredInstallPrompt && !localStorage.getItem('cache-pwa-reminder-dismissed')) {
+    document.getElementById('pwa-reminder').classList.add('show');
+  }
   // Proceed to password setup
   showLockScreen('set');
 }
 
+function dismissPWAReminder() {
+  document.getElementById('pwa-reminder').classList.remove('show');
+  localStorage.setItem('cache-pwa-reminder-dismissed', '1');
+}
+
 window.addEventListener('appinstalled', () => {
   document.getElementById('pwa-install-gate').classList.add('hidden');
+  document.getElementById('pwa-reminder').classList.remove('show');
   deferredInstallPrompt = null;
 });
 
