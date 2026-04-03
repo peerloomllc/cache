@@ -20,14 +20,31 @@ jobs:
           token: ${{ secrets.WEBSITE_PAT }}
           path: website
 
-      - name: Copy cache.html to website
-        run: cp cache.html website/cache/app.html
+      - name: Copy cache.html and generate sw.js
+        run: |
+          cp cache.html website/cache/app.html
+          cat > website/cache/sw.js << 'SWEOF'
+          const CACHE = 'cache-pwa-v1';
+          self.addEventListener('install', e => {
+            e.waitUntil(caches.open(CACHE).then(c => c.add(self.registration.scope)));
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', e => {
+            e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+            self.clients.claim();
+          });
+          self.addEventListener('fetch', e => {
+            if (e.request.mode === 'navigate') {
+              e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+            }
+          });
+          SWEOF
 
       - name: Check for changes
         id: diff
         working-directory: website
         run: |
-          git diff --quiet cache/app.html && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+          git diff --quiet cache/ && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push
         if: steps.diff.outputs.changed == 'true'
@@ -35,8 +52,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cache/app.html
-          git commit -m "sync: update cache/app.html from cache repo
+          git add cache/app.html cache/sw.js
+          git commit -m "sync: update cache from cache repo
 
           Triggered by ${{ github.event.head_commit.url }}"
           git push
