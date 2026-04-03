@@ -1069,13 +1069,40 @@
   <div class="pwa-gate-card">
     <div class="pwa-gate-icon">&#11015;&#65039;</div>
     <div class="pwa-gate-title">Install Ca<span>che</span></div>
-    <div class="pwa-gate-body">
-      For the best experience, install Cache as an app on your device.<br><br>
-      <strong>Quick access</strong> from your home screen<br>
-      <strong>Offline support</strong> with no internet needed<br>
-      <strong>Full screen</strong> with no browser chrome
+    <!-- Chromium: one-tap install -->
+    <div id="pwa-gate-auto" style="display:none">
+      <div class="pwa-gate-body">
+        For the best experience, install Cache as an app on your device.<br><br>
+        <strong>Quick access</strong> from your home screen<br>
+        <strong>Offline support</strong> with no internet needed<br>
+        <strong>Full screen</strong> with no browser chrome
+      </div>
+      <button class="pwa-gate-btn" onclick="triggerPWAInstall()">Install App</button>
     </div>
-    <button class="pwa-gate-btn" onclick="triggerPWAInstall()">Install App</button>
+    <!-- Safari iOS -->
+    <div id="pwa-gate-safari" style="display:none">
+      <div class="pwa-gate-body">
+        Add Cache to your home screen for quick access and full-screen mode.<br><br>
+        <strong>1.</strong> Tap the <strong>Share</strong> button <span style="font-size:16px">&#xFEFF;&#x2191;&#xFE0E;</span> at the bottom of Safari<br>
+        <strong>2.</strong> Scroll down and tap <strong>Add to Home Screen</strong><br>
+        <strong>3.</strong> Tap <strong>Add</strong> in the top right
+      </div>
+    </div>
+    <!-- Firefox Android -->
+    <div id="pwa-gate-firefox" style="display:none">
+      <div class="pwa-gate-body">
+        Add Cache to your home screen for quick access.<br><br>
+        <strong>1.</strong> Tap the <strong>menu</strong> button <span style="font-size:14px">&#8942;</span> in the toolbar<br>
+        <strong>2.</strong> Tap <strong>Install</strong> or <strong>Add to Home Screen</strong>
+      </div>
+    </div>
+    <!-- Desktop fallback -->
+    <div id="pwa-gate-desktop" style="display:none">
+      <div class="pwa-gate-body">
+        For the best experience, install Cache as an app.<br><br>
+        Look for the <strong>install icon</strong> in your browser's address bar, or check the browser menu for <strong>Install</strong> or <strong>Add to Home Screen</strong>.
+      </div>
+    </div>
     <button class="pwa-gate-skip" onclick="dismissPWAGate()">Continue in browser</button>
   </div>
 </div>
@@ -1446,26 +1473,22 @@ function initLockSystem() {
   isFirstRun = true;
   isLocked   = false;
 
-  // Show PWA install gate before password setup (only on first visit, if eligible)
-  // beforeinstallprompt is Chromium-only; skip the gate on Firefox/Safari
-  const canPromptInstall = 'BeforeInstallPromptEvent' in window;
-  if (!localStorage.getItem('cache-pwa-gate-dismissed') && canPromptInstall) {
-    if (deferredInstallPrompt) {
-      // beforeinstallprompt already fired — show gate immediately
-      showPWAGate();
-    } else if (location.protocol !== 'file:') {
-      // Wait briefly for beforeinstallprompt to fire
+  // Show PWA install gate before password setup (first visit only)
+  if (!localStorage.getItem('cache-pwa-gate-dismissed') && location.protocol !== 'file:') {
+    const canPrompt = 'BeforeInstallPromptEvent' in window;
+    if (canPrompt && !deferredInstallPrompt) {
+      // Chromium: wait briefly for beforeinstallprompt to fire
       pwaGateWaiting = true;
       setTimeout(() => {
         if (pwaGateWaiting) {
           pwaGateWaiting = false;
-          showLockScreen('set');
+          showPWAGate();
         }
       }, 3000);
       return;
-    } else {
-      showLockScreen('set');
     }
+    // Non-Chromium or prompt already available: show gate immediately
+    showPWAGate();
   } else {
     showLockScreen('set');
   }
@@ -3106,6 +3129,27 @@ window.addEventListener('beforeinstallprompt', e => {
 
 function showPWAGate() {
   document.getElementById('lock-screen').classList.add('hidden');
+  // Detect browser/platform and show the right instructions
+  const ua = navigator.userAgent;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (isStandalone) {
+    // Already installed as PWA, skip gate
+    showLockScreen('set');
+    return;
+  }
+  const canPrompt = 'BeforeInstallPromptEvent' in window;
+  const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/CriOS/.test(ua);
+  const isFirefoxMobile = /Firefox/.test(ua) && /Mobile|Android/.test(ua);
+  const isMobile = /Mobile|Android|iPhone|iPad/.test(ua);
+  if (canPrompt) {
+    document.getElementById('pwa-gate-auto').style.display = '';
+  } else if (isSafari && isMobile) {
+    document.getElementById('pwa-gate-safari').style.display = '';
+  } else if (isFirefoxMobile) {
+    document.getElementById('pwa-gate-firefox').style.display = '';
+  } else {
+    document.getElementById('pwa-gate-desktop').style.display = '';
+  }
   document.getElementById('pwa-install-gate').classList.remove('hidden');
 }
 
