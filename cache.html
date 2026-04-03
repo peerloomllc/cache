@@ -1069,6 +1069,29 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+// ── PWA (early registration for install prompt) ──────────────────────────
+(function setupPWA() {
+  if (location.protocol === 'file:') return;
+  const icon = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d0f0e'/><text x='256' y='370' text-anchor='middle' font-family='Georgia,serif' font-size='320' font-style='italic' fill='%23a8d08d'>C</text></svg>";
+  const manifest = {
+    name: 'Cache — Personal Wealth Ledger',
+    short_name: 'Cache',
+    start_url: location.href.split('?')[0],
+    display: 'standalone',
+    background_color: '#0d0f0e',
+    theme_color: '#0d0f0e',
+    icons: [{ src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
+  };
+  const mLink = document.createElement('link');
+  mLink.rel = 'manifest';
+  mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
+  document.head.appendChild(mLink);
+  try {
+    const swPath = new URL('sw.js', location.href).href;
+    navigator.serviceWorker.register(swPath).catch(()=>{});
+  } catch(_){}
+})();
+
 // ══════════════════════════════════════════════════════════════════════════
 // ── ENCRYPTION / LOCK SYSTEM (Web Crypto API — AES-256-GCM + PBKDF2) ─────
 // ══════════════════════════════════════════════════════════════════════════
@@ -3035,7 +3058,7 @@ window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
   if (!localStorage.getItem('cache-pwa-banner-dismissed')) {
-    setTimeout(() => document.getElementById('pwa-install-banner').classList.add('show'), 1500);
+    document.getElementById('pwa-install-banner').classList.add('show');
   }
 });
 
@@ -3061,31 +3084,6 @@ window.addEventListener('appinstalled', () => {
   document.getElementById('pwa-install-banner').classList.remove('show');
   deferredInstallPrompt = null;
 });
-
-// ── PWA ──────────────────────────────────────────────────────────────────
-(function setupPWA() {
-  if (location.protocol === 'file:') return; // PWA requires HTTP(S)
-  // Inline manifest
-  const icon = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d0f0e'/><text x='256' y='370' text-anchor='middle' font-family='Georgia,serif' font-size='320' font-style='italic' fill='%23a8d08d'>C</text></svg>";
-  const manifest = {
-    name: 'Cache — Personal Wealth Ledger',
-    short_name: 'Cache',
-    start_url: location.href.split('?')[0],
-    display: 'standalone',
-    background_color: '#0d0f0e',
-    theme_color: '#0d0f0e',
-    icons: [{ src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
-  };
-  const mLink = document.createElement('link');
-  mLink.rel = 'manifest';
-  mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
-  document.head.appendChild(mLink);
-  // Register service worker for offline use and PWA installability
-  try {
-    const swPath = new URL('sw.js', location.href).href;
-    navigator.serviceWorker.register(swPath).catch(()=>{});
-  } catch(_){}
-})();
 
 // ── START ─────────────────────────────────────────────────────────────────
 init();
