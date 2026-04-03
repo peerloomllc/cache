@@ -3399,14 +3399,16 @@ function loadData(){
 function clearAll(){
   if(!confirm('Clear all entries? This cannot be undone.'))return;
   ALL_CATS.forEach(c=>{data[c]=[];sortState[c]=null;});
-  renderAll(); recalc(); markChanged();
+  snapshots = [];
+  recurring = [];
+  renderAll(); recalc(); buildCashFlowTab(); markChanged();
   showToast('All entries cleared');
 }
 function markChanged(){hasUnsavedChanges=true;document.getElementById('changedDot').classList.add('visible');}
 
 function exportJSON(){
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data,recurring,snapshots},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
   showToast('Exported as JSON');
 }
@@ -3423,7 +3425,9 @@ function handleImportFile(event){
       if(finalKeys.length===0){showToast('Invalid JSON: no recognized categories found','error');return;}
       if(!confirm(`Import will replace current data with ${finalKeys.length} categories from the file. Continue?`))return;
       ALL_CATS.forEach(c=>{data[c]=incoming[c]||[];sortState[c]=null;});
-      renderAll(); recalc(); markChanged();
+      if(Array.isArray(p.recurring)) recurring=p.recurring;
+      if(Array.isArray(p.snapshots)) snapshots=p.snapshots;
+      renderAll(); recalc(); buildCashFlowTab(); markChanged();
       showToast(`Imported ${finalKeys.length} categories`,'success');
     }catch(err){showToast('Failed to parse JSON file','error');console.error(err);}
     event.target.value='';
