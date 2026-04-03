@@ -327,7 +327,7 @@
   /* ── SETTINGS MODAL ── */
   #settings-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #settings-modal.hidden{display:none}
-  .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
+  .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
   .settings-title{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
   .settings-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
   .settings-input{background:var(--surface2);border:1px solid var(--border-light);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 11px;outline:none;transition:border-color .15s;width:100%}
@@ -537,6 +537,26 @@
     <div style="display:flex;gap:8px">
       <button class="settings-save-btn" onclick="saveSettings()" style="flex:1">Save Settings</button>
       <button class="settings-close-btn" onclick="closeSettings()">Cancel</button>
+    </div>
+    <hr class="about-divider">
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Change Password</div>
+      <button class="settings-close-btn" onclick="closeSettings();showChangePassword()" style="width:100%">🔑 Change Password</button>
+    </div>
+    <hr class="about-divider">
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Import / Export</div>
+      <div style="display:flex;gap:8px">
+        <button class="settings-close-btn" onclick="closeSettings();document.getElementById('importFileInput').click()" style="flex:1">Import JSON</button>
+        <button class="settings-close-btn" onclick="closeSettings();exportJSON()" style="flex:1">Export JSON</button>
+      </div>
+      <div class="settings-help" style="margin-top:6px">Export a backup or import a previously exported file.</div>
+    </div>
+    <hr class="about-divider">
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Clear Data</div>
+      <button class="settings-close-btn" onclick="closeSettings();clearAll()" style="width:100%;color:var(--red);border-color:var(--red-dim)">Clear All Data</button>
+      <div class="settings-help" style="margin-top:6px">Removes all entries from memory. Does not delete saved data — use Save to persist.</div>
     </div>
   </div>
 </div>
@@ -982,12 +1002,8 @@
   <div class="btn-group">
     <button class="btn btn-about" onclick="openAbout()"><span class="about-icon">i</span> About</button>
     <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ Settings</button>
-    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
-    <button class="btn btn-lock" onclick="showChangePassword()" title="Change password">🔑 Password</button>
     <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
     <button class="btn btn-lock" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
-    <button class="btn btn-import" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
-    <button class="btn btn-export" onclick="exportJSON()">Export JSON</button>
     <button class="btn btn-primary" onclick="saveData()">Save ✓</button>
   </div>
 </div>
