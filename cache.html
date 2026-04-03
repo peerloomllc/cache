@@ -3080,26 +3080,10 @@ window.addEventListener('appinstalled', () => {
   mLink.rel = 'manifest';
   mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
   document.head.appendChild(mLink);
-  // Inline service worker — cache page for offline use
-  const swCode = `
-    const CACHE = 'cache-pwa-v1';
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.add(self.registration.scope)));
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-      self.clients.claim();
-    });
-    self.addEventListener('fetch', e => {
-      if (e.request.mode === 'navigate') {
-        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-      }
-    });
-  `;
+  // Register service worker for offline use and PWA installability
   try {
-    const swBlob = new Blob([swCode], {type:'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob), {scope: location.pathname}).catch(()=>{});
+    const swPath = new URL('sw.js', location.href).href;
+    navigator.serviceWorker.register(swPath).catch(()=>{});
   } catch(_){}
 })();
 
