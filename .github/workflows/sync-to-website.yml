@@ -2,8 +2,9 @@ name: Sync to PeerLoom website
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths: [cache.html]
+  workflow_dispatch:
 
 jobs:
   sync:
