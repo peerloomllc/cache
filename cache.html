@@ -17,12 +17,23 @@
     --mono:'DM Mono',monospace; --serif:'DM Serif Display',serif; --sans:'DM Sans',sans-serif;
     --radius:6px;
   }
+  [data-theme="light"] {
+    --bg:#f4f6f4; --surface:#ffffff; --surface2:#edf0ed;
+    --border:#d0d8d0; --border-light:#bec8be;
+    --accent:#3d7a22; --accent-dim:#5a9e3a; --accent-glow:rgba(61,122,34,0.10);
+    --red:#c0392b; --red-dim:#a83226; --red-glow:rgba(192,57,43,0.08);
+    --gold:#b8860b; --btc:#e67e00; --btc-glow:rgba(230,126,0,0.08);
+    --blue:#2874a6;
+    --text:#1a1e1a; --text-muted:#5a6a5a; --text-dim:#8a9a8a;
+    --header-bg:linear-gradient(180deg,rgba(244,246,244,.98),rgba(237,240,237,.95));
+    --bar-bg:rgba(244,246,244,.95);
+  }
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
   /* ── HEADER ── */
-  header{position:relative;z-index:10;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95));backdrop-filter:blur(12px)}
+  header{position:relative;z-index:10;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95)));backdrop-filter:blur(12px)}
   .header-left h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:-.5px;line-height:1}
   .header-left h1 span{color:var(--accent);font-style:italic}
   .header-left .subtitle{margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
@@ -34,14 +45,14 @@
 
   /* ── SUMMARY BAR ── */
   .summary-bar{position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);background:var(--surface)}
-  .summary-item{padding:16px 32px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+  .summary-item{padding:16px 32px;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
   .summary-item:last-child{border-right:none}
   .s-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
   .s-value{font-family:var(--mono);font-size:20px;font-weight:500}
   .s-value.assets{color:var(--accent)} .s-value.liabilities{color:var(--red)} .s-value.ratio{color:var(--gold)}
 
   /* ── BTC TICKER BAR ── */
-  .btc-bar{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
+  .btc-bar{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
   .btc-bar-left{display:flex;align-items:center;gap:12px}
   .btc-logo{font-size:14px;color:var(--btc)}
   .btc-price-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
@@ -55,7 +66,7 @@
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
   /* ── TAB NAV ── */
-  .tab-nav{position:relative;z-index:10;display:flex;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
+  .tab-nav{position:relative;z-index:10;display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
   .tab-btn{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);padding:14px 20px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
   .tab-btn:hover{color:var(--text-muted)}
   .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -268,7 +279,7 @@
   .interest-sub{display:block;font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:2px}
 
   /* ── SAVE BAR ── */
-  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:rgba(13,15,14,.95);border-top:1px solid var(--border);backdrop-filter:blur(12px)}
+  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:var(--bar-bg,rgba(13,15,14,.95));border-top:1px solid var(--border);backdrop-filter:blur(12px)}
   .save-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:1px}
   .save-hint span{color:var(--accent-dim)}
   .btn-group{display:flex;gap:8px}
@@ -508,7 +519,7 @@
 <header>
   <div class="header-left">
     <h1>Ca<span>che</span></h1>
-    <div class="subtitle">Personal Wealth Ledger &nbsp;·&nbsp; Local Only</div>
+    <div class="subtitle">Personal Wealth Ledger</div>
   </div>
   <div class="header-right" style="display:flex;align-items:flex-end;gap:16px">
     <div>
@@ -527,6 +538,13 @@
       <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
       <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
       <div class="settings-help" style="margin-top:6px">Converts all values using live exchange rates. BTC price is quoted in the selected currency.</div>
+    </div>
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Theme</div>
+      <div style="display:flex;gap:8px">
+        <button class="settings-close-btn" id="theme-dark-btn" onclick="setThemeSetting('dark')" style="flex:1">🌙 Dark</button>
+        <button class="settings-close-btn" id="theme-light-btn" onclick="setThemeSetting('light')" style="flex:1">☀ Light</button>
+      </div>
     </div>
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
@@ -1289,7 +1307,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, theme, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1307,6 +1325,8 @@ function applyLoadedPayload(p) {
     currency = 'USD';
   }
   document.getElementById('btcPairLabel').textContent = 'BTC / ' + currency;
+  if (p.theme === 'light' || p.theme === 'dark') theme = p.theme;
+  applyTheme();
   fetchFxRate().then(() => recalc());
   if (p.data) {
     if (p.data.crypto && !p.data.bitcoin) p.data.bitcoin = p.data.crypto;
@@ -1594,7 +1614,12 @@ const CURRENCIES = {
 };
 let currency = 'USD';
 let fxRate = 1;
+let theme = 'dark';
 function csym() { return CURRENCIES[currency].symbol; }
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function chartColor(dark, light) { return theme === 'light' ? light : dark; }
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 let data = {};
@@ -2176,11 +2201,27 @@ const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
 }
 
 // ── SETTINGS MODAL ───────────────────────────────────────────────────────────
+function updateThemeButtons() {
+  const dk = document.getElementById('theme-dark-btn');
+  const lt = document.getElementById('theme-light-btn');
+  dk.style.borderColor = theme==='dark' ? 'var(--accent)' : '';
+  dk.style.color = theme==='dark' ? 'var(--accent)' : '';
+  lt.style.borderColor = theme==='light' ? 'var(--accent)' : '';
+  lt.style.color = theme==='light' ? 'var(--accent)' : '';
+}
+function setThemeSetting(t) {
+  theme = t;
+  applyTheme();
+  updateThemeButtons();
+  recalc();
+  encryptAndSave();
+}
 function openSettings() {
   const sel = document.getElementById('settings-currency');
   sel.innerHTML = Object.entries(CURRENCIES).map(([k,v]) =>
     `<option value="${k}" ${k===currency?'selected':''}>${v.label}</option>`
   ).join('');
+  updateThemeButtons();
   const el = document.getElementById('settings-rentcast-key');
   el.value = rentcastApiKey;
   el.type = 'password';
@@ -2721,7 +2762,14 @@ function recalc() {
 }
 
 // ── CHARTS ────────────────────────────────────────────────────────────────
-const TTIP={backgroundColor:'#1a1e1a',borderColor:'#2e352e',borderWidth:1,titleColor:'#e8ede8',bodyColor:'#7a8a7a',padding:10};
+function TTIP(){return{backgroundColor:chartColor('#1a1e1a','#ffffff'),borderColor:chartColor('#2e352e','#d0d8d0'),borderWidth:1,titleColor:chartColor('#e8ede8','#1a1e1a'),bodyColor:chartColor('#7a8a7a','#5a6a5a'),padding:10};}
+function cBg(){return chartColor('#0d0f0e','#ffffff');}
+function cEmpty(){return chartColor('#252a25','#d0d8d0');}
+function cTick(){return chartColor('#4a5a4a','#8a9a8a');}
+function cTickHi(){return chartColor('#7a8a7a','#5a6a5a');}
+function cGrid(){return chartColor('rgba(255,255,255,.04)','rgba(0,0,0,.06)');}
+function cGridSub(){return chartColor('rgba(255,255,255,.03)','rgba(0,0,0,.04)');}
+function cGridNone(){return chartColor('#1a1e1a','#edf0ed');}
 function buildLegend(id,labels,colors,values,total){
   const el=document.getElementById(id); if(!el)return;
   el.innerHTML=labels.map((l,i)=>{
@@ -2733,7 +2781,7 @@ function mkDonut(id,labels,colors,values){
   if(chartInst[id])chartInst[id].destroy();
   const ctx=document.getElementById(id); if(!ctx)return;
   const hasData=values.some(v=>v>0);
-  chartInst[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:hasData?values:[1],backgroundColor:hasData?colors:['#252a25'],borderColor:'#0d0f0e',borderWidth:3,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{enabled:hasData,...TTIP,callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return ` ${fmtS(c.raw)} (${t>0?((c.raw/t)*100).toFixed(1):0}%)`;}}}}}});
+  chartInst[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:hasData?values:[1],backgroundColor:hasData?colors:[cEmpty()],borderColor:cBg(),borderWidth:3,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{enabled:hasData,...TTIP(),callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return ` ${fmtS(c.raw)} (${t>0?((c.raw/t)*100).toFixed(1):0}%)`;}}}}}});
 }
 function mkBarAvsL(){
   if(chartInst['avsl'])chartInst['avsl'].destroy();
@@ -2742,14 +2790,14 @@ function mkBarAvsL(){
   const labels=idx.map(i=>CAT_META[ALL_CATS[i]].label);
   const aVals=idx.map(i=>ASSET_CATS.includes(ALL_CATS[i])?catSumDisplay(ALL_CATS[i]):0);
   const lVals=idx.map(i=>LIAB_CATS.includes(ALL_CATS[i])?catSumDisplay(ALL_CATS[i]):0);
-  chartInst['avsl']=new Chart(ctx,{type:'bar',data:{labels:labels.length?labels:['No data'],datasets:[{label:'Assets',data:aVals,backgroundColor:'rgba(168,208,141,.75)',borderColor:'#a8d08d',borderWidth:1,borderRadius:3},{label:'Liabilities',data:lVals,backgroundColor:'rgba(224,112,112,.65)',borderColor:'#e07070',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#4a5a4a',font:{size:11},maxRotation:35,autoSkip:false},grid:{color:'#1a1e1a'}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  chartInst['avsl']=new Chart(ctx,{type:'bar',data:{labels:labels.length?labels:['No data'],datasets:[{label:'Assets',data:aVals,backgroundColor:'rgba(168,208,141,.75)',borderColor:'#a8d08d',borderWidth:1,borderRadius:3},{label:'Liabilities',data:lVals,backgroundColor:'rgba(224,112,112,.65)',borderColor:'#e07070',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP(),callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:cTick(),font:{size:11},maxRotation:35,autoSkip:false},grid:{color:cGridNone()}},y:{ticks:{color:cTick(),font:{size:11},callback:v=>fmtS(v)},grid:{color:cGrid()}}}}});
 }
 function mkNWChart(tA,tL,nw){
   if(chartInst['nw'])chartInst['nw'].destroy();
   const ctx=document.getElementById('chartNW'); if(!ctx)return;
   const nc=nw>=0?'rgba(168,208,141,.8)':'rgba(224,112,112,.8)';
   const nb=nw>=0?'#a8d08d':'#e07070';
-  chartInst['nw']=new Chart(ctx,{type:'bar',data:{labels:['Total Assets','Total Liabilities','Net Worth'],datasets:[{data:[tA,tL,Math.abs(nw)],backgroundColor:['rgba(168,208,141,.75)','rgba(224,112,112,.65)',nc],borderColor:['#a8d08d','#e07070',nb],borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#7a8a7a',font:{size:12,weight:'500'}},grid:{display:false}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  chartInst['nw']=new Chart(ctx,{type:'bar',data:{labels:['Total Assets','Total Liabilities','Net Worth'],datasets:[{data:[tA,tL,Math.abs(nw)],backgroundColor:['rgba(168,208,141,.75)','rgba(224,112,112,.65)',nc],borderColor:['#a8d08d','#e07070',nb],borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTIP(),callbacks:{label:c=>` ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:cTickHi(),font:{size:12,weight:'500'}},grid:{display:false}},y:{ticks:{color:cTick(),font:{size:11},callback:v=>fmtS(v)},grid:{color:cGrid()}}}}});
 }
 function mkTable(tA,tL){
   const grand=tA+tL;
@@ -2761,7 +2809,7 @@ function mkHistoryChart(){
   if(chartInst['hist'])chartInst['hist'].destroy();
   const ctx=document.getElementById('chartHistory'); if(!ctx)return;
   if(!snapshots.length){
-    chartInst['hist']=new Chart(ctx,{type:'line',data:{labels:['No data yet'],datasets:[{data:[null],borderColor:'#252a25',pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{color:'#4a5a4a'}},y:{ticks:{color:'#4a5a4a'}}}}});
+    chartInst['hist']=new Chart(ctx,{type:'line',data:{labels:['No data yet'],datasets:[{data:[null],borderColor:cEmpty(),pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{color:cTick()}},y:{ticks:{color:cTick()}}}}});
     return;
   }
   const labels=snapshots.map(s=>{
@@ -2777,7 +2825,7 @@ function mkHistoryChart(){
     {label:'Net Worth',data:nwVals,borderColor:'#a8d08d',backgroundColor:'rgba(168,208,141,0.08)',pointRadius:snapshots.length>60?0:3,pointHoverRadius:5,borderWidth:2,fill:true,tension:0.3},
     {label:'Assets',data:aVals,borderColor:'rgba(168,208,141,0.4)',pointRadius:0,borderWidth:1,fill:false,tension:0.3,borderDash:[4,3]},
     {label:'Liabilities',data:lVals,borderColor:'rgba(224,112,112,0.4)',pointRadius:0,borderWidth:1,fill:false,tension:0.3,borderDash:[4,3]},
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TTIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:'#4a5a4a',font:{size:10},maxRotation:35,autoSkip:true,maxTicksLimit:12},grid:{color:'rgba(255,255,255,.03)'}},y:{ticks:{color:'#4a5a4a',font:{size:11},callback:v=>fmtS(v)},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TTIP(),callbacks:{label:c=>` ${c.dataset.label}: ${fmtS(c.raw)}`}}},scales:{x:{ticks:{color:cTick(),font:{size:10},maxRotation:35,autoSkip:true,maxTicksLimit:12},grid:{color:cGridSub()}},y:{ticks:{color:cTick(),font:{size:11},callback:v=>fmtS(v)},grid:{color:cGrid()}}}}});
 }
 function refreshCharts(tA,tL,nw){
   mkHistoryChart();
