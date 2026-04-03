@@ -507,7 +507,7 @@
 <body>
 
 <!-- ══ LOCK SCREEN ══ -->
-<div id="lock-screen">
+<div id="lock-screen" class="hidden">
   <div class="lock-card">
     <div>
       <div class="lock-title">Ca<span>che</span></div>
@@ -1447,7 +1447,9 @@ function initLockSystem() {
   isLocked   = false;
 
   // Show PWA install gate before password setup (only on first visit, if eligible)
-  if (!localStorage.getItem('cache-pwa-gate-dismissed')) {
+  // beforeinstallprompt is Chromium-only; skip the gate on Firefox/Safari
+  const canPromptInstall = 'BeforeInstallPromptEvent' in window;
+  if (!localStorage.getItem('cache-pwa-gate-dismissed') && canPromptInstall) {
     if (deferredInstallPrompt) {
       // beforeinstallprompt already fired — show gate immediately
       showPWAGate();
@@ -1456,7 +1458,6 @@ function initLockSystem() {
       pwaGateWaiting = true;
       setTimeout(() => {
         if (pwaGateWaiting) {
-          // Timed out — browser won't offer install, skip to password
           pwaGateWaiting = false;
           showLockScreen('set');
         }
