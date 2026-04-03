@@ -309,6 +309,17 @@
   .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
   .changed-indicator.visible{opacity:1}
 
+  /* ── PWA INSTALL BANNER ── */
+  #pwa-install-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);z-index:500;background:var(--surface2);border:1px solid var(--accent-dim);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:14px;max-width:480px;width:calc(100% - 48px);opacity:0;transition:all .35s ease;pointer-events:none}
+  #pwa-install-banner.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  #pwa-install-banner .pwa-icon{font-size:24px;flex-shrink:0}
+  #pwa-install-banner .pwa-text{flex:1;font-family:var(--mono);font-size:12px;color:var(--text-muted);line-height:1.5}
+  #pwa-install-banner .pwa-text strong{color:var(--text);font-weight:500}
+  #pwa-install-banner .pwa-btn{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--accent-dim);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap;transition:all .15s}
+  #pwa-install-banner .pwa-btn:hover{background:var(--accent-glow);border-color:var(--accent)}
+  #pwa-install-banner .pwa-dismiss{font-family:var(--mono);font-size:14px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;line-height:1;transition:color .15s}
+  #pwa-install-banner .pwa-dismiss:hover{color:var(--text-muted)}
+
   /* ── LOCK SCREEN ── */
   #lock-screen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
   #lock-screen.hidden{display:none}
@@ -1033,6 +1044,14 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ PWA INSTALL BANNER ══ -->
+<div id="pwa-install-banner">
+  <div class="pwa-icon">&#11015;&#65039;</div>
+  <div class="pwa-text"><strong>Install Cache</strong> for quick access and offline use. Works like a native app.</div>
+  <button class="pwa-btn" id="pwa-install-btn" onclick="triggerPWAInstall()">Install</button>
+  <button class="pwa-dismiss" onclick="dismissPWABanner()" title="Dismiss">&times;</button>
+</div>
 
 <!-- ══ GUIDED TOUR ══ -->
 <div id="tour-overlay" class="hidden"></div>
@@ -3008,6 +3027,40 @@ function showToast(msg,type=''){
 
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(!isLocked)saveData();}});
 window.addEventListener('beforeunload',e=>{if(hasUnsavedChanges){e.preventDefault();e.returnValue='';}});
+
+// ── PWA INSTALL BANNER ───────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (!localStorage.getItem('cache-pwa-banner-dismissed')) {
+    setTimeout(() => document.getElementById('pwa-install-banner').classList.add('show'), 1500);
+  }
+});
+
+function triggerPWAInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') {
+      showToast('App installed', 'success');
+    }
+    deferredInstallPrompt = null;
+    document.getElementById('pwa-install-banner').classList.remove('show');
+    localStorage.setItem('cache-pwa-banner-dismissed', '1');
+  });
+}
+
+function dismissPWABanner() {
+  document.getElementById('pwa-install-banner').classList.remove('show');
+  localStorage.setItem('cache-pwa-banner-dismissed', '1');
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-install-banner').classList.remove('show');
+  deferredInstallPrompt = null;
+});
 
 // ── PWA ──────────────────────────────────────────────────────────────────
 (function setupPWA() {
