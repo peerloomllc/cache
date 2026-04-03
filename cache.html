@@ -363,6 +363,8 @@
   .about-link:hover{background:rgba(168,208,141,0.08)}
   .about-links-row{display:flex;gap:8px;flex-wrap:wrap}
   .about-links-row .about-link{flex:1;min-width:120px}
+  .about-close-btn{display:none;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;width:100%}
+  .about-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-about{background:transparent;border:1px solid var(--accent-dim);color:var(--accent);position:relative}
   .btn-about:hover{background:rgba(168,208,141,0.08);border-color:var(--accent)}
   .btn-about .about-icon{display:inline-block;width:14px;height:14px;border:1.5px solid currentColor;border-radius:50%;text-align:center;line-height:13px;font-size:10px;font-style:italic;font-family:Georgia,serif;margin-right:4px}
@@ -419,14 +421,45 @@
   @media(max-width:900px){
     .main,.charts-grid{grid-template-columns:1fr;padding:20px 16px 100px}
     header{padding:20px 24px 18px;flex-direction:column;align-items:flex-start;gap:12px}
+    .header-right{flex-wrap:wrap;gap:10px}
+    .net-worth-value{font-size:28px}
     .summary-bar{grid-template-columns:1fr}
-    .summary-item{border-right:none;border-bottom:1px solid var(--border)}
+    .summary-item{border-right:none;border-bottom:1px solid var(--border);padding:12px 20px}
     .chart-card.wide{grid-column:1}
-    .save-bar{padding:12px 16px;flex-wrap:wrap;gap:8px}
-    .tab-nav{padding:0 16px}
-    .btc-bar{padding:8px 16px}
+    /* Save bar: horizontal scroll on mobile */
+    .save-bar{padding:10px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;flex-wrap:nowrap}
+    .save-hint{display:none}
+    .btn-group{flex-wrap:nowrap;flex-shrink:0;gap:6px}
+    .btn-group .btn{padding:8px 10px;font-size:10px;white-space:nowrap;flex-shrink:0}
+    /* Tab nav: scrollable */
+    .tab-nav{padding:0 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+    .tab-btn{padding:12px 14px;flex-shrink:0;white-space:nowrap}
+    .btc-bar{padding:8px 12px;flex-wrap:wrap;gap:6px}
     .entry-fields{grid-template-columns:1fr}
     .entry-fields.three-col{grid-template-columns:1fr}
+    /* Summary bar values */
+    .s-value{font-size:16px}
+    /* Section header: wrap controls below title */
+    .section-header{flex-wrap:wrap;padding:12px 14px;gap:8px}
+    .section-header-controls{gap:6px}
+    .section-total{font-size:14px}
+    .collapse-all-btn{font-size:8px;padding:2px 6px}
+    /* Cash flow: stack summary row */
+    .cf-grid{padding:20px 16px 100px}
+    .cf-summary-row{grid-template-columns:1fr}
+    .cf-stat-value{font-size:22px}
+    /* Cash flow tables: horizontal scroll */
+    #cf-table-wrap,#cf-cat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .cf-table{min-width:600px}
+    .cf-table th,.cf-table td{padding:7px 10px;font-size:11px}
+    /* Modals: full-width on small screens */
+    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
+    .about-card{max-height:80vh;gap:12px}
+    .about-card .about-body{font-size:10px;line-height:1.5}
+    .about-card .about-link{font-size:11px;padding:7px 10px}
+    .about-close-btn{display:block}
+    /* Tour tooltip */
+    #tour-tooltip{width:calc(100vw - 32px);max-width:340px}
   }
 </style>
 </head>
@@ -566,6 +599,7 @@
     <div style="text-align:center">
       <a class="about-link" href="https://peerloomllc.com" target="_blank" rel="noopener" style="display:inline-flex">PeerLoom LLC &#8599;</a>
     </div>
+    <button class="about-close-btn" onclick="closeAbout()">Close</button>
   </div>
 </div>
 
