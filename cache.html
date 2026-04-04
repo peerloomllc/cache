@@ -42,7 +42,7 @@
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
   /* ── HEADER ── */
-  header{position:relative;z-index:10;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95)));backdrop-filter:blur(12px)}
+  header{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95)));backdrop-filter:blur(12px)}
   .header-left h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:-.5px;line-height:1}
   .header-left h1 span{color:var(--accent);font-style:italic}
   .header-left .subtitle{margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
@@ -53,7 +53,7 @@
   .last-updated{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
 
   /* ── SUMMARY BAR ── */
-  .summary-bar{position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);background:var(--surface)}
+  .summary-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);background:var(--surface)}
   .summary-item{padding:16px 32px;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
   .summary-item:last-child{border-right:none}
   .s-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
@@ -75,7 +75,7 @@
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
   /* ── TAB NAV ── */
-  .tab-nav{position:relative;z-index:10;display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
+  .tab-nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
   .tab-btn{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);padding:14px 20px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
   .tab-btn:hover{color:var(--text-muted)}
   .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -1305,6 +1305,23 @@ function hideLockScreen() {
   document.getElementById('lock-set-pw2').value  = '';
 }
 
+function setStickyOffsets() {
+  const header  = document.querySelector('header');
+  const summary = document.querySelector('.summary-bar');
+  const tabNav  = document.querySelector('.tab-nav');
+  const hH = header.offsetHeight;
+  const sH = summary.offsetHeight;
+  const tH = tabNav.offsetHeight;
+  summary.style.top = hH + 'px';
+  tabNav.style.top  = (hH + sH) + 'px';
+  document.querySelectorAll('.view').forEach(v =>
+    v.style.paddingTop = (hH + sH + tH + 24) + 'px'
+  );
+}
+window.addEventListener('resize', () => {
+  if (!isLocked) setStickyOffsets();
+});
+
 function setLockProgress(id, barId, pct, active) {
   const wrap = document.getElementById(id);
   const bar  = document.getElementById(barId);
@@ -1347,6 +1364,7 @@ async function submitUnlock() {
       isLocked = false;
       resetIdleTimer();
       renderAll(); recalc();
+      requestAnimationFrame(setStickyOffsets);
     }, 200);
   } catch(e) {
     setLockProgress('lock-progress','lock-progress-bar', 0, false);
@@ -1398,6 +1416,7 @@ async function submitSetPassword() {
     hideLockScreen();
     isLocked = false;
     resetIdleTimer();
+    requestAnimationFrame(setStickyOffsets);
     if (isFirstRun) { isFirstRun=false; startTour(); }
     showToast('Password set — data is now encrypted', 'success');
   }, 300);
@@ -1520,6 +1539,7 @@ function initLockSystem() {
     } catch(e) {}
     isLocked = false;
     hideLockScreen();
+    requestAnimationFrame(setStickyOffsets);
     // Prompt to upgrade to password protection
     setTimeout(()=>{
       if (confirm('Your data is currently unencrypted. Set a password to protect it?')) {
