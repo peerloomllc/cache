@@ -1600,7 +1600,7 @@ const TOUR_STEPS = [
   { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
   { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
   { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet and the balance syncs back here.' },
-  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong>, <strong>Redfin</strong> and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
+  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong> and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
   { target: 'button[onclick="openSettings()"]', label: 'Backup & portability', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>To migrate: bring the HTML file + your exported JSON.' },
   { target: '.chart-card.wide', label: 'Charts', body: 'The <strong>Charts</strong> tab visualizes your wealth. Track <strong>net worth over time</strong>, see <strong>asset allocation</strong> and <strong>liability breakdown</strong> donuts and compare assets vs liabilities side by side.<br><br>The history chart records a snapshot each time you save.', onEnter: () => tourSwitchTab('charts') },
   { target: '.cf-summary-row', label: 'Cash flow summary', body: 'The <strong>Cash Flow</strong> tab shows your monthly picture at a glance: <strong>income</strong>, <strong>obligations</strong> (recurring expenses + revolving interest) and <strong>net cash flow</strong>.', onEnter: () => tourSwitchTab('cashflow') },
@@ -2185,8 +2185,6 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     const addr = escHtml(row.address||'');
     // Zillow: direct property search - works well
     const zillowUrl = row.address ? `https://www.zillow.com/homes/${encodeURIComponent(row.address)}_rb/` : '#';
-    // Redfin: use their address search endpoint which resolves properly
-    const redfinUrl = row.address ? `https://www.redfin.com/search#location=${encodeURIComponent(row.address)}&start=0` : '#';
     // Google Maps property lookup - most reliable fallback
     const gmapsUrl = row.address ? `https://www.google.com/maps/search/${encodeURIComponent(row.address)}` : '#';
     return `<div class="entry-fields three-col">
@@ -2211,8 +2209,6 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <a id="re-zillow-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
             href="${zillowUrl}" target="_blank" rel="noopener">🏠 Zillow ↗</a>
-          <a id="re-redfin-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
-            href="${redfinUrl}" target="_blank" rel="noopener">📊 Redfin ↗</a>
           <a id="re-gmaps-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
             href="${gmapsUrl}" target="_blank" rel="noopener">📍 Maps ↗</a>
           <button id="re-avm-btn-${id}" class="avm-fetch-btn" onclick="fetchRentcastAVM('${id}')">⬡ Fetch Estimate</button>
@@ -2400,11 +2396,9 @@ function updateReLinks(rowId) {
   if (!addrEl) return;
   const addr = addrEl.value.trim();
   const z  = addr ? `https://www.zillow.com/homes/${encodeURIComponent(addr)}_rb/` : '#';
-  const rf = addr ? `https://www.redfin.com/search#location=${encodeURIComponent(addr)}&start=0` : '#';
-const gm = addr ? `https://www.google.com/maps/search/${encodeURIComponent(addr)}` : '#';
+  const gm = addr ? `https://www.google.com/maps/search/${encodeURIComponent(addr)}` : '#';
   const zEl=document.getElementById(`re-zillow-${rowId}`);  if(zEl) zEl.href=z;
-  const rEl=document.getElementById(`re-redfin-${rowId}`);  if(rEl) rEl.href=rf;
-const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
+  const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
 }
 
 // ── SETTINGS MODAL ───────────────────────────────────────────────────────────
@@ -3449,7 +3443,8 @@ function markChanged(){hasUnsavedChanges=true;document.getElementById('changedDo
 
 function exportJSON(){
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data,recurring,snapshots},null,2)],{type:'application/json'});
+  const totalBtcSats = data['bitcoin'].reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL,totalBtcSats},data,recurring,snapshots},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
   showToast('Exported as JSON');
 }
