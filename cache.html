@@ -61,7 +61,7 @@
   .s-value.assets{color:var(--accent)} .s-value.liabilities{color:var(--red)} .s-value.ratio{color:var(--gold)}
 
   /* ── BTC TICKER BAR ── */
-  .btc-bar{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
+  .btc-bar{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
   .btc-bar-left{display:flex;align-items:center;gap:12px}
   .btc-logo{font-size:14px;color:var(--btc)}
   .btc-price-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
@@ -580,6 +580,18 @@
   </div>
 </div>
 
+<div class="btc-bar" id="btcBar">
+  <div class="btc-bar-left">
+    <span class="btc-logo">₿</span>
+    <span class="btc-price-label" id="btcPairLabel">BTC / USD</span>
+    <span class="btc-price-val loading" id="btcPriceDisplay">Fetching…</span>
+  </div>
+  <div class="btc-bar-right">
+    <span id="btcPriceAge">—</span>
+    <button class="btc-refresh" id="btcRefreshBtn" onclick="fetchBtcPrice(true)">↻ Refresh</button>
+  </div>
+</div>
+
 <header>
   <div class="header-left">
     <h1>Ca<span>che</span></h1>
@@ -771,18 +783,6 @@
   <div class="summary-item"><div class="s-label">Total Assets</div><div class="s-value assets" id="totalAssetsDisplay">—</div></div>
   <div class="summary-item"><div class="s-label">Total Liabilities</div><div class="s-value liabilities" id="totalLiabDisplay">—</div></div>
   <div class="summary-item"><div class="s-label">Asset / Debt Ratio</div><div class="s-value ratio" id="ratioDisplay">—</div></div>
-</div>
-
-<div class="btc-bar">
-  <div class="btc-bar-left">
-    <span class="btc-logo">₿</span>
-    <span class="btc-price-label" id="btcPairLabel">BTC / USD</span>
-    <span class="btc-price-val loading" id="btcPriceDisplay">Fetching…</span>
-  </div>
-  <div class="btc-bar-right">
-    <span id="btcPriceAge">—</span>
-    <button class="btc-refresh" id="btcRefreshBtn" onclick="fetchBtcPrice(true)">↻ Refresh</button>
-  </div>
 </div>
 
 <div class="tab-nav">
@@ -1306,16 +1306,19 @@ function hideLockScreen() {
 }
 
 function setStickyOffsets() {
+  const btcBar  = document.querySelector('.btc-bar');
   const header  = document.querySelector('header');
   const summary = document.querySelector('.summary-bar');
   const tabNav  = document.querySelector('.tab-nav');
+  const bH = btcBar.offsetHeight;
   const hH = header.offsetHeight;
   const sH = summary.offsetHeight;
   const tH = tabNav.offsetHeight;
-  summary.style.top = hH + 'px';
-  tabNav.style.top  = (hH + sH) + 'px';
+  header.style.top  = bH + 'px';
+  summary.style.top = (bH + hH) + 'px';
+  tabNav.style.top  = (bH + hH + sH) + 'px';
   document.querySelectorAll('.view').forEach(v =>
-    v.style.paddingTop = (hH + sH + tH + 24) + 'px'
+    v.style.paddingTop = (bH + hH + sH + tH + 24) + 'px'
   );
 }
 window.addEventListener('resize', () => {
