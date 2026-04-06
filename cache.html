@@ -31,8 +31,8 @@
     --gold:#b8860b; --btc:#e67e00; --btc-glow:rgba(230,126,0,0.08);
     --blue:#2874a6;
     --text:#1a1e1a; --text-muted:#5a6a5a; --text-dim:#8a9a8a;
-    --header-bg:linear-gradient(180deg,rgba(244,246,244,.98),rgba(237,240,237,.95));
-    --bar-bg:rgba(244,246,244,.95);
+    --header-bg:linear-gradient(180deg,#f4f6f4,#edf0ed);
+    --bar-bg:#f4f6f4;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
@@ -42,7 +42,7 @@
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
   /* ── HEADER ── */
-  header{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95)));backdrop-filter:blur(12px)}
+  header{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,#0d0f0e,#141714))}
   .header-left h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:-.5px;line-height:1}
   .header-left h1 span{color:var(--accent);font-style:italic}
   .header-left .subtitle{margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
@@ -61,7 +61,7 @@
   .s-value.assets{color:var(--accent)} .s-value.liabilities{color:var(--red)} .s-value.ratio{color:var(--gold)}
 
   /* ── BTC TICKER BAR ── */
-  .btc-bar{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
+  .btc-bar{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:var(--bar-bg,#0d0f0e)}
   .btc-bar-left{display:flex;align-items:center;gap:12px}
   .btc-logo{font-size:14px;color:var(--btc)}
   .btc-price-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
@@ -320,7 +320,7 @@
   .interest-sub{display:block;font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:2px}
 
   /* ── SAVE BAR ── */
-  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:var(--bar-bg,rgba(13,15,14,.95));border-top:1px solid var(--border);backdrop-filter:blur(12px)}
+  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:var(--bar-bg,#0d0f0e);border-top:1px solid var(--border)}
   .save-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:1px}
   .save-hint span{color:var(--accent-dim)}
   .btn-group{display:flex;gap:8px}
