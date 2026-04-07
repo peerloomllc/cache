@@ -1946,6 +1946,11 @@ function addRow(cat, type, name='', value='', extra={}) {
     row.linkedPropertyId = row.linkedPropertyId || '';
   }
   data[cat].push(row);
+  // Expand the category if it's collapsed
+  const toggleBtn = document.getElementById(`toggle-${cat}`);
+  if (toggleBtn && !toggleBtn.classList.contains('open')) {
+    toggleBtn.classList.add('open');
+  }
   renderRows(cat);
   recalc(); markChanged();
   setTimeout(()=>{
