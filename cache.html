@@ -402,8 +402,8 @@
   #settings-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #settings-modal.hidden{display:none}
   .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
-  .settings-title{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-  .settings-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .settings-title{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:-.3px;text-align:center}
+  .settings-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);text-align:center}
   .settings-input{background:var(--surface2);border:1px solid var(--border-light);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 11px;outline:none;transition:border-color .15s;width:100%}
   .settings-input:focus{border-color:var(--accent-dim)}
   .settings-help{font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.5}
@@ -429,7 +429,8 @@
   #about-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #about-modal.hidden{display:none}
   .about-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
-  .about-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim);text-align:center;margin-bottom:2px}
+
+  .about-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim);text-align:center;margin-bottom:8px}
   .about-body{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.7}
   .about-body strong{color:var(--text)}
   .about-divider{border:none;border-top:1px solid var(--border);margin:0}
@@ -437,7 +438,7 @@
   .about-link:hover{background:rgba(168,208,141,0.08)}
   .about-links-row{display:flex;gap:8px;flex-wrap:wrap}
   .about-links-row .about-link{flex:1;min-width:120px}
-  .about-close-btn{display:none;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;width:100%}
+  .about-close-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;width:100%}
   .about-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-about{background:transparent;border:1px solid var(--accent-dim);color:var(--accent);position:relative}
   .btn-about:hover{background:rgba(168,208,141,0.08);border-color:var(--accent)}
@@ -533,7 +534,7 @@
     .about-card{max-height:80vh;gap:12px}
     .about-card .about-body{font-size:10px;line-height:1.5}
     .about-card .about-link{font-size:11px;padding:7px 10px}
-    .about-close-btn{display:block}
+
     /* Tour tooltip */
     #tour-tooltip{width:calc(100vw - 32px);max-width:340px}
   }
@@ -618,16 +619,16 @@
   <div class="settings-card">
     <div class="settings-title">Settings</div>
     <div>
-      <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
-      <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
-      <div class="settings-help" style="margin-top:6px">Converts all values using live exchange rates. BTC price is quoted in the selected currency.</div>
-    </div>
-    <div>
       <div class="settings-section-label" style="margin-bottom:8px">Theme</div>
       <div style="display:flex;gap:8px">
         <button class="settings-close-btn" id="theme-dark-btn" onclick="setThemeSetting('dark')" style="flex:1">🌙 Dark</button>
         <button class="settings-close-btn" id="theme-light-btn" onclick="setThemeSetting('light')" style="flex:1">☀ Light</button>
       </div>
+    </div>
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
+      <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
+      <div class="settings-help" style="margin-top:6px">Converts all values using live exchange rates. BTC price is quoted in the selected currency.</div>
     </div>
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
@@ -642,7 +643,7 @@
     <hr class="about-divider">
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Change Password</div>
-      <button class="settings-close-btn" onclick="closeSettings();showChangePassword()" style="width:100%">🔑 Change Password</button>
+      <button class="settings-close-btn" onclick="closeSettings();showChangePassword()" style="width:100%">Change Password</button>
     </div>
     <hr class="about-divider">
     <div>
@@ -659,6 +660,7 @@
       <button class="settings-close-btn" onclick="closeSettings();clearAll()" style="width:100%;color:var(--red);border-color:var(--red-dim)">Clear All Data</button>
       <div class="settings-help" style="margin-top:6px">Removes all entries from memory. Does not delete saved data — use Save to persist.</div>
     </div>
+    <button class="about-close-btn" onclick="closeSettings()">Close</button>
   </div>
 </div>
 
@@ -2543,6 +2545,7 @@ function bookmarkletCode() {
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); document.getElementById('ln-panel').style.display='none'; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('about-modal').classList.contains('hidden')) closeAbout(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('settings-modal').classList.contains('hidden')) closeSettings(); });
 
 const LN_ADDR = 'peerloomllc@strike.me';
 function isMobile() { return navigator.maxTouchPoints > 0 && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent); }
