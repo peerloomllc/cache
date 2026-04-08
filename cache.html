@@ -495,13 +495,17 @@
 
   @media(max-width:900px){
     .main,.charts-grid{grid-template-columns:1fr;padding:20px 16px 100px}
-    header{padding:20px 24px 18px;flex-direction:column;align-items:center;text-align:center;gap:12px}
-    .header-left{text-align:center}
-    .header-right{flex-wrap:wrap;gap:10px;text-align:center}
+    header{padding:10px 16px;flex-direction:row;align-items:center;gap:8px}
+    .header-left h1{font-size:22px}
+    .header-left .subtitle{display:none}
+    .header-right{flex-wrap:nowrap;gap:8px;text-align:right}
     .btn-bookmarklet{display:none}
-    .net-worth-value{font-size:28px}
-    .summary-bar{grid-template-columns:1fr}
-    .summary-item{border-right:none;border-bottom:1px solid var(--border);padding:12px 20px}
+    .net-worth-label{font-size:9px;letter-spacing:1.5px;margin-bottom:2px}
+    .net-worth-value{font-size:20px}
+    .last-updated{display:none}
+    .summary-bar{grid-template-columns:1fr 1fr 1fr}
+    .summary-item{padding:6px 8px;gap:2px}
+    .s-label{font-size:8px;letter-spacing:1px}
     .chart-card.wide{grid-column:1}
     /* Save bar: horizontal scroll on mobile */
     .save-bar{padding:10px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;flex-wrap:nowrap}
@@ -509,13 +513,15 @@
     .btn-group{flex-wrap:nowrap;flex-shrink:0;gap:6px}
     .btn-group .btn{padding:8px 10px;font-size:10px;white-space:nowrap;flex-shrink:0}
     /* Tab nav: scrollable */
-    .tab-nav{padding:0 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
-    .tab-btn{padding:12px 14px;flex-shrink:0;white-space:nowrap}
-    .btc-bar{padding:8px 12px;flex-wrap:wrap;gap:6px}
+    .tab-nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+    .tab-btn{padding:8px 14px;flex-shrink:0;white-space:nowrap}
+    .btc-bar{padding:5px 12px;flex-wrap:nowrap;gap:6px}
+    .btc-price-label{display:none}
+    .btc-bar-right{display:none}
     .entry-fields{grid-template-columns:1fr}
     .entry-fields.three-col{grid-template-columns:1fr}
     /* Summary bar values */
-    .s-value{font-size:16px}
+    .s-value{font-size:13px}
     /* Section header: wrap controls below title */
     .section-header{flex-wrap:wrap;padding:12px 14px;gap:8px}
     .section-header-controls{gap:6px}
