@@ -87,13 +87,10 @@
   /* ── SECTION ── */
   .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
   .section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}
-  .section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .section-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
   .section-title{display:flex;align-items:center;gap:10px}
-  .section-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px}
-  .icon-asset{background:var(--accent-glow);border:1px solid rgba(168,208,141,.2)}
-  .icon-liability{background:var(--red-glow);border:1px solid rgba(224,112,112,.2)}
   .section-name{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
-  .section-total{font-family:var(--mono);font-size:16px;font-weight:500}
+  .section-total{font-family:var(--mono);font-size:16px;font-weight:500;text-align:center}
   .section-total.asset{color:var(--accent)} .section-total.liability{color:var(--red)}
 
   /* ── DRAG & DROP ── */
@@ -116,7 +113,7 @@
   .inst-group-count{font-family:var(--mono);font-size:9px;color:var(--text-dim)}
 
   /* ── SECTION HEADER controls ── */
-  .section-header-controls{display:flex;align-items:center;gap:8px}
+  .section-header-controls{display:flex;align-items:center;gap:8px;justify-content:flex-end}
 
   /* ── CATEGORY HEADER update for drag handle col ── */
   .category-header{
@@ -267,14 +264,17 @@
   /* ── CASH FLOW VIEW ── */
   .cf-grid{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:40px 32px 100px;display:flex;flex-direction:column;gap:24px}
   .cf-summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .cf-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;display:flex;flex-direction:column;gap:4px;animation:fadeUp .4s ease both}
+  .cf-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;animation:fadeUp .4s ease both}
   .cf-stat-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
   .cf-stat-value{font-family:var(--serif);font-size:28px;letter-spacing:-.5px;color:var(--red)}
   .cf-stat-value.accent{color:var(--accent)}
   .cf-stat-sub{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:2px}
+  .cf-banner-text{font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:var(--text-dim);position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+  .cf-banner-link{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--accent);text-decoration:none;transition:color .15s}
+  .cf-banner-link:hover{text-decoration:underline}
   .cf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
   .cf-card:nth-child(2){animation-delay:.1s}.cf-card:nth-child(3){animation-delay:.15s}.cf-card:nth-child(4){animation-delay:.2s}
-  .cf-card-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+  .cf-card-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;position:relative}
   .cf-card-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
   .cf-card-total{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--red)}
   .cf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
@@ -523,7 +523,7 @@
     /* Summary bar values */
     .s-value{font-size:13px}
     /* Section header: wrap controls below title */
-    .section-header{flex-wrap:wrap;padding:12px 14px;gap:8px}
+    .section-header{grid-template-columns:auto 1fr auto;padding:12px 14px;gap:8px}
     .section-header-controls{gap:6px}
     .section-total{font-size:14px}
     .collapse-all-btn{font-size:8px;padding:2px 6px}
@@ -807,13 +807,12 @@
   <div class="section" id="section-assets">
     <div class="section-header">
       <div class="section-title">
-        <div class="section-icon icon-asset">▲</div>
         <div class="section-name">Assets</div>
       </div>
+      <div class="section-total asset" id="assetSectionTotal">—</div>
       <div class="section-header-controls">
         <button class="collapse-all-btn" onclick="toggleSection('assets')" id="collapse-btn-assets">Collapse All</button>
         <button class="collapse-all-btn" onclick="toggleGroupBy('assets')" id="group-btn-assets" title="Group by institution">Group ⊞</button>
-        <div class="section-total asset" id="assetSectionTotal">—</div>
       </div>
     </div>
 
@@ -918,13 +917,12 @@
   <div class="section" id="section-liabilities">
     <div class="section-header">
       <div class="section-title">
-        <div class="section-icon icon-liability">▼</div>
         <div class="section-name">Liabilities</div>
       </div>
+      <div class="section-total liability" id="liabSectionTotal">—</div>
       <div class="section-header-controls">
         <button class="collapse-all-btn" onclick="toggleSection('liabilities')" id="collapse-btn-liabilities">Collapse All</button>
         <button class="collapse-all-btn" onclick="toggleGroupBy('liabilities')" id="group-btn-liabilities" title="Group by institution">Group ⊞</button>
-        <div class="section-total liability" id="liabSectionTotal">—</div>
       </div>
     </div>
 
@@ -1087,6 +1085,7 @@
   <div class="cf-card">
     <div class="cf-card-header">
       <div class="cf-card-title">Recurring Cash Flow</div>
+      <span class="cf-banner-text">Need full budgeting? Try <a class="cf-banner-link" href="https://peerloomllc.com/cacheflow/app" target="_blank" rel="noopener">Cache Flow</a></span>
       <div class="cf-card-total" id="cf-rec-total"></div>
     </div>
     <div id="cf-rec-wrap">
@@ -1096,6 +1095,7 @@
   <div class="cf-card">
     <div class="cf-card-header">
       <div class="cf-card-title">Revolving Interest by Account</div>
+      <span class="cf-banner-text">Need full budgeting? Try <a class="cf-banner-link" href="https://peerloomllc.com/cacheflow/app" target="_blank" rel="noopener">Cache Flow</a></span>
       <div class="cf-card-total" id="cf-table-total"></div>
     </div>
     <div id="cf-table-wrap">
@@ -1105,6 +1105,7 @@
   <div class="cf-card">
     <div class="cf-card-header">
       <div class="cf-card-title">Revolving Interest by Category</div>
+      <span class="cf-banner-text">Need full budgeting? Try <a class="cf-banner-link" href="https://peerloomllc.com/cacheflow/app" target="_blank" rel="noopener">Cache Flow</a></span>
       <div class="cf-card-total" id="cf-cat-total"></div>
     </div>
     <div id="cf-cat-wrap">
