@@ -31,15 +31,18 @@
     --gold:#b8860b; --btc:#e67e00; --btc-glow:rgba(230,126,0,0.08);
     --blue:#2874a6;
     --text:#1a1e1a; --text-muted:#5a6a5a; --text-dim:#8a9a8a;
-    --header-bg:linear-gradient(180deg,rgba(244,246,244,.98),rgba(237,240,237,.95));
-    --bar-bg:rgba(244,246,244,.95);
+    --header-bg:linear-gradient(180deg,#f4f6f4,#edf0ed);
+    --bar-bg:#f4f6f4;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  html{overflow-x:hidden}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,208,141,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(168,208,141,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
   /* ── HEADER ── */
-  header{position:relative;z-index:10;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,rgba(13,15,14,.98),rgba(20,23,20,.95)));backdrop-filter:blur(12px)}
+  header{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(--border);padding:28px 48px 24px;display:flex;align-items:flex-end;justify-content:space-between;background:var(--header-bg,linear-gradient(180deg,#0d0f0e,#141714))}
   .header-left h1{font-family:var(--serif);font-size:32px;font-weight:400;letter-spacing:-.5px;line-height:1}
   .header-left h1 span{color:var(--accent);font-style:italic}
   .header-left .subtitle{margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
@@ -50,7 +53,7 @@
   .last-updated{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
 
   /* ── SUMMARY BAR ── */
-  .summary-bar{position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);background:var(--surface)}
+  .summary-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);background:var(--surface)}
   .summary-item{padding:16px 32px;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
   .summary-item:last-child{border-right:none}
   .s-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
@@ -58,21 +61,18 @@
   .s-value.assets{color:var(--accent)} .s-value.liabilities{color:var(--red)} .s-value.ratio{color:var(--gold)}
 
   /* ── BTC TICKER BAR ── */
-  .btc-bar{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:rgba(247,147,26,0.04)}
+  .btc-bar{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;flex-direction:column;align-items:center;padding:6px 32px 4px;border-bottom:1px solid var(--border);background:var(--bar-bg,#0d0f0e)}
   .btc-bar-left{display:flex;align-items:center;gap:12px}
   .btc-logo{font-size:14px;color:var(--btc)}
   .btc-price-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
   .btc-price-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--btc)}
   .btc-price-val.loading{color:var(--text-dim);animation:pulse 1.5s ease-in-out infinite}
-  .btc-bar-right{font-family:var(--mono);font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
-  .btc-refresh{background:none;border:1px solid var(--border-light);color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s}
-  .btc-refresh:hover{color:var(--btc);border-color:var(--btc)}
-  .btc-refresh.spinning{animation:spin .7s linear infinite}
+  .btc-bar-right{font-family:var(--mono);font-size:9px;color:var(--text-dim);display:flex;align-items:center;gap:8px;margin-top:2px}
   @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
   /* ── TAB NAV ── */
-  .tab-nav{position:relative;z-index:10;display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
+  .tab-nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--surface2);padding:0 32px}
   .tab-btn{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);padding:14px 20px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
   .tab-btn:hover{color:var(--text-muted)}
   .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -84,13 +84,10 @@
   /* ── SECTION ── */
   .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
   .section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}
-  .section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .section-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
   .section-title{display:flex;align-items:center;gap:10px}
-  .section-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px}
-  .icon-asset{background:var(--accent-glow);border:1px solid rgba(168,208,141,.2)}
-  .icon-liability{background:var(--red-glow);border:1px solid rgba(224,112,112,.2)}
   .section-name{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
-  .section-total{font-family:var(--mono);font-size:16px;font-weight:500}
+  .section-total{font-family:var(--mono);font-size:16px;font-weight:500;text-align:center}
   .section-total.asset{color:var(--accent)} .section-total.liability{color:var(--red)}
 
   /* ── DRAG & DROP ── */
@@ -113,7 +110,7 @@
   .inst-group-count{font-family:var(--mono);font-size:9px;color:var(--text-dim)}
 
   /* ── SECTION HEADER controls ── */
-  .section-header-controls{display:flex;align-items:center;gap:8px}
+  .section-header-controls{display:flex;align-items:center;gap:8px;justify-content:flex-end}
 
   /* ── CATEGORY HEADER update for drag handle col ── */
   .category-header{
@@ -124,6 +121,7 @@
     padding:10px 14px 10px 10px;
     cursor:pointer;user-select:none;transition:background .15s;
   }
+  .category-header.has-refresh{position:relative}
   .category-header:hover{background:rgba(255,255,255,.02)}
 
   /* sort button — always in col 1, fixed width cell */
@@ -189,7 +187,7 @@
 
   /* Expanded detail panel */
   .entry-detail{overflow:hidden;max-height:0;transition:max-height .25s ease}
-  .entry-detail.open{max-height:300px}
+  .entry-detail.open{max-height:none}
   .entry-fields{padding:0 14px 12px 36px;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
   .entry-fields.single-col{grid-template-columns:1fr}
   .entry-fields.three-col{grid-template-columns:1fr 1fr 1fr}
@@ -209,6 +207,35 @@
   .url-wrap{position:relative}
   .url-open{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;padding:0;transition:color .15s;line-height:1}
   .url-open:hover{color:var(--blue)}
+
+  /* ── HOLDINGS (stocks/retirement sub-entries) ── */
+  .holdings-section{padding:0 14px 12px 36px}
+  .holdings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-top:4px;border-top:1px solid var(--border)}
+  .holdings-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .holdings-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+  .holdings-table th{text-align:left;padding:4px 6px;color:var(--text-dim);font-weight:400;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .holdings-table td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+  .holdings-table th.r,.holdings-table td.r{text-align:right}
+  .holdings-table td.r input{margin-left:auto}
+  .holdings-table input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:11px;padding:3px 6px;outline:none;transition:border-color .15s}
+  .holdings-table input:focus{border-color:var(--accent-dim)}
+  .holdings-table input::placeholder{color:var(--text-dim)}
+  .holdings-fetch-one{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;padding:0 3px;transition:color .15s}
+  .holdings-fetch-one:hover{color:var(--accent)}
+  .holdings-refresh-btn{font-family:var(--mono);font-size:9px;letter-spacing:.5px;background:none;border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .holdings-refresh-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-add-btn{font-family:var(--mono);font-size:10px;color:var(--text-dim);background:none;border:1px dashed var(--border);border-radius:3px;padding:4px 10px;cursor:pointer;transition:all .15s;margin-top:6px}
+  .holdings-add-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-delete{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:10px;padding:0 3px;opacity:0;transition:all .15s}
+  .holdings-table tr:hover .holdings-delete{opacity:1}
+  .holdings-delete:hover{color:var(--red)}
+  .holdings-mode{display:flex;gap:4px;margin-left:8px}
+  .holdings-mode button{font-family:var(--mono);font-size:9px;letter-spacing:.5px;background:none;border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .holdings-mode button:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-mode button.active{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-value{color:var(--text-muted);font-family:var(--mono);font-size:11px}
+  .cat-refresh-btn{position:absolute;left:50%;transform:translateX(-50%);background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .cat-refresh-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
 
   /* BTC unit toggle inside category */
   .unit-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:4px 14px 4px 36px;align-self:flex-start;width:fit-content}
@@ -264,28 +291,63 @@
   /* ── CASH FLOW VIEW ── */
   .cf-grid{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:40px 32px 100px;display:flex;flex-direction:column;gap:24px}
   .cf-summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .cf-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;display:flex;flex-direction:column;gap:4px;animation:fadeUp .4s ease both}
+  .cf-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;animation:fadeUp .4s ease both}
   .cf-stat-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
   .cf-stat-value{font-family:var(--serif);font-size:28px;letter-spacing:-.5px;color:var(--red)}
   .cf-stat-value.accent{color:var(--accent)}
   .cf-stat-sub{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:2px}
+  .cf-banner-text{font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:var(--text-dim);position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+  .cf-banner-link{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--accent);text-decoration:none;transition:color .15s}
+  .cf-banner-link:hover{text-decoration:underline}
   .cf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease both}
   .cf-card:nth-child(2){animation-delay:.1s}.cf-card:nth-child(3){animation-delay:.15s}.cf-card:nth-child(4){animation-delay:.2s}
-  .cf-card-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+  .cf-card-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;position:relative}
   .cf-card-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
   .cf-card-total{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--red)}
   .cf-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
   .cf-table th{text-align:left;padding:7px 16px;color:var(--text-dim);font-weight:400;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
   .cf-table td{padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text-muted);vertical-align:middle}
-  .cf-table td.r{text-align:right} .cf-table td.hi{color:var(--text)} .cf-table td.red{color:var(--red)}
+  .cf-table th.r,.cf-table td.r{text-align:right} .cf-table td.hi{color:var(--text)} .cf-table td.red{color:var(--red)}
   .cf-table tr:last-child td{border-bottom:none}
   .cf-table tr:hover td{background:rgba(255,255,255,.02)}
   .cf-empty{padding:24px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:12px}
   .cf-bar{height:4px;border-radius:2px;background:var(--red);opacity:.7;min-width:2px}
+  .cf-inline-input{font-family:var(--mono);font-size:12px;background:transparent;border:1px solid transparent;border-radius:3px;color:var(--text);padding:4px 6px;width:100%;box-sizing:border-box;transition:border-color .15s}
+  .cf-inline-input:hover,.cf-inline-input:focus{border-color:var(--border-light);outline:none}
+  .cf-inline-amount{text-align:right;width:100px}
+  .cf-inline-select{font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid transparent;border-radius:3px;color:var(--text-muted);padding:4px 6px;cursor:pointer;transition:border-color .15s}
+  .cf-inline-select:hover,.cf-inline-select:focus{border-color:var(--border-light);outline:none}
+  .cf-delete-btn{font-family:var(--mono);font-size:11px;background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:2px 6px;border-radius:3px;opacity:0;transition:all .15s}
+  .cf-table tr:hover .cf-delete-btn{opacity:1}
+  .cf-delete-btn:hover{color:var(--red);background:rgba(255,80,80,.1)}
+  .cf-amt-cell{cursor:text}
+  .cf-rec-actions{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border)}
+  .cf-rec-section-header{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;user-select:none;transition:background .15s}
+  .cf-rec-section-header:hover{background:rgba(255,255,255,.02)}
+  .cf-rec-arrow{font-size:10px;color:var(--text-dim);width:12px;text-align:center}
+  .cf-rec-section-label{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted)}
+  .cf-rec-section-count{font-family:var(--mono);font-size:10px;color:var(--text-dim);background:var(--surface2);padding:1px 6px;border-radius:3px}
+  .cf-rec-section-total{font-family:var(--mono);font-size:12px;font-weight:500;margin-left:auto}
+  .cf-table th.sortable{cursor:pointer;user-select:none;transition:color .15s}
+  .cf-table th.sortable:hover{color:var(--text)}
+  .cf-table th.sortable .cf-sort-arrow{font-size:9px;margin-left:3px;opacity:.4}
+  .cf-table th.sortable.active .cf-sort-arrow{opacity:1;color:var(--accent)}
+  #liab-import-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  #liab-import-modal.hidden{display:none}
+  .liab-import-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:14px;animation:fadeUp .2s ease}
+  .liab-import-sub{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+  #liab-import-body{display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:50vh;padding:4px 0}
+  .liab-import-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px;cursor:pointer;transition:background .1s}
+  .liab-import-row:hover{background:var(--surface2)}
+  .liab-import-row input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0}
+  .liab-import-label{font-family:var(--mono);font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .liab-import-amt{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex-shrink:0}
+  .liab-import-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:4px}
+  .accent{color:var(--accent)}
   .interest-sub{display:block;font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:2px}
 
   /* ── SAVE BAR ── */
-  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:var(--bar-bg,rgba(13,15,14,.95));border-top:1px solid var(--border);backdrop-filter:blur(12px)}
+  .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 48px;background:var(--bar-bg,#0d0f0e);border-top:1px solid var(--border)}
   .save-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:1px}
   .save-hint span{color:var(--accent-dim)}
   .btn-group{display:flex;gap:8px}
@@ -308,6 +370,28 @@
 
   .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
   .changed-indicator.visible{opacity:1}
+
+  /* ── PWA INSTALL REMINDER ── */
+  #pwa-reminder{display:none;align-items:center;justify-content:center;gap:10px;padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  #pwa-reminder.show{display:flex}
+  #pwa-reminder strong{color:var(--text);font-weight:500}
+  #pwa-reminder .pwa-r-btn{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:var(--radius);border:1px solid var(--accent-dim);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap;transition:all .15s}
+  #pwa-reminder .pwa-r-btn:hover{background:var(--accent-glow);border-color:var(--accent)}
+  #pwa-reminder .pwa-r-dismiss{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 4px;line-height:1}
+
+  /* ── PWA INSTALL GATE ── */
+  #pwa-install-gate{position:fixed;inset:0;z-index:1001;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+  #pwa-install-gate.hidden{display:none}
+  .pwa-gate-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:40px 44px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .3s ease;text-align:center}
+  .pwa-gate-icon{font-size:48px;line-height:1}
+  .pwa-gate-title{font-family:var(--serif);font-size:22px;font-weight:400}
+  .pwa-gate-title span{color:var(--accent);font-style:italic}
+  .pwa-gate-body{font-family:var(--mono);font-size:12px;color:var(--text-muted);line-height:1.7;text-align:left}
+  .pwa-gate-body strong{color:var(--text);font-weight:500}
+  .pwa-gate-btn{font-family:var(--mono);font-size:13px;padding:12px 20px;border-radius:var(--radius);border:1px solid var(--accent);background:var(--accent-glow);color:var(--accent);cursor:pointer;transition:all .15s;width:100%}
+  .pwa-gate-btn:hover{background:var(--accent);color:var(--bg)}
+  .pwa-gate-skip{font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;transition:color .15s}
+  .pwa-gate-skip:hover{color:var(--text-muted)}
 
   /* ── LOCK SCREEN ── */
   #lock-screen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
@@ -345,8 +429,8 @@
   #settings-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #settings-modal.hidden{display:none}
   .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
-  .settings-title{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-  .settings-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .settings-title{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:-.3px;text-align:center}
+  .settings-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);text-align:center}
   .settings-input{background:var(--surface2);border:1px solid var(--border-light);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 11px;outline:none;transition:border-color .15s;width:100%}
   .settings-input:focus{border-color:var(--accent-dim)}
   .settings-help{font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.5}
@@ -372,7 +456,8 @@
   #about-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #about-modal.hidden{display:none}
   .about-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
-  .about-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim);text-align:center;margin-bottom:2px}
+
+  .about-section-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim);text-align:center;margin-bottom:8px}
   .about-body{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.7}
   .about-body strong{color:var(--text)}
   .about-divider{border:none;border-top:1px solid var(--border);margin:0}
@@ -380,7 +465,7 @@
   .about-link:hover{background:rgba(168,208,141,0.08)}
   .about-links-row{display:flex;gap:8px;flex-wrap:wrap}
   .about-links-row .about-link{flex:1;min-width:120px}
-  .about-close-btn{display:none;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;width:100%}
+  .about-close-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;width:100%}
   .about-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-about{background:transparent;border:1px solid var(--accent-dim);color:var(--accent);position:relative}
   .btn-about:hover{background:rgba(168,208,141,0.08);border-color:var(--accent)}
@@ -437,27 +522,35 @@
 
   @media(max-width:900px){
     .main,.charts-grid{grid-template-columns:1fr;padding:20px 16px 100px}
-    header{padding:20px 24px 18px;flex-direction:column;align-items:flex-start;gap:12px}
-    .header-right{flex-wrap:wrap;gap:10px}
-    .net-worth-value{font-size:28px}
-    .summary-bar{grid-template-columns:1fr}
-    .summary-item{border-right:none;border-bottom:1px solid var(--border);padding:12px 20px}
+    header{padding:10px 16px;flex-direction:row;align-items:center;gap:8px}
+    .header-left h1{font-size:22px}
+    .header-left .subtitle{display:none}
+    .header-right{flex-wrap:nowrap;gap:8px;text-align:right}
+    .btn-bookmarklet{display:none}
+    .net-worth-label{font-size:9px;letter-spacing:1.5px;margin-bottom:2px}
+    .net-worth-value{font-size:20px}
+    .last-updated{display:none}
+    .summary-bar{grid-template-columns:1fr 1fr 1fr}
+    .summary-item{padding:6px 8px;gap:2px}
+    .s-label{font-size:8px;letter-spacing:1px}
     .chart-card.wide{grid-column:1}
     /* Save bar: horizontal scroll on mobile */
-    .save-bar{padding:10px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;flex-wrap:nowrap}
+    .save-bar{padding:10px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;flex-wrap:nowrap;justify-content:center}
     .save-hint{display:none}
     .btn-group{flex-wrap:nowrap;flex-shrink:0;gap:6px}
     .btn-group .btn{padding:8px 10px;font-size:10px;white-space:nowrap;flex-shrink:0}
     /* Tab nav: scrollable */
-    .tab-nav{padding:0 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
-    .tab-btn{padding:12px 14px;flex-shrink:0;white-space:nowrap}
-    .btc-bar{padding:8px 12px;flex-wrap:wrap;gap:6px}
+    .tab-nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+    .tab-btn{padding:8px 14px;flex-shrink:0;white-space:nowrap}
+    .btc-bar{padding:4px 12px 3px;gap:2px}
+    .btc-price-label{display:none}
+    .btc-bar-right{font-size:8px;margin-top:0}
     .entry-fields{grid-template-columns:1fr}
     .entry-fields.three-col{grid-template-columns:1fr}
     /* Summary bar values */
-    .s-value{font-size:16px}
+    .s-value{font-size:13px}
     /* Section header: wrap controls below title */
-    .section-header{flex-wrap:wrap;padding:12px 14px;gap:8px}
+    .section-header{grid-template-columns:auto 1fr auto;padding:12px 14px;gap:8px}
     .section-header-controls{gap:6px}
     .section-total{font-size:14px}
     .collapse-all-btn{font-size:8px;padding:2px 6px}
@@ -466,15 +559,20 @@
     .cf-summary-row{grid-template-columns:1fr}
     .cf-stat-value{font-size:22px}
     /* Cash flow tables: horizontal scroll */
-    #cf-table-wrap,#cf-cat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    #cf-table-wrap,#cf-cat-wrap,#cf-rec-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .cf-table{min-width:600px}
     .cf-table th,.cf-table td{padding:7px 10px;font-size:11px}
+    /* Holdings: compact on mobile */
+    .holdings-section{padding:0 10px 10px 20px}
+    .holdings-table input{font-size:10px;padding:2px 4px}
+    .holdings-table th,.holdings-table td{padding:3px 4px;font-size:10px}
+    .cat-refresh-btn{font-size:8px;padding:2px 5px}
     /* Modals: full-width on small screens */
-    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
+    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card,.liab-import-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
     .about-card{max-height:80vh;gap:12px}
     .about-card .about-body{font-size:10px;line-height:1.5}
     .about-card .about-link{font-size:11px;padding:7px 10px}
-    .about-close-btn{display:block}
+
     /* Tour tooltip */
     #tour-tooltip{width:calc(100vw - 32px);max-width:340px}
   }
@@ -483,7 +581,7 @@
 <body>
 
 <!-- ══ LOCK SCREEN ══ -->
-<div id="lock-screen">
+<div id="lock-screen" class="hidden">
   <div class="lock-card">
     <div>
       <div class="lock-title">Ca<span>che</span></div>
@@ -515,10 +613,20 @@
       <div class="lock-progress" id="lock-set-progress"><div class="lock-progress-bar" id="lock-set-progress-bar"></div></div>
       <div class="lock-error" id="lock-set-error"></div>
       <button class="lock-btn" onclick="submitSetPassword()">Set Password &amp; Continue</button>
-      <button class="lock-btn secondary" id="lock-set-skip" onclick="skipPassword()" style="display:none">Continue without password</button>
       <button class="lock-btn secondary" id="lock-set-cancel" onclick="cancelChangePassword()" style="display:none">Cancel</button>
     </div>
     <div class="lock-hint" id="lock-hint">Your data is encrypted with AES-256-GCM. The password is never stored.</div>
+  </div>
+</div>
+
+<div class="btc-bar" id="btcBar">
+  <div class="btc-bar-left">
+    <span class="btc-logo">₿</span>
+    <span class="btc-price-label" id="btcPairLabel">BTC / USD</span>
+    <span class="btc-price-val loading" id="btcPriceDisplay">Fetching…</span>
+  </div>
+  <div class="btc-bar-right">
+    <span id="btcPriceAge">—</span>
   </div>
 </div>
 
@@ -536,15 +644,17 @@
   </div>
 </header>
 
+<!-- ══ PWA INSTALL REMINDER ══ -->
+<div id="pwa-reminder">
+  <span>Install as an app for the best experience on mobile</span>
+  <button class="pwa-r-btn" onclick="triggerPWAInstall()">Install</button>
+  <button class="pwa-r-dismiss" onclick="dismissPWAReminder()" title="Dismiss">&times;</button>
+</div>
+
 <!-- ══ SETTINGS MODAL ══ -->
 <div id="settings-modal" class="hidden" onclick="if(event.target===this)closeSettings()">
   <div class="settings-card">
     <div class="settings-title">Settings</div>
-    <div>
-      <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
-      <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
-      <div class="settings-help" style="margin-top:6px">Converts all values using live exchange rates. BTC price is quoted in the selected currency.</div>
-    </div>
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Theme</div>
       <div style="display:flex;gap:8px">
@@ -553,10 +663,21 @@
       </div>
     </div>
     <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Display Currency</div>
+      <select class="settings-input" id="settings-currency" style="cursor:pointer"></select>
+      <div class="settings-help" style="margin-top:6px">Converts all values using live exchange rates. BTC price is quoted in the selected currency.</div>
+    </div>
+    <div>
       <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
       <input class="settings-input" type="password" id="settings-rentcast-key" placeholder="Paste your API key…"
         onkeydown="if(event.key==='Enter')saveSettings()">
       <div class="settings-help" style="margin-top:8px">Used to fetch automated property value estimates (AVM). Free tier: 50 calls/month. Sign up at rentcast.io → API Keys. Stored encrypted with your data.</div>
+    </div>
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Finnhub Stock API Key</div>
+      <input class="settings-input" type="password" id="settings-stock-key" placeholder="Paste your API key…"
+        onkeydown="if(event.key==='Enter')saveSettings()">
+      <div class="settings-help" style="margin-top:8px">Used to fetch live stock prices for holdings. Free tier: 60 calls/min. Sign up at finnhub.io. Stored encrypted with your data.</div>
     </div>
     <div style="display:flex;gap:8px">
       <button class="settings-save-btn" onclick="saveSettings()" style="flex:1">Save Settings</button>
@@ -565,7 +686,7 @@
     <hr class="about-divider">
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Change Password</div>
-      <button class="settings-close-btn" onclick="closeSettings();showChangePassword()" style="width:100%">🔑 Change Password</button>
+      <button class="settings-close-btn" onclick="closeSettings();showChangePassword()" style="width:100%">Change Password</button>
     </div>
     <hr class="about-divider">
     <div>
@@ -582,6 +703,7 @@
       <button class="settings-close-btn" onclick="closeSettings();clearAll()" style="width:100%;color:var(--red);border-color:var(--red-dim)">Clear All Data</button>
       <div class="settings-help" style="margin-top:6px">Removes all entries from memory. Does not delete saved data — use Save to persist.</div>
     </div>
+    <button class="about-close-btn" onclick="closeSettings()">Close</button>
   </div>
 </div>
 
@@ -651,6 +773,19 @@
   </div>
 </div>
 
+<!-- ══ LIABILITY IMPORT PICKER ══ -->
+<div id="liab-import-modal" class="hidden" onclick="if(event.target===this)closeLiabImport()">
+  <div class="liab-import-card">
+    <div class="settings-title">Import from Liabilities</div>
+    <div class="liab-import-sub">Select liabilities to add as recurring expenses.</div>
+    <div id="liab-import-body"></div>
+    <div class="liab-import-actions">
+      <button class="btn btn-ghost" onclick="closeLiabImport()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmLiabImport()">Import Selected</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ BOOKMARKLET TUTORIAL ══ -->
 <div id="bookmarklet-modal" class="hidden" onclick="if(event.target===this)closeBookmarkletSetup()">
   <div class="bm-card">
@@ -695,18 +830,6 @@
   <div class="summary-item"><div class="s-label">Asset / Debt Ratio</div><div class="s-value ratio" id="ratioDisplay">—</div></div>
 </div>
 
-<div class="btc-bar">
-  <div class="btc-bar-left">
-    <span class="btc-logo">₿</span>
-    <span class="btc-price-label" id="btcPairLabel">BTC / USD</span>
-    <span class="btc-price-val loading" id="btcPriceDisplay">Fetching…</span>
-  </div>
-  <div class="btc-bar-right">
-    <span id="btcPriceAge">—</span>
-    <button class="btc-refresh" id="btcRefreshBtn" onclick="fetchBtcPrice(true)">↻ Refresh</button>
-  </div>
-</div>
-
 <div class="tab-nav">
   <button class="tab-btn active" onclick="switchTab('ledger',this)">Ledger</button>
   <button class="tab-btn" onclick="switchTab('charts',this)">Charts</button>
@@ -721,13 +844,12 @@
   <div class="section" id="section-assets">
     <div class="section-header">
       <div class="section-title">
-        <div class="section-icon icon-asset">▲</div>
         <div class="section-name">Assets</div>
       </div>
+      <div class="section-total asset" id="assetSectionTotal">—</div>
       <div class="section-header-controls">
         <button class="collapse-all-btn" onclick="toggleSection('assets')" id="collapse-btn-assets">Collapse All</button>
         <button class="collapse-all-btn" onclick="toggleGroupBy('assets')" id="group-btn-assets" title="Group by institution">Group ⊞</button>
-        <div class="section-total asset" id="assetSectionTotal">—</div>
       </div>
     </div>
 
@@ -746,11 +868,12 @@
 
     <!-- Stocks -->
     <div class="category" id="cat-stocks">
-      <div class="category-header" onclick="toggleCat('stocks')">
+      <div class="category-header has-refresh" onclick="toggleCat('stocks')">
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-stocks" onclick="sortCat(event,'stocks')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot stocks"></span>Stocks &amp; Brokerage</div>
         <div class="category-total" id="cat-total-stocks">—</div>
+        <button class="cat-refresh-btn" onclick="event.stopPropagation();refreshAllStockPrices()" title="Refresh all stock prices">Update Prices</button>
         <span class="toggle-btn open" id="toggle-stocks">▾</span>
       </div>
       <div class="rows" id="rows-stocks"></div>
@@ -789,11 +912,12 @@
 
     <!-- Retirement -->
     <div class="category" id="cat-retirement">
-      <div class="category-header" onclick="toggleCat('retirement')">
+      <div class="category-header has-refresh" onclick="toggleCat('retirement')">
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-retirement" onclick="sortCat(event,'retirement')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot retirement"></span>Retirement Accounts</div>
         <div class="category-total" id="cat-total-retirement">—</div>
+        <button class="cat-refresh-btn" onclick="event.stopPropagation();refreshAllStockPrices()" title="Refresh all stock prices">Update Prices</button>
         <span class="toggle-btn open" id="toggle-retirement">▾</span>
       </div>
       <div class="rows" id="rows-retirement"></div>
@@ -832,13 +956,12 @@
   <div class="section" id="section-liabilities">
     <div class="section-header">
       <div class="section-title">
-        <div class="section-icon icon-liability">▼</div>
         <div class="section-name">Liabilities</div>
       </div>
+      <div class="section-total liability" id="liabSectionTotal">—</div>
       <div class="section-header-controls">
         <button class="collapse-all-btn" onclick="toggleSection('liabilities')" id="collapse-btn-liabilities">Collapse All</button>
         <button class="collapse-all-btn" onclick="toggleGroupBy('liabilities')" id="group-btn-liabilities" title="Group by institution">Group ⊞</button>
-        <div class="section-total liability" id="liabSectionTotal">—</div>
       </div>
     </div>
 
@@ -983,33 +1106,45 @@
 <div class="cf-grid">
   <div class="cf-summary-row">
     <div class="cf-stat">
-      <div class="cf-stat-label">Total Monthly Interest</div>
-      <div class="cf-stat-value" id="cf-total-monthly">—</div>
-      <div class="cf-stat-sub" id="cf-total-annual-sub">— / year</div>
+      <div class="cf-stat-label">Monthly Income</div>
+      <div class="cf-stat-value accent" id="cf-total-income">—</div>
+      <div class="cf-stat-sub" id="cf-income-annual-sub">— / year</div>
     </div>
     <div class="cf-stat">
-      <div class="cf-stat-label">Weighted Avg Rate</div>
-      <div class="cf-stat-value" id="cf-avg-rate">—</div>
-      <div class="cf-stat-sub">across all tracked loans</div>
+      <div class="cf-stat-label">Monthly Obligations</div>
+      <div class="cf-stat-value" id="cf-total-obligations">—</div>
+      <div class="cf-stat-sub" id="cf-obligations-annual-sub">— / year</div>
     </div>
     <div class="cf-stat">
-      <div class="cf-stat-label">Debts With Rate Entered</div>
-      <div class="cf-stat-value accent" id="cf-coverage">0 / 0</div>
-      <div class="cf-stat-sub">add rates in the Ledger tab</div>
+      <div class="cf-stat-label">Net Monthly Cash Flow</div>
+      <div class="cf-stat-value" id="cf-net-cashflow">—</div>
+      <div class="cf-stat-sub" id="cf-net-annual-sub">— / year</div>
     </div>
   </div>
   <div class="cf-card">
     <div class="cf-card-header">
-      <div class="cf-card-title">Monthly Interest by Liability</div>
+      <div class="cf-card-title">Recurring Cash Flow</div>
+      <span class="cf-banner-text">Need full budgeting? Try <a class="cf-banner-link" href="https://peerloomllc.com/cacheflow/app" target="_blank" rel="noopener">Cache Flow</a></span>
+      <div class="cf-card-total" id="cf-rec-total"></div>
+    </div>
+    <div id="cf-rec-wrap">
+      <div class="cf-empty">No recurring items yet.</div>
+    </div>
+  </div>
+  <div class="cf-card">
+    <div class="cf-card-header">
+      <div class="cf-card-title">Revolving Interest by Account</div>
+      <span class="cf-banner-text">Need full budgeting? Try <a class="cf-banner-link" href="https://peerloomllc.com/cacheflow/app" target="_blank" rel="noopener">Cache Flow</a></span>
       <div class="cf-card-total" id="cf-table-total"></div>
     </div>
     <div id="cf-table-wrap">
-      <div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>
+      <div class="cf-empty">No revolving debt with interest rates yet.</div>
     </div>
   </div>
   <div class="cf-card">
     <div class="cf-card-header">
-      <div class="cf-card-title">Interest Burden by Category</div>
+      <div class="cf-card-title">Revolving Interest by Category</div>
+      <span class="cf-banner-text">Need full budgeting? Try <a class="cf-banner-link" href="https://peerloomllc.com/cacheflow/app" target="_blank" rel="noopener">Cache Flow</a></span>
       <div class="cf-card-total" id="cf-cat-total"></div>
     </div>
     <div id="cf-cat-wrap">
@@ -1027,12 +1162,55 @@
     <button class="btn btn-about" onclick="openAbout()"><span class="about-icon">i</span> About</button>
     <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ Settings</button>
     <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
-    <button class="btn btn-lock" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
+    <button class="btn btn-lock btn-bookmarklet" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
     <button class="btn btn-primary" onclick="saveData()">Save ✓</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ PWA INSTALL GATE ══ -->
+<div id="pwa-install-gate" class="hidden">
+  <div class="pwa-gate-card">
+    <div class="pwa-gate-icon">&#11015;&#65039;</div>
+    <div class="pwa-gate-title">Install Ca<span>che</span></div>
+    <!-- Chromium: one-tap install -->
+    <div id="pwa-gate-auto" style="display:none">
+      <div class="pwa-gate-body">
+        For the best experience, install Cache as an app on your device.<br><br>
+        <strong>Quick access</strong> from your home screen<br>
+        <strong>Offline support</strong> with no internet needed<br>
+        <strong>Full screen</strong> with no browser chrome
+      </div>
+      <button class="pwa-gate-btn" onclick="triggerPWAInstall()">Install App</button>
+    </div>
+    <!-- Safari iOS -->
+    <div id="pwa-gate-safari" style="display:none">
+      <div class="pwa-gate-body">
+        Add Cache to your home screen for quick access and full-screen mode.<br><br>
+        <strong>1.</strong> Tap the <strong>Share</strong> button <span style="font-size:16px">&#xFEFF;&#x2191;&#xFE0E;</span> at the bottom of Safari<br>
+        <strong>2.</strong> Scroll down and tap <strong>Add to Home Screen</strong><br>
+        <strong>3.</strong> Tap <strong>Add</strong> in the top right
+      </div>
+    </div>
+    <!-- Firefox Android -->
+    <div id="pwa-gate-firefox" style="display:none">
+      <div class="pwa-gate-body">
+        Add Cache to your home screen for quick access.<br><br>
+        <strong>1.</strong> Tap the <strong>menu</strong> button <span style="font-size:14px">&#8942;</span> in the toolbar<br>
+        <strong>2.</strong> Tap <strong>Install</strong> or <strong>Add to Home Screen</strong>
+      </div>
+    </div>
+    <!-- Desktop fallback -->
+    <div id="pwa-gate-desktop" style="display:none">
+      <div class="pwa-gate-body">
+        For the best experience, install Cache as an app.<br><br>
+        Look for the <strong>install icon</strong> in your browser's address bar, or check the browser menu for <strong>Install</strong> or <strong>Add to Home Screen</strong>.
+      </div>
+    </div>
+    <button class="pwa-gate-skip" onclick="dismissPWAGate()">Continue in browser</button>
+  </div>
+</div>
 
 <!-- ══ GUIDED TOUR ══ -->
 <div id="tour-overlay" class="hidden"></div>
@@ -1050,6 +1228,29 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+// ── PWA (early registration for install prompt) ──────────────────────────
+(function setupPWA() {
+  if (location.protocol === 'file:') return;
+  const icon = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d0f0e'/><text x='256' y='370' text-anchor='middle' font-family='Georgia,serif' font-size='320' font-style='italic' fill='%23a8d08d'>C</text></svg>";
+  const manifest = {
+    name: 'Cache — Personal Wealth Ledger',
+    short_name: 'Cache',
+    start_url: location.href.split('?')[0],
+    display: 'standalone',
+    background_color: '#0d0f0e',
+    theme_color: '#0d0f0e',
+    icons: [{ src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
+  };
+  const mLink = document.createElement('link');
+  mLink.rel = 'manifest';
+  mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
+  document.head.appendChild(mLink);
+  try {
+    const swPath = new URL('sw.js', location.href).href;
+    navigator.serviceWorker.register(swPath).catch(()=>{});
+  } catch(_){}
+})();
+
 // ══════════════════════════════════════════════════════════════════════════
 // ── ENCRYPTION / LOCK SYSTEM (Web Crypto API — AES-256-GCM + PBKDF2) ─────
 // ══════════════════════════════════════════════════════════════════════════
@@ -1080,7 +1281,9 @@ let idleTimer        = null;
 let isLocked         = true;
 let isFirstRun       = false;
 let rentcastApiKey      = '';   // stored encrypted with data
+let stockApiKey         = '';   // Finnhub API key, stored encrypted
 let snapshots           = [];   // [{ ts, nw, cats:{cat:value} }]
+let recurring           = [];   // [{ id, name, amount, frequency, direction }]
 let pendingBalanceUpdate = null; // { rowId, cat } — set when opening a bank tab
 let isChangingPw     = false;
 
@@ -1135,13 +1338,7 @@ function showLockScreen(mode='unlock') {
   if (mode==='set') {
     document.getElementById('lock-subtitle').textContent = isChangingPw ? 'Change your password' : 'Set a password to protect your data';
     document.getElementById('lock-hint').textContent = 'AES-256-GCM encryption · PBKDF2 310k iterations · password never stored';
-    if (!isChangingPw) {
-      document.getElementById('lock-set-skip').style.display = 'block';
-      document.getElementById('lock-set-cancel').style.display = 'none';
-    } else {
-      document.getElementById('lock-set-skip').style.display = 'none';
-      document.getElementById('lock-set-cancel').style.display = 'block';
-    }
+    document.getElementById('lock-set-cancel').style.display = isChangingPw ? 'block' : 'none';
     setTimeout(()=>document.getElementById('lock-set-pw').focus(), 80);
   } else {
     document.getElementById('lock-subtitle').textContent = 'Enter your password to unlock';
@@ -1156,6 +1353,26 @@ function hideLockScreen() {
   document.getElementById('lock-set-pw').value   = '';
   document.getElementById('lock-set-pw2').value  = '';
 }
+
+function setStickyOffsets() {
+  const btcBar  = document.querySelector('.btc-bar');
+  const header  = document.querySelector('header');
+  const summary = document.querySelector('.summary-bar');
+  const tabNav  = document.querySelector('.tab-nav');
+  const bH = btcBar.offsetHeight;
+  const hH = header.offsetHeight;
+  const sH = summary.offsetHeight;
+  const tH = tabNav.offsetHeight;
+  header.style.top  = bH + 'px';
+  summary.style.top = (bH + hH) + 'px';
+  tabNav.style.top  = (bH + hH + sH) + 'px';
+  document.querySelectorAll('.view').forEach(v =>
+    v.style.paddingTop = (bH + hH + sH + tH + 24) + 'px'
+  );
+}
+window.addEventListener('resize', () => {
+  if (!isLocked) setStickyOffsets();
+});
 
 function setLockProgress(id, barId, pct, active) {
   const wrap = document.getElementById(id);
@@ -1199,6 +1416,7 @@ async function submitUnlock() {
       isLocked = false;
       resetIdleTimer();
       renderAll(); recalc();
+      requestAnimationFrame(setStickyOffsets);
     }, 200);
   } catch(e) {
     setLockProgress('lock-progress','lock-progress-bar', 0, false);
@@ -1250,20 +1468,12 @@ async function submitSetPassword() {
     hideLockScreen();
     isLocked = false;
     resetIdleTimer();
+    requestAnimationFrame(setStickyOffsets);
     if (isFirstRun) { isFirstRun=false; startTour(); }
     showToast('Password set — data is now encrypted', 'success');
   }, 300);
 }
 
-async function skipPassword() {
-  // No password — store plaintext (legacy compatible)
-  sessionKey = null;
-  isChangingPw = false;
-  hideLockScreen();
-  isLocked = false;
-  if (isFirstRun) { isFirstRun=false; startTour(); }
-  showToast('Running without password — data stored unencrypted');
-}
 
 function showChangePassword() {
   isChangingPw = true;
@@ -1289,6 +1499,7 @@ function lockApp() {
   clearIdleTimer();
   // Clear in-memory data so it can't be extracted from JS console
   ALL_CATS.forEach(c=>{ data[c]=[]; });
+  recurring = [];
   renderAll(); recalc();
   showLockScreen('unlock');
 }
@@ -1313,7 +1524,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, theme, snapshots, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, stockApiKey, currency, theme, snapshots, recurring, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1348,7 +1559,9 @@ function applyLoadedPayload(p) {
     });
   }
   if (p.rentcastApiKey) rentcastApiKey = p.rentcastApiKey;
+  if (p.stockApiKey) stockApiKey = p.stockApiKey;
   if (p.snapshots)     snapshots = p.snapshots;
+  if (p.recurring)     recurring = p.recurring;
   if (p.catOrder)      applyCatOrder(p.catOrder.assets, p.catOrder.liabs);
   if (p.savedAt) document.getElementById('lastUpdated').textContent='Last saved '+new Date(p.savedAt).toLocaleString();
   // Seed LTV bands so first price fetch doesn't false-trigger alerts
@@ -1379,6 +1592,7 @@ function initLockSystem() {
     } catch(e) {}
     isLocked = false;
     hideLockScreen();
+    requestAnimationFrame(setStickyOffsets);
     // Prompt to upgrade to password protection
     setTimeout(()=>{
       if (confirm('Your data is currently unencrypted. Set a password to protect it?')) {
@@ -1388,10 +1602,29 @@ function initLockSystem() {
     return;
   }
 
-  // First run — no data at all — ask to set password
+  // First run — no data at all
   isFirstRun = true;
   isLocked   = false;
-  showLockScreen('set');
+
+  // Show PWA install gate before password setup (first visit only)
+  if (!localStorage.getItem('cache-pwa-gate-dismissed') && location.protocol !== 'file:') {
+    const canPrompt = 'BeforeInstallPromptEvent' in window;
+    if (canPrompt && !deferredInstallPrompt) {
+      // Chromium: wait briefly for beforeinstallprompt to fire
+      pwaGateWaiting = true;
+      setTimeout(() => {
+        if (pwaGateWaiting) {
+          pwaGateWaiting = false;
+          showPWAGate();
+        }
+      }, 3000);
+      return;
+    }
+    // Non-Chromium or prompt already available: show gate immediately
+    showPWAGate();
+  } else {
+    showLockScreen('set');
+  }
 }
 
 // ── SEED DEMO DATA (extracted from bottom of file) ──────────────────────────
@@ -1413,15 +1646,27 @@ function seedDemoData() {
 
 // ── GUIDED TOUR ──────────────────────────────────────────────────────────
 const TOUR_STEPS = [
-  { target: null, label: 'Welcome', body: 'Welcome to <strong>Cache</strong> — your encrypted personal wealth ledger.<br><br>Cache is a single-file, zero-dependency app. There are no servers, no accounts, no tracking. Your data is encrypted and stored in your browser\u2019s local storage \u2014 it never leaves this device.' },
-  { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private, and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser, on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
-  { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties, or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
-  { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet, and the balance syncs back here.' },
-  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong>, <strong>Redfin</strong>, and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
-  { target: 'button[onclick="exportJSON()"]', label: 'Backup & portability', body: 'Your data lives in this browser\u2019s local storage \u2014 it doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data, and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>To migrate: bring the HTML file + your exported JSON.' },
-  { target: 'button[onclick="saveData()"]', label: 'Save your data', body: 'Your data is encrypted with <strong>AES-256-GCM</strong> and stored locally. Save often — nothing ever leaves this device.' }
+  { target: null, label: 'Welcome', body: 'Welcome to <strong>Cache</strong>, your encrypted personal wealth ledger.<br><br>Cache is a single-file, zero-dependency app. There are no servers, no accounts, no tracking. Your data is encrypted and stored in your browser\u2019s local storage and never leaves this device.' },
+  { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
+  { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
+  { target: '#cat-stocks', label: 'Stock holdings', body: 'Stocks and retirement accounts support <strong>individual holdings</strong>. Expand an account to add ticker symbols, share counts and prices. Toggle to <strong>Holdings</strong> mode to auto-compute the account value from your positions.<br><br>Use the <strong>\u21bb Prices</strong> button to fetch live quotes via Finnhub (free API key required, set in Settings).' },
+  { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet and the balance syncs back here.' },
+  { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong> and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
+  { target: 'button[onclick="openSettings()"]', label: 'Settings & API keys', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>Settings also stores your <strong>Finnhub</strong> and <strong>RentCast</strong> API keys for live stock prices and property estimates.' },
+  { target: '.chart-card.wide', label: 'Charts', body: 'The <strong>Charts</strong> tab visualizes your wealth. Track <strong>net worth over time</strong>, see <strong>asset allocation</strong> and <strong>liability breakdown</strong> donuts and compare assets vs liabilities side by side.<br><br>The history chart records a snapshot each time you save.', onEnter: () => tourSwitchTab('charts') },
+  { target: '.cf-summary-row', label: 'Cash flow summary', body: 'The <strong>Cash Flow</strong> tab shows your monthly picture at a glance: <strong>income</strong>, <strong>obligations</strong> (recurring expenses + revolving interest) and <strong>net cash flow</strong>.', onEnter: () => tourSwitchTab('cashflow') },
+  { target: '#cf-rec-wrap', label: 'Recurring items', body: 'Add recurring <strong>income</strong> and <strong>expenses</strong> like salary, rent, subscriptions and loan payments. Supports weekly, biweekly, monthly, quarterly and annual frequencies.<br><br>Use <strong>Import from liabilities</strong> to auto-create expenses from your ledger.' },
+  { target: '#cf-table-wrap', label: 'Revolving interest', body: 'Interest burden is scoped to <strong>revolving debt</strong> (credit cards and BTC-backed loans) where paying down the balance directly reduces your interest cost. Fixed-term loan payments belong in recurring expenses instead.' },
+  { target: 'button[onclick="saveData()"]', label: 'Save your data', body: 'Your data is encrypted with <strong>AES-256-GCM</strong> and stored locally. Save often and nothing ever leaves this device.', onEnter: () => tourSwitchTab('ledger') }
 ];
 let tourIndex = -1;
+
+function tourSwitchTab(tab) {
+  const btns = document.querySelectorAll('.tab-btn');
+  const map = { ledger: 0, charts: 1, cashflow: 2 };
+  const btn = btns[map[tab]];
+  if (btn) switchTab(tab, btn);
+}
 
 function startTour() {
   // Open all category sections so tour targets are visible
@@ -1435,6 +1680,7 @@ function startTour() {
 
 function showTourStep() {
   const step = TOUR_STEPS[tourIndex];
+  if (step.onEnter) step.onEnter();
   const overlay   = document.getElementById('tour-overlay');
   const spotlight = document.getElementById('tour-spotlight');
   const tooltip   = document.getElementById('tour-tooltip');
@@ -1450,8 +1696,6 @@ function showTourStep() {
   backBtn.style.display = tourIndex === 0 ? 'none' : '';
   nextBtn.textContent = tourIndex === TOUR_STEPS.length - 1 ? 'Done' : 'Next';
 
-  tooltip.classList.remove('hidden');
-
   if (!step.target) {
     // Centered card, no spotlight
     spotlight.classList.add('hidden');
@@ -1459,13 +1703,18 @@ function showTourStep() {
     tooltip.style.left = '50%';
     tooltip.style.top = '50%';
     tooltip.style.transform = 'translate(-50%, -50%)';
+    tooltip.classList.remove('hidden');
     return;
   }
 
+  // Hide tooltip until positioned to prevent jump
+  tooltip.classList.add('hidden');
   overlay.style.background = 'transparent';
+  spotlight.classList.add('hidden');
   tooltip.style.transform = '';
+
   const el = document.querySelector(step.target);
-  if (!el) { spotlight.classList.add('hidden'); return; }
+  if (!el) { tooltip.classList.remove('hidden'); return; }
 
   // Scroll element into view if needed
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1480,22 +1729,25 @@ function showTourStep() {
     spotlight.style.width  = (r.width + pad * 2) + 'px';
     spotlight.style.height = (r.height + pad * 2) + 'px';
 
-    // Position tooltip: prefer above for bottom-anchored targets, below otherwise
+    // Position tooltip: measure actual height, prefer above target
     const tipW = 340;
-    const tipH = tooltip.offsetHeight || 220;
+    // Briefly show offscreen to measure
+    tooltip.style.left = '-9999px'; tooltip.style.top = '0';
+    tooltip.classList.remove('hidden');
+    const tipH = tooltip.offsetHeight;
+    tooltip.classList.add('hidden');
+
     let tipLeft = Math.max(12, Math.min(r.left, window.innerWidth - tipW - 12));
     let tipTop;
     if (r.top - pad - tipH - 12 > 0) {
-      // Place above the target
       tipTop = r.top - pad - tipH - 12;
     } else {
-      // Place below the target
       tipTop = r.bottom + pad + 12;
     }
-    // Keep tooltip fully on-screen vertically
     tipTop = Math.max(12, Math.min(tipTop, window.innerHeight - tipH - 12));
     tooltip.style.left = tipLeft + 'px';
     tooltip.style.top  = tipTop + 'px';
+    tooltip.classList.remove('hidden');
   }, 350);
 }
 
@@ -1653,9 +1905,7 @@ function init() {
 
 // ── BTC PRICE ─────────────────────────────────────────────────────────────
 async function fetchBtcPrice(manual) {
-  const btn = document.getElementById('btcRefreshBtn');
   const disp = document.getElementById('btcPriceDisplay');
-  btn.classList.add('spinning');
   disp.className = 'btc-price-val loading';
   disp.textContent = 'Fetching…';
   let price = null;
@@ -1670,7 +1920,6 @@ async function fetchBtcPrice(manual) {
       if (r.ok) { const j=await r.json(); price=parseFloat(j?.data?.amount); }
     } catch(_){}
   }
-  btn.classList.remove('spinning');
   if (price && price > 0) {
     btcPrice = price;
     btcFetchedAt = new Date();
@@ -1743,6 +1992,11 @@ function addRow(cat, type, name='', value='', extra={}) {
     row.linkedPropertyId = row.linkedPropertyId || '';
   }
   data[cat].push(row);
+  // Expand the category if it's collapsed
+  const toggleBtn = document.getElementById(`toggle-${cat}`);
+  if (toggleBtn && !toggleBtn.classList.contains('open')) {
+    toggleBtn.classList.add('open');
+  }
   renderRows(cat);
   recalc(); markChanged();
   setTimeout(()=>{
@@ -1795,6 +2049,7 @@ function updateField(cat, id, field, val) {
   const row = data[cat].find(r=>r.id===id);
   if (!row) return;
   if (row._autoCollateral) return;
+  if (field==='value' && HOLDINGS_CATS.has(cat) && row.holdingsMode==='computed') return;
   if (field==='value' && cat==='bitcoin') {
     const n = parseFloat(val)||0;
     row.value = btcUnit==='btc' ? Math.round(n*1e8) : Math.round(n);
@@ -1845,7 +2100,7 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
       ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0'
       : sats.toLocaleString();
     const usd = satsToFiat(sats);
-    valueDisplay = `${displayVal} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
+    valueDisplay = `₿ ${displayVal}`;
     valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
   } else if (isBtcLoan) {
     const loanUsd = parseFloat(row.value)||0;
@@ -1875,13 +2130,16 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
       const ltv = getPropertyLtv(row.id);
       if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(fx(ltv.totalDebt))} owed</span>`;
     }
+    if (HOLDINGS_CATS.has(cat) && row.holdings && row.holdings.length) {
+      valueSub += `<span style="font-size:10px;color:var(--text-dim);display:block;text-align:right">${row.holdings.length} holding${row.holdings.length>1?'s':''}</span>`;
+    }
   }
 
   const instTag = (!isSimple && row.institution)
     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
 
   const autoBadge = row._autoCollateral ? '<span class="auto-collateral-badge">AUTO</span>' : '';
-  const deleteBtn = row._autoCollateral ? '' : `<button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>`;
+  const deleteBtn = row._autoCollateral ? '<span class="entry-delete" style="visibility:hidden">✕</span>' : `<button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>`;
   const isLiab = LIAB_CATS.includes(cat);
   const payBtn = (isLiab && !row._autoCollateral) ? `<button class="entry-pay" onclick="event.stopPropagation();showPayInput('${cat}','${row.id}')" title="Apply payment">− Pay</button>` : '';
   const payGrid = payBtn ? 'grid-template-columns:16px 1fr auto auto auto;' : '';
@@ -1984,8 +2242,6 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     const addr = escHtml(row.address||'');
     // Zillow: direct property search - works well
     const zillowUrl = row.address ? `https://www.zillow.com/homes/${encodeURIComponent(row.address)}_rb/` : '#';
-    // Redfin: use their address search endpoint which resolves properly
-    const redfinUrl = row.address ? `https://www.redfin.com/search#location=${encodeURIComponent(row.address)}&start=0` : '#';
     // Google Maps property lookup - most reliable fallback
     const gmapsUrl = row.address ? `https://www.google.com/maps/search/${encodeURIComponent(row.address)}` : '#';
     return `<div class="entry-fields three-col">
@@ -2010,8 +2266,6 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <a id="re-zillow-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
             href="${zillowUrl}" target="_blank" rel="noopener">🏠 Zillow ↗</a>
-          <a id="re-redfin-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
-            href="${redfinUrl}" target="_blank" rel="noopener">📊 Redfin ↗</a>
           <a id="re-gmaps-${id}" class="field-input" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-decoration:none;color:var(--text-muted);font-size:11px;padding:5px 10px;width:auto"
             href="${gmapsUrl}" target="_blank" rel="noopener">📍 Maps ↗</a>
           <button id="re-avm-btn-${id}" class="avm-fetch-btn" onclick="fetchRentcastAVM('${id}')">⬡ Fetch Estimate</button>
@@ -2084,6 +2338,36 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
   // ── Standard expanded fields (all other cats)
   const typeOptions = types.map(t=>`<option${t===row.accountType?' selected':''}>${escHtml(t)}</option>`).join('');
   const showLoanFields = ['mortgage','auto-loan','student','other-liab'].includes(cat);
+  const isHoldingsCat = HOLDINGS_CATS.has(cat);
+  const hMode = row.holdingsMode || 'manual';
+  const isComputed = hMode === 'computed';
+
+  // Value field: readonly when computed from holdings
+  const valueField = isComputed
+    ? `<div class="field-group">
+        <div class="field-label" style="display:flex;align-items:center">Balance / Value ($)
+          <span class="holdings-mode">
+            <button onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
+            <button class="active" onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
+          </span>
+        </div>
+        <div class="field-input mono" style="background:transparent;border-color:var(--border);color:var(--accent);cursor:default">${row.value!==''?fmt(parseFloat(row.value)||0):'—'}</div>
+      </div>`
+    : `<div class="field-group">
+        <div class="field-label" style="display:flex;align-items:center">Balance / Value ($)${isHoldingsCat?`
+          <span class="holdings-mode">
+            <button class="active" onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
+            <button onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
+          </span>`:''}
+        </div>
+        <input class="field-input mono" type="number" step="any"
+          value="${row.value!==''?row.value:''}" placeholder="0"
+          oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+      </div>`;
+
+  // Holdings section for stocks/retirement
+  const holdingsHtml = isHoldingsCat ? buildHoldingsSection(cat, id, row) : '';
+
   return `<div class="entry-fields three-col">
     <div class="field-group">
       <div class="field-label">Account Name</div>
@@ -2101,12 +2385,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         <option value="">— Select —</option>${typeOptions}
       </select>
     </div>
-    <div class="field-group">
-      <div class="field-label">Balance / Value ($)</div>
-      <input class="field-input mono" type="number" step="any"
-        value="${row.value!==''?row.value:''}" placeholder="0"
-        oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
-    </div>
+    ${valueField}
     ${showLoanFields?`<div class="field-group">
       <div class="field-label">Interest Rate (% APR)</div>
       <input class="field-input mono" type="number" step="0.01" min="0" max="100"
@@ -2133,6 +2412,41 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         <button class="url-open" onclick="openLink(this.closest('.url-wrap').querySelector('input').value)" title="Open">↗</button>
       </div>
     </div>
+  </div>${holdingsHtml}`;
+}
+
+function buildHoldingsSection(cat, id, row) {
+  const holdings = row.holdings || [];
+  // Sort by value descending (new/empty holdings sink to bottom)
+  const sorted = [...holdings].sort((a,b) => {
+    const va = (parseFloat(a.shares)||0) * (parseFloat(a.price)||0);
+    const vb = (parseFloat(b.shares)||0) * (parseFloat(b.price)||0);
+    return vb - va;
+  });
+  const rows = sorted.map(h => {
+    const val = (parseFloat(h.shares)||0) * (parseFloat(h.price)||0);
+    return `<tr>
+      <td><input id="holding-ticker-${h.id}" value="${escHtml(h.ticker||'')}" placeholder="AAPL" style="width:70px;text-transform:uppercase"
+        onchange="updateHolding('${cat}','${id}','${h.id}','ticker',this.value)"></td>
+      <td class="r"><input type="number" step="any" value="${h.shares!==''?h.shares:''}" placeholder="0" style="width:65px;text-align:right"
+        oninput="updateHolding('${cat}','${id}','${h.id}','shares',this.value)"></td>
+      <td class="r"><input id="holding-price-${h.id}" type="number" step="0.01" value="${h.price!==''?h.price:''}" placeholder="0.00" style="width:75px;text-align:right"
+        oninput="updateHolding('${cat}','${id}','${h.id}','price',this.value)"></td>
+      <td class="r" id="holding-val-${h.id}" style="color:var(--text-muted)">${fmt(val)}</td>
+      <td><button class="holdings-fetch-one" id="holding-refresh-${h.id}" onclick="refreshHoldingPrice('${cat}','${id}','${h.id}')" title="Fetch price">\u21bb</button></td>
+      <td><button class="holdings-delete" onclick="removeHolding('${cat}','${id}','${h.id}')" title="Remove">\u2715</button></td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="holdings-section">
+    <div class="holdings-header">
+      <span class="holdings-label">Holdings</span>
+    </div>
+    ${holdings.length ? `<div style="overflow-x:auto"><table class="holdings-table">
+      <thead><tr><th>Ticker</th><th class="r">Shares</th><th class="r">Price</th><th class="r">Value</th><th></th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>` : ''}
+    <button class="holdings-add-btn" onclick="addHolding('${cat}','${id}')">+ Add Holding</button>
   </div>`;
 }
 
@@ -2153,7 +2467,7 @@ function updateCardDisplay(rowId, cat) {
     const sats = parseFloat(row.value)||0;
     const dv = btcUnit==='btc' ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0' : sats.toLocaleString();
     const usd = satsToFiat(sats);
-    valueDisplay = `${dv} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
+    valueDisplay = `₿ ${dv}`;
     valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
   } else if (isBtcLoan) {
     const loanUsd=parseFloat(row.value)||0;
@@ -2181,6 +2495,9 @@ function updateCardDisplay(rowId, cat) {
       const ltv = getPropertyLtv(row.id);
       if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(ltv.totalDebt)} owed</span>`;
     }
+    if (HOLDINGS_CATS.has(cat) && row.holdings && row.holdings.length) {
+      valueSub += `<span style="font-size:10px;color:var(--text-dim);display:block;text-align:right">${row.holdings.length} holding${row.holdings.length>1?'s':''}</span>`;
+    }
   }
   valEl.innerHTML = valueDisplay+valueSub;
 
@@ -2199,11 +2516,9 @@ function updateReLinks(rowId) {
   if (!addrEl) return;
   const addr = addrEl.value.trim();
   const z  = addr ? `https://www.zillow.com/homes/${encodeURIComponent(addr)}_rb/` : '#';
-  const rf = addr ? `https://www.redfin.com/search#location=${encodeURIComponent(addr)}&start=0` : '#';
-const gm = addr ? `https://www.google.com/maps/search/${encodeURIComponent(addr)}` : '#';
+  const gm = addr ? `https://www.google.com/maps/search/${encodeURIComponent(addr)}` : '#';
   const zEl=document.getElementById(`re-zillow-${rowId}`);  if(zEl) zEl.href=z;
-  const rEl=document.getElementById(`re-redfin-${rowId}`);  if(rEl) rEl.href=rf;
-const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
+  const gmEl=document.getElementById(`re-gmaps-${rowId}`);  if(gmEl) gmEl.href=gm;
 }
 
 // ── SETTINGS MODAL ───────────────────────────────────────────────────────────
@@ -2231,8 +2546,10 @@ function openSettings() {
   const el = document.getElementById('settings-rentcast-key');
   el.value = rentcastApiKey;
   el.type = 'password';
+  const stockEl = document.getElementById('settings-stock-key');
+  stockEl.value = stockApiKey;
+  stockEl.type = 'password';
   document.getElementById('settings-modal').classList.remove('hidden');
-  el.focus();
 }
 function closeSettings() {
   document.getElementById('settings-modal').classList.add('hidden');
@@ -2242,6 +2559,7 @@ function saveSettings() {
   const currencyChanged = newCurrency !== currency;
   currency = newCurrency;
   rentcastApiKey = document.getElementById('settings-rentcast-key').value.trim();
+  stockApiKey = document.getElementById('settings-stock-key').value.trim();
   closeSettings();
   if (currencyChanged) {
     btcPrice = null;
@@ -2348,6 +2666,7 @@ function bookmarkletCode() {
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); document.getElementById('ln-panel').style.display='none'; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('about-modal').classList.contains('hidden')) closeAbout(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('settings-modal').classList.contains('hidden')) closeSettings(); });
 
 const LN_ADDR = 'peerloomllc@strike.me';
 function isMobile() { return navigator.maxTouchPoints > 0 && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent); }
@@ -2663,6 +2982,209 @@ function calcMonthlyInterestBtcLoan(row) {
   return (balance * rate / 100) / 12;
 }
 
+// ── RECURRING CASH FLOW ──────────────────────────────────────────────────
+function toMonthly(item) {
+  const amt = parseFloat(item.amount) || 0;
+  if (item.frequency === 'weekly')    return amt * 52 / 12;
+  if (item.frequency === 'biweekly')  return amt * 26 / 12;
+  if (item.frequency === 'quarterly') return amt / 3;
+  if (item.frequency === 'annual')    return amt / 12;
+  return amt;
+}
+
+function addRecurring(dir) {
+  const d = dir || 'expense';
+  const newId = uid();
+  recurring.unshift({ id: newId, name: '', amount: '', frequency: 'monthly', direction: d });
+  const sortKey = d === 'income' ? 'recIncome' : 'recExpense';
+  cfSort[sortKey].col = null;
+  renderRecurringTable();
+  buildCashFlowSummary();
+  markChanged();
+  setTimeout(() => {
+    const input = document.getElementById('cf-rec-name-' + newId);
+    if (input) { input.scrollIntoView({ block: 'nearest' }); input.focus(); }
+  }, 30);
+}
+
+function updateRecurring(id, field, val) {
+  const item = recurring.find(r => r.id === id);
+  if (!item) return;
+  item[field] = val;
+  renderRecurringTable();
+  buildCashFlowSummary();
+  markChanged();
+}
+
+function deleteRecurring(id) {
+  recurring = recurring.filter(r => r.id !== id);
+  renderRecurringTable();
+  buildCashFlowSummary();
+  markChanged();
+}
+
+function buildLiabLabel(cat, row) {
+  const parts = [CAT_META[cat]?.label || cat];
+  if (row.institution) parts.push(row.institution);
+  if (row.name) parts.push(row.name);
+  return parts.join(' / ');
+}
+
+function getImportableLiabilities() {
+  const linked = new Set(recurring.filter(r => r._liabId).map(r => r._liabId));
+  const items = [];
+  LIAB_CATS.forEach(cat => {
+    (data[cat]||[]).forEach(row => {
+      if (linked.has(row.id)) return;
+      const bal = parseFloat(row.value) || 0;
+      if (!bal) return;
+      const mi = REVOLVING_CATS.includes(cat) ? calcMonthlyInterest(row) : 0;
+      items.push({ cat, row, label: buildLiabLabel(cat, row), mi, bal });
+    });
+  });
+  return items;
+}
+
+function openLiabImport() {
+  const items = getImportableLiabilities();
+  if (!items.length) {
+    showToast('All liabilities already imported', 'warning');
+    return;
+  }
+  const modal = document.getElementById('liab-import-modal');
+  const body = document.getElementById('liab-import-body');
+  body.innerHTML = items.map((it, i) => {
+    const amtStr = it.mi > 0 ? fmtS(fx(it.mi)) + '/mo interest' : fmt(fx(it.bal)) + ' balance';
+    return `<label class="liab-import-row">
+      <input type="checkbox" value="${i}" checked>
+      <span class="liab-import-label">${escHtml(it.label)}</span>
+      <span class="liab-import-amt">${amtStr}</span>
+    </label>`;
+  }).join('');
+  modal._items = items;
+  modal.classList.remove('hidden');
+}
+
+function closeLiabImport() {
+  document.getElementById('liab-import-modal').classList.add('hidden');
+}
+
+function confirmLiabImport() {
+  const modal = document.getElementById('liab-import-modal');
+  const items = modal._items || [];
+  const checked = [...modal.querySelectorAll('input[type=checkbox]:checked')].map(cb => parseInt(cb.value));
+  let added = 0;
+  checked.forEach(i => {
+    const it = items[i];
+    if (!it) return;
+    recurring.push({
+      id: uid(), name: buildLiabLabel(it.cat, it.row),
+      amount: it.mi > 0 ? it.mi.toFixed(2) : '',
+      frequency: 'monthly', direction: 'expense', _liabId: it.row.id
+    });
+    added++;
+  });
+  closeLiabImport();
+  if (added) {
+    renderRecurringTable();
+    buildCashFlowSummary();
+    markChanged();
+    showToast(added + ' expense' + (added > 1 ? 's' : '') + ' imported', 'success');
+  }
+}
+
+function startAmountEdit(el, id) {
+  const item = recurring.find(r => r.id === id);
+  if (!item) return;
+  el.innerHTML = `<input class="cf-inline-input cf-inline-amount" value="${item.amount}" placeholder="0" type="number" step="any" min="0" onchange="updateRecurring('${id}','amount',this.value)" onblur="updateRecurring('${id}','amount',this.value)">`;
+  const input = el.querySelector('input');
+  if (input) input.focus();
+}
+
+const cfRecCollapsed = { income: false, expense: false };
+
+function toggleRecSection(dir) {
+  cfRecCollapsed[dir] = !cfRecCollapsed[dir];
+  renderRecurringTable();
+}
+
+function buildRecRows(items) {
+  return items.map(r => {
+    const mo = toMonthly(r);
+    const amt = parseFloat(r.amount) || 0;
+    const isInc = r.direction === 'income';
+    const amtDisplay = amt > 0 ? fmtS(fx(amt)) : '<span style="color:var(--text-dim)">--</span>';
+    return `<tr>
+      <td><input class="cf-inline-input cf-rec-name" id="cf-rec-name-${r.id}" value="${escHtml(r.name)}" placeholder="Name" onchange="updateRecurring('${r.id}','name',this.value)"></td>
+      <td><select class="cf-inline-select" onchange="updateRecurring('${r.id}','frequency',this.value)">
+        <option value="weekly"${r.frequency==='weekly'?' selected':''}>Weekly</option>
+        <option value="biweekly"${r.frequency==='biweekly'?' selected':''}>Biweekly</option>
+        <option value="monthly"${r.frequency==='monthly'?' selected':''}>Monthly</option>
+        <option value="quarterly"${r.frequency==='quarterly'?' selected':''}>Quarterly</option>
+        <option value="annual"${r.frequency==='annual'?' selected':''}>Annual</option>
+      </select></td>
+      <td class="r cf-amt-cell" onclick="startAmountEdit(this,'${r.id}')">${amtDisplay}</td>
+      <td class="r ${isInc?'accent':'red'}">${isInc?'+':'−'}${fmtS(fx(mo))}</td>
+      <td class="r"><button class="cf-delete-btn" onclick="deleteRecurring('${r.id}')" title="Remove">&#x2715;</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildRecSection(dir, items, label, colorClass) {
+  const total = items.reduce((s, r) => s + toMonthly(r), 0);
+  const collapsed = cfRecCollapsed[dir];
+  const arrow = collapsed ? '▸' : '▾';
+  const totalStr = items.length ? fmtS(fx(total)) + '/mo' : '';
+  const sortTable = dir === 'income' ? 'recIncome' : 'recExpense';
+  const sorted = applyCfSort(sortTable, items, {
+    name: r => (r.name || '').toLowerCase(),
+    frequency: r => r.frequency,
+    amount: r => parseFloat(r.amount) || 0,
+    monthly: r => toMonthly(r)
+  });
+  const rows = collapsed ? '' : buildRecRows(sorted);
+  const addBtn = collapsed ? '' : `<div style="padding:6px 16px"><button class="add-row-btn" onclick="addRecurring('${dir}')">+ Add ${dir}</button></div>`;
+
+  return `<div id="cf-rec-${dir}">
+    <div class="cf-rec-section-header" onclick="toggleRecSection('${dir}')">
+      <span class="cf-rec-arrow">${arrow}</span>
+      <span class="cf-rec-section-label">${label}</span>
+      <span class="cf-rec-section-count">${items.length}</span>
+      <span class="cf-rec-section-total ${colorClass}">${totalStr}</span>
+    </div>
+    ${addBtn}
+    ${!collapsed && items.length ? `<table class="cf-table">
+      <thead><tr>${cfSortTh(sortTable,'name','Name','')}${cfSortTh(sortTable,'frequency','Frequency','')}${cfSortTh(sortTable,'amount','Amount','r')}${cfSortTh(sortTable,'monthly','Monthly','r')}<th style="width:40px"></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : (!collapsed && !items.length ? '' : '')}
+  </div>`;
+}
+
+function renderRecurringTable() {
+  const wrap = document.getElementById('cf-rec-wrap');
+  if (!wrap) return;
+  const total = recurring.reduce((s, r) => s + (r.direction === 'income' ? toMonthly(r) : -toMonthly(r)), 0);
+  const recTotalEl = document.getElementById('cf-rec-total');
+  if (recurring.length) {
+    recTotalEl.textContent = (total >= 0 ? '+' : '−') + fmtS(fx(Math.abs(total))) + '/mo';
+    recTotalEl.style.color = total >= 0 ? 'var(--accent)' : 'var(--red)';
+  } else {
+    recTotalEl.textContent = '';
+    recTotalEl.style.color = '';
+  }
+
+  const actionBar = `<div class="cf-rec-actions">
+    <button class="add-row-btn" onclick="openLiabImport()">+ Import from liabilities</button>
+  </div>`;
+
+  const incomeItems = recurring.filter(r => r.direction === 'income');
+  const expenseItems = recurring.filter(r => r.direction === 'expense');
+
+  wrap.innerHTML = actionBar
+    + buildRecSection('income', incomeItems, 'Income', 'accent')
+    + buildRecSection('expense', expenseItems, 'Expenses', 'red');
+}
+
 // ── AUTO-COLLATERAL SYNC ─────────────────────────────────────────────────
 function syncCollateralEntry() {
   const totalSats = data['btc-loan'].reduce((s,r) => s + (parseFloat(r.collateralSats)||0), 0);
@@ -2717,6 +3239,171 @@ function syncAllBtcLoanBalances() {
   data['btc-loan'].forEach(row => syncBtcLoanBalance(row, row.id));
 }
 
+// ── STOCK HOLDINGS ────────────────────────────────────────────────────────
+const HOLDINGS_CATS = new Set(['stocks','retirement']);
+
+function holdingsSum(row) {
+  if (!row.holdings || !row.holdings.length) return 0;
+  return row.holdings.reduce((s,h) => s + (parseFloat(h.shares)||0) * (parseFloat(h.price)||0), 0);
+}
+
+function syncHoldingsValue(row) {
+  if (row.holdingsMode === 'computed' && row.holdings && row.holdings.length) {
+    row.value = Math.round(holdingsSum(row) * 100) / 100;
+  }
+}
+
+function addHolding(cat, rowId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row) return;
+  if (!row.holdings) row.holdings = [];
+  const h = { id: uid(), ticker: '', shares: '', price: '' };
+  row.holdings.push(h);
+  renderRows(cat); recalc(); markChanged();
+  // Re-open the entry detail
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+    const el = document.querySelector(`#holding-ticker-${h.id}`);
+    if (el) el.focus();
+  }, 30);
+}
+
+function removeHolding(cat, rowId, holdingId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings) return;
+  row.holdings = row.holdings.filter(h => h.id !== holdingId);
+  syncHoldingsValue(row);
+  renderRows(cat); recalc(); markChanged();
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+  }, 30);
+}
+
+function updateHolding(cat, rowId, holdingId, field, val) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings) return;
+  const h = row.holdings.find(x => x.id === holdingId);
+  if (!h) return;
+  if (field === 'ticker') h.ticker = val.toUpperCase();
+  else if (field === 'shares' || field === 'price') h[field] = val;
+  syncHoldingsValue(row);
+  // Update holding value display inline
+  const valCell = document.getElementById(`holding-val-${holdingId}`);
+  if (valCell) valCell.textContent = fmt((parseFloat(h.shares)||0) * (parseFloat(h.price)||0));
+  // Update account value display if computed
+  if (row.holdingsMode === 'computed') {
+    updateCardDisplay(rowId, cat);
+  }
+  recalc(); markChanged();
+}
+
+function setHoldingsMode(cat, rowId, mode) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row) return;
+  row.holdingsMode = mode;
+  if (mode === 'computed') syncHoldingsValue(row);
+  renderRows(cat); recalc(); markChanged();
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+  }, 30);
+}
+
+async function fetchStockPrice(ticker) {
+  if (!stockApiKey || !ticker) return null;
+  try {
+    const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(ticker)}&token=${encodeURIComponent(stockApiKey)}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (j.c && j.c > 0) return j.c;
+    return null;
+  } catch { return null; }
+}
+
+async function refreshHoldingPrice(cat, rowId, holdingId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings) return;
+  const h = row.holdings.find(x => x.id === holdingId);
+  if (!h || !h.ticker) return;
+  const btn = document.querySelector(`#holding-refresh-${holdingId}`);
+  if (btn) btn.textContent = '...';
+  const price = await fetchStockPrice(h.ticker);
+  if (price !== null) {
+    h.price = price;
+    h.lastPriceAt = new Date().toISOString();
+    const priceInput = document.getElementById(`holding-price-${holdingId}`);
+    if (priceInput) priceInput.value = price;
+    const valCell = document.getElementById(`holding-val-${holdingId}`);
+    if (valCell) valCell.textContent = fmt((parseFloat(h.shares)||0) * price);
+    syncHoldingsValue(row);
+    updateCardDisplay(rowId, cat);
+    recalc(); markChanged();
+  }
+  if (btn) btn.textContent = '\u21bb';
+}
+
+async function refreshAllHoldings(cat, rowId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings || !row.holdings.length) return;
+  if (!stockApiKey) { showToast('Add Finnhub API key in Settings'); return; }
+  const tickers = row.holdings.filter(h => h.ticker);
+  if (!tickers.length) return;
+  showToast(`Refreshing ${tickers.length} holding${tickers.length>1?'s':''}...`);
+  let ok = 0;
+  for (const h of tickers) {
+    const price = await fetchStockPrice(h.ticker);
+    if (price !== null) { h.price = price; h.lastPriceAt = new Date().toISOString(); ok++; }
+  }
+  syncHoldingsValue(row);
+  renderRows(cat); recalc(); markChanged();
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+  }, 30);
+  showToast(`Updated ${ok}/${tickers.length} prices`);
+}
+
+async function refreshAllStockPrices() {
+  if (!stockApiKey) { showToast('Add Finnhub API key in Settings'); return; }
+  const allHoldings = [];
+  ['stocks','retirement'].forEach(cat => {
+    data[cat].forEach(row => {
+      if (row.holdings) row.holdings.filter(h => h.ticker).forEach(h => allHoldings.push({ cat, row, h }));
+    });
+  });
+  if (!allHoldings.length) { showToast('No holdings with tickers to refresh'); return; }
+  showToast(`Refreshing ${allHoldings.length} holding${allHoldings.length>1?'s':''}...`);
+  let ok = 0;
+  for (const { h } of allHoldings) {
+    const price = await fetchStockPrice(h.ticker);
+    if (price !== null) { h.price = price; h.lastPriceAt = new Date().toISOString(); ok++; }
+  }
+  ['stocks','retirement'].forEach(cat => {
+    data[cat].forEach(row => syncHoldingsValue(row));
+    renderRows(cat);
+  });
+  recalc(); markChanged();
+  showToast(`Updated ${ok}/${allHoldings.length} prices`);
+}
+
 // ── CALCULATE ─────────────────────────────────────────────────────────────
 function parseVal(v) { return parseFloat(v)||0; }
 function catSum(cat) {
@@ -2734,7 +3421,8 @@ function fmt(n) {
 function fmtS(n) {
   const abs=Math.abs(n),sign=n<0?'-':'',s=csym();
   if(abs>=1e6)return sign+s+(abs/1e6).toFixed(1)+'M';
-  if(abs>=1e3)return sign+s+(abs/1e3).toFixed(0)+'K';
+  if(abs>=1e5)return sign+s+(abs/1e3).toFixed(0)+'K';
+  if(abs>=1e4)return sign+s+(abs/1e3).toFixed(1)+'K';
   return sign+s+Math.round(abs).toLocaleString();
 }
 
@@ -2744,6 +3432,9 @@ function catSumDisplay(cat) {
 function recalc() {
   syncCollateralEntry();
   syncAllBtcLoanBalances();
+  HOLDINGS_CATS.forEach(cat => {
+    data[cat].forEach(row => { if (row.holdingsMode === 'computed') syncHoldingsValue(row); });
+  });
   ALL_CATS.forEach(c=>{
     const el=document.getElementById(`cat-total-${c}`);
     if(el) el.textContent=(c==='bitcoin'&&!btcPrice)?'—':fmt(catSumDisplay(c));
@@ -2843,46 +3534,112 @@ function refreshCharts(tA,tL,nw){
 }
 
 // ── CASH FLOW TAB ─────────────────────────────────────────────────────────
-function buildCashFlowTab() {
-  // Collect all liability rows that have a balance and rate
+const REVOLVING_CATS = ['credit', 'btc-loan'];
+
+// Sort state for cash flow tables
+const cfSort = {
+  rev: { col: 'mi', asc: false },
+  recIncome: { col: null, asc: false },
+  recExpense: { col: null, asc: false }
+};
+
+function setCfSort(table, col) {
+  const s = cfSort[table];
+  if (s.col === col) { s.asc = !s.asc; }
+  else { s.col = col; s.asc = col === 'name' || col === 'label'; }
+  buildCashFlowTab();
+}
+
+function cfSortArrow(table, col) {
+  const s = cfSort[table];
+  const active = s.col === col;
+  const arrow = active ? (s.asc ? '▲' : '▼') : '▼';
+  return `<span class="cf-sort-arrow">${arrow}</span>`;
+}
+
+function cfSortTh(table, col, label, cls) {
+  const active = cfSort[table].col === col ? ' active' : '';
+  return `<th class="${cls||''} sortable${active}" onclick="setCfSort('${table}','${col}')">${label}${cfSortArrow(table,col)}</th>`;
+}
+
+function applyCfSort(table, items, getters) {
+  const s = cfSort[table];
+  const getter = getters[s.col];
+  if (!getter) return items;
+  const sorted = [...items].sort((a,b) => {
+    const va = getter(a), vb = getter(b);
+    if (typeof va === 'string') return va.localeCompare(vb);
+    return va - vb;
+  });
+  return s.asc ? sorted : sorted.reverse();
+}
+
+function getRevolvingInterest() {
   const rows = [];
-  LIAB_CATS.forEach(cat => {
+  REVOLVING_CATS.forEach(cat => {
     (data[cat]||[]).forEach(row => {
       const bal  = parseFloat(row.value)||0;
       const rate = parseFloat(row.interestRate)||0;
       const mi   = BTC_LIAB_CATS.has(cat) ? calcMonthlyInterestBtcLoan(row) : calcMonthlyInterest(row);
-      const label = row.name || 'Untitled';
-      const inst  = row.institution || '';
-      const orig  = row.originationDate || '';
-      rows.push({ cat, label, inst, bal, rate, mi, orig, hasRate: rate > 0 });
+      rows.push({ cat, label: row.name || 'Untitled', inst: row.institution || '', bal, rate, mi, orig: row.originationDate || '', hasRate: rate > 0 });
     });
   });
+  return rows;
+}
 
-  const totalEntries  = rows.length;
-  const withRate      = rows.filter(r => r.hasRate);
-  const totalMonthly  = withRate.reduce((s,r) => s+r.mi, 0);
-  const totalAnnual   = totalMonthly * 12;
-  const totalBal      = withRate.reduce((s,r) => s+r.bal, 0);
-  const weightedRate  = totalBal > 0
-    ? withRate.reduce((s,r) => s + r.rate*(r.bal/totalBal), 0)
-    : 0;
+function buildCashFlowSummary() {
+  const revRows = getRevolvingInterest();
+  const withRate = revRows.filter(r => r.hasRate);
+  const revInterest = withRate.reduce((s,r) => s+r.mi, 0);
 
-  // Summary stats
-  document.getElementById('cf-total-monthly').textContent = fmtS(fx(totalMonthly));
-  document.getElementById('cf-total-annual-sub').textContent = `${fmt(fx(totalAnnual))} / year`;
-  document.getElementById('cf-avg-rate').textContent = weightedRate > 0 ? weightedRate.toFixed(2)+'%' : '—';
-  document.getElementById('cf-coverage').textContent = `${withRate.length} / ${totalEntries}`;
+  const monthlyIncome = recurring.filter(r => r.direction === 'income').reduce((s,r) => s + toMonthly(r), 0);
+  const monthlyExpenses = recurring.filter(r => r.direction === 'expense').reduce((s,r) => s + toMonthly(r), 0);
+  const totalObligations = monthlyExpenses + revInterest;
+  const netCashFlow = monthlyIncome - totalObligations;
 
-  // Detailed table
+  const incEl = document.getElementById('cf-total-income');
+  incEl.textContent = monthlyIncome > 0 ? fmtS(fx(monthlyIncome)) : '—';
+
+  const oblEl = document.getElementById('cf-total-obligations');
+  oblEl.textContent = totalObligations > 0 ? fmtS(fx(totalObligations)) : '—';
+
+  const netEl = document.getElementById('cf-net-cashflow');
+  if (monthlyIncome > 0 || totalObligations > 0) {
+    netEl.textContent = (netCashFlow < 0 ? '−' : '+') + fmtS(fx(Math.abs(netCashFlow)));
+    netEl.className = 'cf-stat-value' + (netCashFlow >= 0 ? ' accent' : '');
+  } else {
+    netEl.textContent = '—';
+    netEl.className = 'cf-stat-value';
+  }
+
+  document.getElementById('cf-income-annual-sub').textContent = monthlyIncome > 0 ? fmt(fx(monthlyIncome * 12)) + ' / year' : '— / year';
+  document.getElementById('cf-obligations-annual-sub').textContent = totalObligations > 0 ? fmt(fx(totalObligations * 12)) + ' / year' : '— / year';
+  document.getElementById('cf-net-annual-sub').textContent = (monthlyIncome > 0 || totalObligations > 0) ? fmt(fx(Math.abs(netCashFlow * 12))) + ' / year' : '— / year';
+}
+
+function buildCashFlowTab() {
+  renderRecurringTable();
+
+  const revRows = getRevolvingInterest();
+  const withRate = revRows.filter(r => r.hasRate);
+  const totalMonthly = withRate.reduce((s,r) => s+r.mi, 0);
+
+  // Revolving interest detail table
   const tableWrap = document.getElementById('cf-table-wrap');
   document.getElementById('cf-table-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   if (!withRate.length) {
-    tableWrap.innerHTML = '<div class="cf-empty">No interest rate data yet — open a liability entry and add an interest rate.</div>';
+    tableWrap.innerHTML = '<div class="cf-empty">No revolving debt with interest rates yet.</div>';
   } else {
-    const sorted = [...withRate].sort((a,b) => b.mi - a.mi);
-    const maxMi  = sorted[0].mi;
+    const sorted = applyCfSort('rev', withRate, {
+      label: r => (r.label || '').toLowerCase(),
+      inst: r => (r.inst || '').toLowerCase(),
+      bal: r => r.bal,
+      rate: r => r.rate,
+      mi: r => r.mi
+    });
+    const maxMi = Math.max(...withRate.map(r => r.mi));
     tableWrap.innerHTML = `<table class="cf-table">
-      <thead><tr><th>Account</th><th>Institution</th><th>Origination</th><th class="r">Balance</th><th class="r">Rate</th><th class="r">Monthly Interest</th><th style="width:80px"></th></tr></thead>
+      <thead><tr>${cfSortTh('rev','label','Account','')}${cfSortTh('rev','inst','Institution','')}<th>Origination</th>${cfSortTh('rev','bal','Balance','r')}${cfSortTh('rev','rate','Rate','r')}${cfSortTh('rev','mi','Monthly Interest','r')}<th style="width:80px"></th></tr></thead>
       <tbody>${sorted.map(r => `<tr>
         <td class="hi">${escHtml(r.label)}</td>
         <td>${escHtml(r.inst)||'—'}</td>
@@ -2901,7 +3658,7 @@ function buildCashFlowTab() {
     </table>`;
   }
 
-  // Category roll-up
+  // Category roll-up (revolving only)
   const catWrap = document.getElementById('cf-cat-wrap');
   document.getElementById('cf-cat-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   const byCat = {};
@@ -2933,6 +3690,8 @@ function buildCashFlowTab() {
       </tbody>
     </table>`;
   }
+
+  buildCashFlowSummary();
 }
 
 // ── TAB ───────────────────────────────────────────────────────────────────
@@ -2967,14 +3726,17 @@ function loadData(){
 function clearAll(){
   if(!confirm('Clear all entries? This cannot be undone.'))return;
   ALL_CATS.forEach(c=>{data[c]=[];sortState[c]=null;});
-  renderAll(); recalc(); markChanged();
+  snapshots = [];
+  recurring = [];
+  renderAll(); recalc(); buildCashFlowTab(); markChanged();
   showToast('All entries cleared');
 }
 function markChanged(){hasUnsavedChanges=true;document.getElementById('changedDot').classList.add('visible');}
 
 function exportJSON(){
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL},data},null,2)],{type:'application/json'});
+  const totalBtcSats = data['bitcoin'].reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL,totalBtcSats},data,recurring,snapshots},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
   showToast('Exported as JSON');
 }
@@ -2991,7 +3753,9 @@ function handleImportFile(event){
       if(finalKeys.length===0){showToast('Invalid JSON: no recognized categories found','error');return;}
       if(!confirm(`Import will replace current data with ${finalKeys.length} categories from the file. Continue?`))return;
       ALL_CATS.forEach(c=>{data[c]=incoming[c]||[];sortState[c]=null;});
-      renderAll(); recalc(); markChanged();
+      if(Array.isArray(p.recurring)) recurring=p.recurring;
+      if(Array.isArray(p.snapshots)) snapshots=p.snapshots;
+      renderAll(); recalc(); buildCashFlowTab(); markChanged();
       showToast(`Imported ${finalKeys.length} categories`,'success');
     }catch(err){showToast('Failed to parse JSON file','error');console.error(err);}
     event.target.value='';
@@ -3009,46 +3773,85 @@ function showToast(msg,type=''){
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(!isLocked)saveData();}});
 window.addEventListener('beforeunload',e=>{if(hasUnsavedChanges){e.preventDefault();e.returnValue='';}});
 
-// ── PWA ──────────────────────────────────────────────────────────────────
-(function setupPWA() {
-  if (location.protocol === 'file:') return; // PWA requires HTTP(S)
-  // Inline manifest
-  const icon = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d0f0e'/><text x='256' y='370' text-anchor='middle' font-family='Georgia,serif' font-size='320' font-style='italic' fill='%23a8d08d'>C</text></svg>";
-  const manifest = {
-    name: 'Cache — Personal Wealth Ledger',
-    short_name: 'Cache',
-    start_url: location.href.split('?')[0],
-    display: 'standalone',
-    background_color: '#0d0f0e',
-    theme_color: '#0d0f0e',
-    icons: [{ src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
-  };
-  const mLink = document.createElement('link');
-  mLink.rel = 'manifest';
-  mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
-  document.head.appendChild(mLink);
-  // Inline service worker — cache page for offline use
-  const swCode = `
-    const CACHE = 'cache-pwa-v1';
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.add(self.registration.scope)));
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-      self.clients.claim();
-    });
-    self.addEventListener('fetch', e => {
-      if (e.request.mode === 'navigate') {
-        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-      }
-    });
-  `;
-  try {
-    const swBlob = new Blob([swCode], {type:'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob), {scope: location.pathname}).catch(()=>{});
-  } catch(_){}
-})();
+// ── PWA INSTALL GATE ─────────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+let pwaGateWaiting = false;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // If initLockSystem is waiting for this event, show the gate now
+  if (pwaGateWaiting) {
+    pwaGateWaiting = false;
+    showPWAGate();
+  }
+  // Show persistent reminder if gate was previously dismissed
+  if (localStorage.getItem('cache-pwa-gate-dismissed') && !localStorage.getItem('cache-pwa-reminder-dismissed')) {
+    document.getElementById('pwa-reminder').classList.add('show');
+  }
+});
+
+function showPWAGate() {
+  document.getElementById('lock-screen').classList.add('hidden');
+  // Detect browser/platform and show the right instructions
+  const ua = navigator.userAgent;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (isStandalone) {
+    // Already installed as PWA, skip gate
+    showLockScreen('set');
+    return;
+  }
+  const canPrompt = 'BeforeInstallPromptEvent' in window;
+  const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/CriOS/.test(ua);
+  const isFirefoxMobile = /Firefox/.test(ua) && /Mobile|Android/.test(ua);
+  const isMobile = /Mobile|Android|iPhone|iPad/.test(ua);
+  if (canPrompt) {
+    document.getElementById('pwa-gate-auto').style.display = '';
+  } else if (isSafari && isMobile) {
+    document.getElementById('pwa-gate-safari').style.display = '';
+  } else if (isFirefoxMobile) {
+    document.getElementById('pwa-gate-firefox').style.display = '';
+  } else {
+    document.getElementById('pwa-gate-desktop').style.display = '';
+  }
+  document.getElementById('pwa-install-gate').classList.remove('hidden');
+}
+
+function triggerPWAInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') {
+      showToast('App installed', 'success');
+    }
+    deferredInstallPrompt = null;
+    document.getElementById('pwa-reminder').classList.remove('show');
+    localStorage.setItem('cache-pwa-reminder-dismissed', '1');
+    dismissPWAGate();
+  });
+}
+
+function dismissPWAGate() {
+  document.getElementById('pwa-install-gate').classList.add('hidden');
+  localStorage.setItem('cache-pwa-gate-dismissed', '1');
+  // Show persistent reminder if they didn't install
+  if (deferredInstallPrompt && !localStorage.getItem('cache-pwa-reminder-dismissed')) {
+    document.getElementById('pwa-reminder').classList.add('show');
+  }
+  // Proceed to password setup
+  showLockScreen('set');
+}
+
+function dismissPWAReminder() {
+  document.getElementById('pwa-reminder').classList.remove('show');
+  localStorage.setItem('cache-pwa-reminder-dismissed', '1');
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-install-gate').classList.add('hidden');
+  document.getElementById('pwa-reminder').classList.remove('show');
+  deferredInstallPrompt = null;
+});
 
 // ── START ─────────────────────────────────────────────────────────────────
 init();
