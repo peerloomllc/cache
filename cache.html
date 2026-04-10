@@ -61,16 +61,13 @@
   .s-value.assets{color:var(--accent)} .s-value.liabilities{color:var(--red)} .s-value.ratio{color:var(--gold)}
 
   /* ── BTC TICKER BAR ── */
-  .btc-bar{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 32px;border-bottom:1px solid var(--border);background:var(--bar-bg,#0d0f0e)}
+  .btc-bar{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;flex-direction:column;align-items:center;padding:6px 32px 4px;border-bottom:1px solid var(--border);background:var(--bar-bg,#0d0f0e)}
   .btc-bar-left{display:flex;align-items:center;gap:12px}
   .btc-logo{font-size:14px;color:var(--btc)}
   .btc-price-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
   .btc-price-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--btc)}
   .btc-price-val.loading{color:var(--text-dim);animation:pulse 1.5s ease-in-out infinite}
-  .btc-bar-right{font-family:var(--mono);font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
-  .btc-refresh{background:none;border:1px solid var(--border-light);color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s}
-  .btc-refresh:hover{color:var(--btc);border-color:var(--btc)}
-  .btc-refresh.spinning{animation:spin .7s linear infinite}
+  .btc-bar-right{font-family:var(--mono);font-size:9px;color:var(--text-dim);display:flex;align-items:center;gap:8px;margin-top:2px}
   @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
@@ -515,9 +512,9 @@
     /* Tab nav: scrollable */
     .tab-nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
     .tab-btn{padding:8px 14px;flex-shrink:0;white-space:nowrap}
-    .btc-bar{padding:5px 12px;flex-wrap:nowrap;gap:6px}
+    .btc-bar{padding:4px 12px 3px;gap:2px}
     .btc-price-label{display:none}
-    .btc-bar-right{display:none}
+    .btc-bar-right{font-size:8px;margin-top:0}
     .entry-fields{grid-template-columns:1fr}
     .entry-fields.three-col{grid-template-columns:1fr}
     /* Summary bar values */
@@ -595,7 +592,6 @@
   </div>
   <div class="btc-bar-right">
     <span id="btcPriceAge">—</span>
-    <button class="btc-refresh" id="btcRefreshBtn" onclick="fetchBtcPrice(true)">↻ Refresh</button>
   </div>
 </div>
 
@@ -1863,9 +1859,7 @@ function init() {
 
 // ── BTC PRICE ─────────────────────────────────────────────────────────────
 async function fetchBtcPrice(manual) {
-  const btn = document.getElementById('btcRefreshBtn');
   const disp = document.getElementById('btcPriceDisplay');
-  btn.classList.add('spinning');
   disp.className = 'btc-price-val loading';
   disp.textContent = 'Fetching…';
   let price = null;
@@ -1880,7 +1874,6 @@ async function fetchBtcPrice(manual) {
       if (r.ok) { const j=await r.json(); price=parseFloat(j?.data?.amount); }
     } catch(_){}
   }
-  btn.classList.remove('spinning');
   if (price && price > 0) {
     btcPrice = price;
     btcFetchedAt = new Date();
@@ -2060,7 +2053,7 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
       ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0'
       : sats.toLocaleString();
     const usd = satsToFiat(sats);
-    valueDisplay = `${displayVal} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
+    valueDisplay = `₿ ${displayVal}`;
     valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
   } else if (isBtcLoan) {
     const loanUsd = parseFloat(row.value)||0;
@@ -2096,7 +2089,7 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${escHtml(row.institution)}</span>` : '';
 
   const autoBadge = row._autoCollateral ? '<span class="auto-collateral-badge">AUTO</span>' : '';
-  const deleteBtn = row._autoCollateral ? '' : `<button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>`;
+  const deleteBtn = row._autoCollateral ? '<span class="entry-delete" style="visibility:hidden">✕</span>' : `<button class="entry-delete" onclick="event.stopPropagation();deleteRow('${cat}','${row.id}')" title="Remove">✕</button>`;
   const isLiab = LIAB_CATS.includes(cat);
   const payBtn = (isLiab && !row._autoCollateral) ? `<button class="entry-pay" onclick="event.stopPropagation();showPayInput('${cat}','${row.id}')" title="Apply payment">− Pay</button>` : '';
   const payGrid = payBtn ? 'grid-template-columns:16px 1fr auto auto auto;' : '';
@@ -2364,7 +2357,7 @@ function updateCardDisplay(rowId, cat) {
     const sats = parseFloat(row.value)||0;
     const dv = btcUnit==='btc' ? (sats/1e8).toFixed(8).replace(/\.?0+$/,'')||'0' : sats.toLocaleString();
     const usd = satsToFiat(sats);
-    valueDisplay = `${dv} <span style="font-size:10px;color:var(--text-dim)">${btcUnit==='btc'?'BTC':'sats'}</span>`;
+    valueDisplay = `₿ ${dv}`;
     valueSub = usd>0 ? `<span class="entry-usd-sub">≈ ${fmtS(usd)}</span>` : '';
   } else if (isBtcLoan) {
     const loanUsd=parseFloat(row.value)||0;
