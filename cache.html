@@ -124,6 +124,7 @@
     padding:10px 14px 10px 10px;
     cursor:pointer;user-select:none;transition:background .15s;
   }
+  .category-header.has-refresh{position:relative}
   .category-header:hover{background:rgba(255,255,255,.02)}
 
   /* sort button — always in col 1, fixed width cell */
@@ -189,7 +190,7 @@
 
   /* Expanded detail panel */
   .entry-detail{overflow:hidden;max-height:0;transition:max-height .25s ease}
-  .entry-detail.open{max-height:300px}
+  .entry-detail.open{max-height:none}
   .entry-fields{padding:0 14px 12px 36px;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
   .entry-fields.single-col{grid-template-columns:1fr}
   .entry-fields.three-col{grid-template-columns:1fr 1fr 1fr}
@@ -209,6 +210,35 @@
   .url-wrap{position:relative}
   .url-open{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;padding:0;transition:color .15s;line-height:1}
   .url-open:hover{color:var(--blue)}
+
+  /* ── HOLDINGS (stocks/retirement sub-entries) ── */
+  .holdings-section{padding:0 14px 12px 36px}
+  .holdings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-top:4px;border-top:1px solid var(--border)}
+  .holdings-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
+  .holdings-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+  .holdings-table th{text-align:left;padding:4px 6px;color:var(--text-dim);font-weight:400;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .holdings-table td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+  .holdings-table th.r,.holdings-table td.r{text-align:right}
+  .holdings-table td.r input{margin-left:auto}
+  .holdings-table input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:11px;padding:3px 6px;outline:none;transition:border-color .15s}
+  .holdings-table input:focus{border-color:var(--accent-dim)}
+  .holdings-table input::placeholder{color:var(--text-dim)}
+  .holdings-fetch-one{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;padding:0 3px;transition:color .15s}
+  .holdings-fetch-one:hover{color:var(--accent)}
+  .holdings-refresh-btn{font-family:var(--mono);font-size:9px;letter-spacing:.5px;background:none;border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .holdings-refresh-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-add-btn{font-family:var(--mono);font-size:10px;color:var(--text-dim);background:none;border:1px dashed var(--border);border-radius:3px;padding:4px 10px;cursor:pointer;transition:all .15s;margin-top:6px}
+  .holdings-add-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-delete{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:10px;padding:0 3px;opacity:0;transition:all .15s}
+  .holdings-table tr:hover .holdings-delete{opacity:1}
+  .holdings-delete:hover{color:var(--red)}
+  .holdings-mode{display:flex;gap:4px;margin-left:8px}
+  .holdings-mode button{font-family:var(--mono);font-size:9px;letter-spacing:.5px;background:none;border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .holdings-mode button:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-mode button.active{color:var(--accent);border-color:var(--accent-dim)}
+  .holdings-value{color:var(--text-muted);font-family:var(--mono);font-size:11px}
+  .cat-refresh-btn{position:absolute;left:50%;transform:translateX(-50%);background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .cat-refresh-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
 
   /* BTC unit toggle inside category */
   .unit-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:4px 14px 4px 36px;align-self:flex-start;width:fit-content}
@@ -535,6 +565,11 @@
     #cf-table-wrap,#cf-cat-wrap,#cf-rec-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .cf-table{min-width:600px}
     .cf-table th,.cf-table td{padding:7px 10px;font-size:11px}
+    /* Holdings: compact on mobile */
+    .holdings-section{padding:0 10px 10px 20px}
+    .holdings-table input{font-size:10px;padding:2px 4px}
+    .holdings-table th,.holdings-table td{padding:3px 4px;font-size:10px}
+    .cat-refresh-btn{font-size:8px;padding:2px 5px}
     /* Modals: full-width on small screens */
     .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card,.liab-import-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
     .about-card{max-height:80vh;gap:12px}
@@ -641,6 +676,12 @@
       <input class="settings-input" type="password" id="settings-rentcast-key" placeholder="Paste your API key…"
         onkeydown="if(event.key==='Enter')saveSettings()">
       <div class="settings-help" style="margin-top:8px">Used to fetch automated property value estimates (AVM). Free tier: 50 calls/month. Sign up at rentcast.io → API Keys. Stored encrypted with your data.</div>
+    </div>
+    <div>
+      <div class="settings-section-label" style="margin-bottom:8px">Finnhub Stock API Key</div>
+      <input class="settings-input" type="password" id="settings-stock-key" placeholder="Paste your API key…"
+        onkeydown="if(event.key==='Enter')saveSettings()">
+      <div class="settings-help" style="margin-top:8px">Used to fetch live stock prices for holdings. Free tier: 60 calls/min. Sign up at finnhub.io. Stored encrypted with your data.</div>
     </div>
     <div style="display:flex;gap:8px">
       <button class="settings-save-btn" onclick="saveSettings()" style="flex:1">Save Settings</button>
@@ -831,11 +872,12 @@
 
     <!-- Stocks -->
     <div class="category" id="cat-stocks">
-      <div class="category-header" onclick="toggleCat('stocks')">
+      <div class="category-header has-refresh" onclick="toggleCat('stocks')">
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-stocks" onclick="sortCat(event,'stocks')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot stocks"></span>Stocks &amp; Brokerage</div>
         <div class="category-total" id="cat-total-stocks">—</div>
+        <button class="cat-refresh-btn" onclick="event.stopPropagation();refreshAllStockPrices()" title="Refresh all stock prices">Update Prices</button>
         <span class="toggle-btn open" id="toggle-stocks">▾</span>
       </div>
       <div class="rows" id="rows-stocks"></div>
@@ -874,11 +916,12 @@
 
     <!-- Retirement -->
     <div class="category" id="cat-retirement">
-      <div class="category-header" onclick="toggleCat('retirement')">
+      <div class="category-header has-refresh" onclick="toggleCat('retirement')">
         <span class="drag-handle" draggable="false">⠿</span>
         <button class="sort-btn" id="sort-retirement" onclick="sortCat(event,'retirement')" title="Sort by value">↕</button>
         <div class="category-label"><span class="cat-dot retirement"></span>Retirement Accounts</div>
         <div class="category-total" id="cat-total-retirement">—</div>
+        <button class="cat-refresh-btn" onclick="event.stopPropagation();refreshAllStockPrices()" title="Refresh all stock prices">Update Prices</button>
         <span class="toggle-btn open" id="toggle-retirement">▾</span>
       </div>
       <div class="rows" id="rows-retirement"></div>
@@ -1242,6 +1285,7 @@ let idleTimer        = null;
 let isLocked         = true;
 let isFirstRun       = false;
 let rentcastApiKey      = '';   // stored encrypted with data
+let stockApiKey         = '';   // Finnhub API key, stored encrypted
 let snapshots           = [];   // [{ ts, nw, cats:{cat:value} }]
 let recurring           = [];   // [{ id, name, amount, frequency, direction }]
 let pendingBalanceUpdate = null; // { rowId, cat } — set when opening a bank tab
@@ -1484,7 +1528,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, currency, theme, snapshots, recurring, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, groupByState, rentcastApiKey, stockApiKey, currency, theme, snapshots, recurring, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1519,6 +1563,7 @@ function applyLoadedPayload(p) {
     });
   }
   if (p.rentcastApiKey) rentcastApiKey = p.rentcastApiKey;
+  if (p.stockApiKey) stockApiKey = p.stockApiKey;
   if (p.snapshots)     snapshots = p.snapshots;
   if (p.recurring)     recurring = p.recurring;
   if (p.catOrder)      applyCatOrder(p.catOrder.assets, p.catOrder.liabs);
@@ -1608,9 +1653,10 @@ const TOUR_STEPS = [
   { target: null, label: 'Welcome', body: 'Welcome to <strong>Cache</strong>, your encrypted personal wealth ledger.<br><br>Cache is a single-file, zero-dependency app. There are no servers, no accounts, no tracking. Your data is encrypted and stored in your browser\u2019s local storage and never leaves this device.' },
   { target: null, label: 'Design philosophy', body: 'Cache is designed to be <strong>simple, private and durable</strong>.<br><br>One HTML file. No build system, no frameworks, no cloud sync. Open it in any browser on any OS. Back it up by copying the file. Your financial data belongs to you alone.' },
   { target: '#cat-real-estate .add-row-btn', label: 'Add entries', body: 'Click <strong>+</strong> to add accounts, properties or holdings to any category. Each category has its own fields tailored to that asset or liability type.' },
+  { target: '#cat-stocks', label: 'Stock holdings', body: 'Stocks and retirement accounts support <strong>individual holdings</strong>. Expand an account to add ticker symbols, share counts and prices. Toggle to <strong>Holdings</strong> mode to auto-compute the account value from your positions.<br><br>Use the <strong>\u21bb Prices</strong> button to fetch live quotes via Finnhub (free API key required, set in Settings).' },
   { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet and the balance syncs back here.' },
   { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong> and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
-  { target: 'button[onclick="openSettings()"]', label: 'Backup & portability', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>To migrate: bring the HTML file + your exported JSON.' },
+  { target: 'button[onclick="openSettings()"]', label: 'Settings & API keys', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>Settings also stores your <strong>Finnhub</strong> and <strong>RentCast</strong> API keys for live stock prices and property estimates.' },
   { target: '.chart-card.wide', label: 'Charts', body: 'The <strong>Charts</strong> tab visualizes your wealth. Track <strong>net worth over time</strong>, see <strong>asset allocation</strong> and <strong>liability breakdown</strong> donuts and compare assets vs liabilities side by side.<br><br>The history chart records a snapshot each time you save.', onEnter: () => tourSwitchTab('charts') },
   { target: '.cf-summary-row', label: 'Cash flow summary', body: 'The <strong>Cash Flow</strong> tab shows your monthly picture at a glance: <strong>income</strong>, <strong>obligations</strong> (recurring expenses + revolving interest) and <strong>net cash flow</strong>.', onEnter: () => tourSwitchTab('cashflow') },
   { target: '#cf-rec-wrap', label: 'Recurring items', body: 'Add recurring <strong>income</strong> and <strong>expenses</strong> like salary, rent, subscriptions and loan payments. Supports weekly, biweekly, monthly, quarterly and annual frequencies.<br><br>Use <strong>Import from liabilities</strong> to auto-create expenses from your ledger.' },
@@ -2010,6 +2056,7 @@ function updateField(cat, id, field, val) {
   const row = data[cat].find(r=>r.id===id);
   if (!row) return;
   if (row._autoCollateral) return;
+  if (field==='value' && HOLDINGS_CATS.has(cat) && row.holdingsMode==='computed') return;
   if (field==='value' && cat==='bitcoin') {
     const n = parseFloat(val)||0;
     row.value = btcUnit==='btc' ? Math.round(n*1e8) : Math.round(n);
@@ -2089,6 +2136,9 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     if (cat === 'real-estate') {
       const ltv = getPropertyLtv(row.id);
       if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(fx(ltv.totalDebt))} owed</span>`;
+    }
+    if (HOLDINGS_CATS.has(cat) && row.holdings && row.holdings.length) {
+      valueSub += `<span style="font-size:10px;color:var(--text-dim);display:block;text-align:right">${row.holdings.length} holding${row.holdings.length>1?'s':''}</span>`;
     }
   }
 
@@ -2295,6 +2345,36 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
   // ── Standard expanded fields (all other cats)
   const typeOptions = types.map(t=>`<option${t===row.accountType?' selected':''}>${escHtml(t)}</option>`).join('');
   const showLoanFields = ['mortgage','auto-loan','student','other-liab'].includes(cat);
+  const isHoldingsCat = HOLDINGS_CATS.has(cat);
+  const hMode = row.holdingsMode || 'manual';
+  const isComputed = hMode === 'computed';
+
+  // Value field: readonly when computed from holdings
+  const valueField = isComputed
+    ? `<div class="field-group">
+        <div class="field-label" style="display:flex;align-items:center">Balance / Value ($)
+          <span class="holdings-mode">
+            <button onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
+            <button class="active" onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
+          </span>
+        </div>
+        <div class="field-input mono" style="background:transparent;border-color:var(--border);color:var(--accent);cursor:default">${row.value!==''?fmt(parseFloat(row.value)||0):'—'}</div>
+      </div>`
+    : `<div class="field-group">
+        <div class="field-label" style="display:flex;align-items:center">Balance / Value ($)${isHoldingsCat?`
+          <span class="holdings-mode">
+            <button class="active" onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
+            <button onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
+          </span>`:''}
+        </div>
+        <input class="field-input mono" type="number" step="any"
+          value="${row.value!==''?row.value:''}" placeholder="0"
+          oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+      </div>`;
+
+  // Holdings section for stocks/retirement
+  const holdingsHtml = isHoldingsCat ? buildHoldingsSection(cat, id, row) : '';
+
   return `<div class="entry-fields three-col">
     <div class="field-group">
       <div class="field-label">Account Name</div>
@@ -2312,12 +2392,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         <option value="">— Select —</option>${typeOptions}
       </select>
     </div>
-    <div class="field-group">
-      <div class="field-label">Balance / Value ($)</div>
-      <input class="field-input mono" type="number" step="any"
-        value="${row.value!==''?row.value:''}" placeholder="0"
-        oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
-    </div>
+    ${valueField}
     ${showLoanFields?`<div class="field-group">
       <div class="field-label">Interest Rate (% APR)</div>
       <input class="field-input mono" type="number" step="0.01" min="0" max="100"
@@ -2344,6 +2419,41 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         <button class="url-open" onclick="openLink(this.closest('.url-wrap').querySelector('input').value)" title="Open">↗</button>
       </div>
     </div>
+  </div>${holdingsHtml}`;
+}
+
+function buildHoldingsSection(cat, id, row) {
+  const holdings = row.holdings || [];
+  // Sort by value descending (new/empty holdings sink to bottom)
+  const sorted = [...holdings].sort((a,b) => {
+    const va = (parseFloat(a.shares)||0) * (parseFloat(a.price)||0);
+    const vb = (parseFloat(b.shares)||0) * (parseFloat(b.price)||0);
+    return vb - va;
+  });
+  const rows = sorted.map(h => {
+    const val = (parseFloat(h.shares)||0) * (parseFloat(h.price)||0);
+    return `<tr>
+      <td><input id="holding-ticker-${h.id}" value="${escHtml(h.ticker||'')}" placeholder="AAPL" style="width:70px;text-transform:uppercase"
+        onchange="updateHolding('${cat}','${id}','${h.id}','ticker',this.value)"></td>
+      <td class="r"><input type="number" step="any" value="${h.shares!==''?h.shares:''}" placeholder="0" style="width:65px;text-align:right"
+        oninput="updateHolding('${cat}','${id}','${h.id}','shares',this.value)"></td>
+      <td class="r"><input id="holding-price-${h.id}" type="number" step="0.01" value="${h.price!==''?h.price:''}" placeholder="0.00" style="width:75px;text-align:right"
+        oninput="updateHolding('${cat}','${id}','${h.id}','price',this.value)"></td>
+      <td class="r" id="holding-val-${h.id}" style="color:var(--text-muted)">${fmt(val)}</td>
+      <td><button class="holdings-fetch-one" id="holding-refresh-${h.id}" onclick="refreshHoldingPrice('${cat}','${id}','${h.id}')" title="Fetch price">\u21bb</button></td>
+      <td><button class="holdings-delete" onclick="removeHolding('${cat}','${id}','${h.id}')" title="Remove">\u2715</button></td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="holdings-section">
+    <div class="holdings-header">
+      <span class="holdings-label">Holdings</span>
+    </div>
+    ${holdings.length ? `<div style="overflow-x:auto"><table class="holdings-table">
+      <thead><tr><th>Ticker</th><th class="r">Shares</th><th class="r">Price</th><th class="r">Value</th><th></th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>` : ''}
+    <button class="holdings-add-btn" onclick="addHolding('${cat}','${id}')">+ Add Holding</button>
   </div>`;
 }
 
@@ -2391,6 +2501,9 @@ function updateCardDisplay(rowId, cat) {
     if (cat === 'real-estate') {
       const ltv = getPropertyLtv(row.id);
       if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(ltv.totalDebt)} owed</span>`;
+    }
+    if (HOLDINGS_CATS.has(cat) && row.holdings && row.holdings.length) {
+      valueSub += `<span style="font-size:10px;color:var(--text-dim);display:block;text-align:right">${row.holdings.length} holding${row.holdings.length>1?'s':''}</span>`;
     }
   }
   valEl.innerHTML = valueDisplay+valueSub;
@@ -2440,8 +2553,10 @@ function openSettings() {
   const el = document.getElementById('settings-rentcast-key');
   el.value = rentcastApiKey;
   el.type = 'password';
+  const stockEl = document.getElementById('settings-stock-key');
+  stockEl.value = stockApiKey;
+  stockEl.type = 'password';
   document.getElementById('settings-modal').classList.remove('hidden');
-  el.focus();
 }
 function closeSettings() {
   document.getElementById('settings-modal').classList.add('hidden');
@@ -2451,6 +2566,7 @@ function saveSettings() {
   const currencyChanged = newCurrency !== currency;
   currency = newCurrency;
   rentcastApiKey = document.getElementById('settings-rentcast-key').value.trim();
+  stockApiKey = document.getElementById('settings-stock-key').value.trim();
   closeSettings();
   if (currencyChanged) {
     btcPrice = null;
@@ -3130,6 +3246,171 @@ function syncAllBtcLoanBalances() {
   data['btc-loan'].forEach(row => syncBtcLoanBalance(row, row.id));
 }
 
+// ── STOCK HOLDINGS ────────────────────────────────────────────────────────
+const HOLDINGS_CATS = new Set(['stocks','retirement']);
+
+function holdingsSum(row) {
+  if (!row.holdings || !row.holdings.length) return 0;
+  return row.holdings.reduce((s,h) => s + (parseFloat(h.shares)||0) * (parseFloat(h.price)||0), 0);
+}
+
+function syncHoldingsValue(row) {
+  if (row.holdingsMode === 'computed' && row.holdings && row.holdings.length) {
+    row.value = Math.round(holdingsSum(row) * 100) / 100;
+  }
+}
+
+function addHolding(cat, rowId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row) return;
+  if (!row.holdings) row.holdings = [];
+  const h = { id: uid(), ticker: '', shares: '', price: '' };
+  row.holdings.push(h);
+  renderRows(cat); recalc(); markChanged();
+  // Re-open the entry detail
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+    const el = document.querySelector(`#holding-ticker-${h.id}`);
+    if (el) el.focus();
+  }, 30);
+}
+
+function removeHolding(cat, rowId, holdingId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings) return;
+  row.holdings = row.holdings.filter(h => h.id !== holdingId);
+  syncHoldingsValue(row);
+  renderRows(cat); recalc(); markChanged();
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+  }, 30);
+}
+
+function updateHolding(cat, rowId, holdingId, field, val) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings) return;
+  const h = row.holdings.find(x => x.id === holdingId);
+  if (!h) return;
+  if (field === 'ticker') h.ticker = val.toUpperCase();
+  else if (field === 'shares' || field === 'price') h[field] = val;
+  syncHoldingsValue(row);
+  // Update holding value display inline
+  const valCell = document.getElementById(`holding-val-${holdingId}`);
+  if (valCell) valCell.textContent = fmt((parseFloat(h.shares)||0) * (parseFloat(h.price)||0));
+  // Update account value display if computed
+  if (row.holdingsMode === 'computed') {
+    updateCardDisplay(rowId, cat);
+  }
+  recalc(); markChanged();
+}
+
+function setHoldingsMode(cat, rowId, mode) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row) return;
+  row.holdingsMode = mode;
+  if (mode === 'computed') syncHoldingsValue(row);
+  renderRows(cat); recalc(); markChanged();
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+  }, 30);
+}
+
+async function fetchStockPrice(ticker) {
+  if (!stockApiKey || !ticker) return null;
+  try {
+    const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(ticker)}&token=${encodeURIComponent(stockApiKey)}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (j.c && j.c > 0) return j.c;
+    return null;
+  } catch { return null; }
+}
+
+async function refreshHoldingPrice(cat, rowId, holdingId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings) return;
+  const h = row.holdings.find(x => x.id === holdingId);
+  if (!h || !h.ticker) return;
+  const btn = document.querySelector(`#holding-refresh-${holdingId}`);
+  if (btn) btn.textContent = '...';
+  const price = await fetchStockPrice(h.ticker);
+  if (price !== null) {
+    h.price = price;
+    h.lastPriceAt = new Date().toISOString();
+    const priceInput = document.getElementById(`holding-price-${holdingId}`);
+    if (priceInput) priceInput.value = price;
+    const valCell = document.getElementById(`holding-val-${holdingId}`);
+    if (valCell) valCell.textContent = fmt((parseFloat(h.shares)||0) * price);
+    syncHoldingsValue(row);
+    updateCardDisplay(rowId, cat);
+    recalc(); markChanged();
+  }
+  if (btn) btn.textContent = '\u21bb';
+}
+
+async function refreshAllHoldings(cat, rowId) {
+  const row = data[cat].find(r => r.id === rowId);
+  if (!row || !row.holdings || !row.holdings.length) return;
+  if (!stockApiKey) { showToast('Add Finnhub API key in Settings'); return; }
+  const tickers = row.holdings.filter(h => h.ticker);
+  if (!tickers.length) return;
+  showToast(`Refreshing ${tickers.length} holding${tickers.length>1?'s':''}...`);
+  let ok = 0;
+  for (const h of tickers) {
+    const price = await fetchStockPrice(h.ticker);
+    if (price !== null) { h.price = price; h.lastPriceAt = new Date().toISOString(); ok++; }
+  }
+  syncHoldingsValue(row);
+  renderRows(cat); recalc(); markChanged();
+  setTimeout(() => {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const icon = document.getElementById(`icon-${rowId}`);
+    if (detail && !detail.classList.contains('open')) {
+      detail.classList.add('open');
+      if (icon) icon.classList.add('open');
+    }
+  }, 30);
+  showToast(`Updated ${ok}/${tickers.length} prices`);
+}
+
+async function refreshAllStockPrices() {
+  if (!stockApiKey) { showToast('Add Finnhub API key in Settings'); return; }
+  const allHoldings = [];
+  ['stocks','retirement'].forEach(cat => {
+    data[cat].forEach(row => {
+      if (row.holdings) row.holdings.filter(h => h.ticker).forEach(h => allHoldings.push({ cat, row, h }));
+    });
+  });
+  if (!allHoldings.length) { showToast('No holdings with tickers to refresh'); return; }
+  showToast(`Refreshing ${allHoldings.length} holding${allHoldings.length>1?'s':''}...`);
+  let ok = 0;
+  for (const { h } of allHoldings) {
+    const price = await fetchStockPrice(h.ticker);
+    if (price !== null) { h.price = price; h.lastPriceAt = new Date().toISOString(); ok++; }
+  }
+  ['stocks','retirement'].forEach(cat => {
+    data[cat].forEach(row => syncHoldingsValue(row));
+    renderRows(cat);
+  });
+  recalc(); markChanged();
+  showToast(`Updated ${ok}/${allHoldings.length} prices`);
+}
+
 // ── CALCULATE ─────────────────────────────────────────────────────────────
 function parseVal(v) { return parseFloat(v)||0; }
 function catSum(cat) {
@@ -3158,6 +3439,9 @@ function catSumDisplay(cat) {
 function recalc() {
   syncCollateralEntry();
   syncAllBtcLoanBalances();
+  HOLDINGS_CATS.forEach(cat => {
+    data[cat].forEach(row => { if (row.holdingsMode === 'computed') syncHoldingsValue(row); });
+  });
   ALL_CATS.forEach(c=>{
     const el=document.getElementById(`cat-total-${c}`);
     if(el) el.textContent=(c==='bitcoin'&&!btcPrice)?'—':fmt(catSumDisplay(c));
