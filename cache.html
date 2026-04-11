@@ -476,6 +476,15 @@
   .ln-addr:hover{border-color:var(--accent-dim)}
   .ln-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
 
+  /* ── WHAT'S NEW MODAL ── */
+  #whats-new-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  #whats-new-modal.hidden{display:none}
+  .whats-new-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
+  .whats-new-version{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim);text-align:center}
+  .whats-new-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+  .whats-new-list li{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.6;padding-left:16px;position:relative}
+  .whats-new-list li::before{content:'\2022';position:absolute;left:0;color:var(--accent)}
+
   /* ── BOOKMARKLET TUTORIAL MODAL ── */
   #bookmarklet-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #bookmarklet-modal.hidden{display:none}
@@ -568,7 +577,7 @@
     .holdings-table th,.holdings-table td{padding:3px 4px;font-size:10px}
     .cat-refresh-btn{font-size:8px;padding:2px 5px}
     /* Modals: full-width on small screens */
-    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card,.liab-import-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
+    .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card,.liab-import-card,.whats-new-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
     .about-card{max-height:80vh;gap:12px}
     .about-card .about-body{font-size:10px;line-height:1.5}
     .about-card .about-link{font-size:11px;padding:7px 10px}
@@ -671,13 +680,13 @@
       <div class="settings-section-label" style="margin-bottom:8px">RentCast API Key</div>
       <input class="settings-input" type="password" id="settings-rentcast-key" placeholder="Paste your API key…"
         onkeydown="if(event.key==='Enter')saveSettings()">
-      <div class="settings-help" style="margin-top:8px">Used to fetch automated property value estimates (AVM). Free tier: 50 calls/month. Sign up at rentcast.io → API Keys. Stored encrypted with your data.</div>
+      <div class="settings-help" style="margin-top:8px">Used to fetch automated property value estimates (AVM). Free tier: 50 calls/month. Sign up at <a href="https://rentcast.io" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">rentcast.io</a> &rarr; API Keys. Stored encrypted with your data.</div>
     </div>
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Finnhub Stock API Key</div>
       <input class="settings-input" type="password" id="settings-stock-key" placeholder="Paste your API key…"
         onkeydown="if(event.key==='Enter')saveSettings()">
-      <div class="settings-help" style="margin-top:8px">Used to fetch live stock prices for holdings. Free tier: 60 calls/min. Sign up at finnhub.io. Stored encrypted with your data.</div>
+      <div class="settings-help" style="margin-top:8px">Used to fetch live stock prices for holdings. Free tier: 60 calls/min. Sign up at <a href="https://finnhub.io" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">finnhub.io</a>. Stored encrypted with your data.</div>
     </div>
     <div style="display:flex;gap:8px">
       <button class="settings-save-btn" onclick="saveSettings()" style="flex:1">Save Settings</button>
@@ -770,6 +779,17 @@
       <a class="about-link" href="https://peerloomllc.com" target="_blank" rel="noopener" style="display:inline-flex">PeerLoom LLC &#8599;</a>
     </div>
     <button class="about-close-btn" onclick="closeAbout()">Close</button>
+  </div>
+</div>
+
+<!-- ══ WHAT'S NEW ══ -->
+<div id="whats-new-modal" class="hidden" onclick="if(event.target===this)dismissWhatsNew()">
+  <div class="whats-new-card">
+    <div class="settings-title">What's New</div>
+    <div class="whats-new-version" id="whats-new-version"></div>
+    <hr class="about-divider">
+    <ul class="whats-new-list" id="whats-new-list"></ul>
+    <button class="settings-save-btn" onclick="dismissWhatsNew()" style="width:100%">Got It</button>
   </div>
 </div>
 
@@ -1273,6 +1293,14 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
+const APP_VERSION = '1.0';
+const CHANGELOG = [
+  { version: '1.0', items: [
+    'Added "What\'s New" popup to highlight changes after updates',
+    'API key links in Settings now clickable and color-matched',
+  ]}
+];
+
 const PBKDF2_ITERS   = 310000;
 const IDLE_TIMEOUT   = 15 * 60 * 1000;        // 15 minutes
 
@@ -1901,6 +1929,7 @@ function init() {
   fetchBtcPrice(false);
   setInterval(() => fetchBtcPrice(false), 5 * 60 * 1000);
   setTimeout(()=>initAllDragDrop(), 300);
+  checkWhatsNew();
 }
 
 // ── BTC PRICE ─────────────────────────────────────────────────────────────
@@ -2665,6 +2694,27 @@ function bookmarkletCode() {
 
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); document.getElementById('ln-panel').style.display='none'; }
+
+function checkWhatsNew() {
+  const seen = localStorage.getItem('cache-changelog-seen');
+  if (seen === APP_VERSION) return;
+  const list = document.getElementById('whats-new-list');
+  const ver  = document.getElementById('whats-new-version');
+  list.innerHTML = '';
+  const entry = CHANGELOG.find(c => c.version === APP_VERSION);
+  if (!entry || !entry.items.length) return;
+  ver.textContent = 'v' + APP_VERSION;
+  entry.items.forEach(txt => {
+    const li = document.createElement('li');
+    li.textContent = txt;
+    list.appendChild(li);
+  });
+  document.getElementById('whats-new-modal').classList.remove('hidden');
+}
+function dismissWhatsNew() {
+  document.getElementById('whats-new-modal').classList.add('hidden');
+  localStorage.setItem('cache-changelog-seen', APP_VERSION);
+}
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('about-modal').classList.contains('hidden')) closeAbout(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('settings-modal').classList.contains('hidden')) closeSettings(); });
 
