@@ -433,7 +433,7 @@
   /* ── SETTINGS MODAL ── */
   #settings-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #settings-modal.hidden{display:none}
-  .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
+  .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;animation:fadeUp .2s ease}
   .settings-title{font-family:var(--serif);font-size:25px;font-weight:400;letter-spacing:-.3px;text-align:center}
   .settings-section-label{font-family:var(--mono);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);text-align:center}
   .settings-input{background:var(--surface2);border:1px solid var(--border-light);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:18px;padding:9px 11px;outline:none;transition:border-color .15s;width:100%}
@@ -460,7 +460,7 @@
   /* ── ABOUT MODAL ── */
   #about-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #about-modal.hidden{display:none}
-  .about-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
+  .about-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px 36px;width:100%;max-width:580px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
 
   .about-section-label{font-family:var(--mono);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-dim);text-align:center;margin-bottom:8px}
   .about-body{font-family:var(--mono);font-size:15px;color:var(--text-muted);line-height:1.7}
@@ -1302,8 +1302,12 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 const CHANGELOG = [
+  { version: '1.2', items: [
+    'Auto-lock now auto-saves unsaved changes before locking, instead of silently skipping the lock',
+    'Widened the About and Settings modals on desktop to reduce vertical scrolling after the recent font size increase',
+  ]},
   { version: '1.1', items: [
     'SATS/USD toggle next to Net Worth — denominates totals, category sums, entry values, and charts in sats',
     'In SATS mode, Net Worth and asset totals render in Bitcoin orange; category totals no longer truncate',
@@ -1549,13 +1553,25 @@ function lockApp() {
 
 function resetIdleTimer() {
   clearIdleTimer();
-  idleTimer = setTimeout(()=>{
-    if (!isLocked && !hasUnsavedChanges) lockApp();
-    else if (!isLocked) {
-      // Warn but don't auto-lock if there are unsaved changes
-      showToast('Auto-lock skipped — save your changes first');
-      resetIdleTimer();
+  idleTimer = setTimeout(async ()=>{
+    if (isLocked) return;
+    if (hasUnsavedChanges) {
+      if (!sessionKey) {
+        // No password set — nothing to lock to. Skip and reschedule.
+        showToast('Auto-lock skipped — save your changes first');
+        resetIdleTimer();
+        return;
+      }
+      try {
+        await saveData();
+      } catch (e) {
+        console.warn('Auto-save before lock failed', e);
+        showToast('Auto-save failed — app not locked', 'error');
+        resetIdleTimer();
+        return;
+      }
     }
+    lockApp();
   }, IDLE_TIMEOUT);
 }
 function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=null; } }
