@@ -378,15 +378,14 @@
   .fc-extra-delete{font-family:var(--mono);font-size:14px;color:var(--text-dim);background:none;border:1px solid var(--border);border-radius:3px;padding:4px 10px;cursor:pointer;transition:all .15s}
   .fc-extra-delete:hover{color:#e07070;border-color:#e07070}
   .fc-scenarios{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .fc-pill-wrap{display:flex;align-items:stretch;gap:0}
+  .fc-pill-wrap{display:inline-flex;align-items:center;gap:6px}
   .fc-pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:14px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;transition:all .15s;white-space:nowrap}
   .fc-pill:hover{color:var(--text);border-color:var(--text-dim)}
   .fc-pill.active{color:var(--text);border-color:var(--accent-dim);background:var(--surface2)}
   .fc-pill-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .fc-pill-action{font-family:var(--mono);font-size:13px;color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);border-left:none;padding:0 10px;cursor:pointer;transition:color .15s}
-  .fc-pill-action:first-of-type{margin-left:-1px}
-  .fc-pill-action:last-of-type{border-radius:0 20px 20px 0}
-  .fc-pill-action:hover{color:var(--text)}
+  .fc-pill-action{font-family:var(--mono);font-size:13px;color:var(--text-dim);background:var(--surface);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
+  .fc-pill-action:hover{color:var(--text);border-color:var(--text-dim);background:var(--surface2)}
+  .fc-pill-action.delete:hover{color:#e07070;border-color:#e07070}
   .fc-pill-add{color:var(--accent);border-style:dashed;border-color:var(--accent-dim)}
   .fc-pill-add:hover{background:var(--accent-glow);color:var(--text)}
   .fc-input-scenario{border-style:dashed}
@@ -644,7 +643,7 @@
     .fc-intro{font-size:14px;padding:2px}
     .fc-scenarios{gap:6px}
     .fc-pill{font-size:13px;padding:7px 12px}
-    .fc-pill-action{padding:0 14px;font-size:14px;min-height:34px}
+    .fc-pill-action{width:36px;height:36px;font-size:14px}
     .fc-add-btn-row{padding:16px 12px}
     .fc-add-btn{padding:10px 18px;font-size:14px}
     .fc-chart-wrap{height:280px;padding:12px 12px 16px}
@@ -1459,8 +1458,13 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 const CHANGELOG = [
+  { version: '1.4', items: [
+    'Credit cards now support an Interest Rate (% APR) field in the Ledger, so forecasts correctly accrue interest on carried credit-card balances',
+    'Theoretical liability: when a Term is set, the Monthly Payment input is now disabled and shows the amortized value the engine is actually using (clear Term to edit the payment directly)',
+    'Scenario pill "rename" and "delete" controls are now small circular icon buttons next to the active pill instead of segmented extensions — cleaner visual, and delete hover turns red',
+  ]},
   { version: '1.3', items: [
     'New "Forecast Models" tab (shown as "Models" on mobile) — project net-worth forward over 5 / 10 / 20 / 30 years with per-entry growth and contribution assumptions',
     'Create named scenarios ("College X" / "College Y") alongside a Baseline, override any projection field per scenario, and compare side by side on one chart',
@@ -2620,7 +2624,8 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
 
   // ── Standard expanded fields (all other cats)
   const typeOptions = types.map(t=>`<option${t===row.accountType?' selected':''}>${escHtml(t)}</option>`).join('');
-  const showLoanFields = ['mortgage','auto-loan','student','other-liab'].includes(cat);
+  const showInterestRate   = ['mortgage','auto-loan','credit','student','other-liab'].includes(cat);
+  const showOriginationDate = ['mortgage','auto-loan','student','other-liab'].includes(cat);
   const isHoldingsCat = HOLDINGS_CATS.has(cat);
   const hMode = row.holdingsMode || 'manual';
   const isComputed = hMode === 'computed';
@@ -2667,13 +2672,13 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
       </select>
     </div>
     ${valueField}
-    ${showLoanFields?`<div class="field-group">
+    ${showInterestRate?`<div class="field-group">
       <div class="field-label">% APR</div>
       <input class="field-input mono" type="number" step="0.01" min="0" max="100"
-        value="${row.interestRate||''}" placeholder="e.g. 6.75"
+        value="${row.interestRate||''}" placeholder="${cat==='credit'?'e.g. 22.99':'e.g. 6.75'}"
         oninput="updateField('${cat}','${id}','interestRate',this.value);updateCardDisplay('${id}','${cat}')">
-    </div>
-    <div class="field-group">
+    </div>`:''}
+    ${showOriginationDate?`<div class="field-group">
       <div class="field-label">Origination Date</div>
       <input class="field-input" type="date" value="${row.originationDate||''}"
         oninput="updateField('${cat}','${id}','originationDate',this.value)">
@@ -4205,7 +4210,7 @@ function renderScenarioPills() {
     parts.push(
       `<div class="fc-pill-wrap">
          <button class="fc-pill ${isActive?'active':''}" onclick="setActiveScenario('${s.id}')"><span class="fc-pill-dot" style="background:${color}"></span>${escHtml(s.name)}</button>
-         ${isActive ? `<button class="fc-pill-action" onclick="renameScenario('${s.id}')" title="Rename">✎</button><button class="fc-pill-action" onclick="deleteScenario('${s.id}')" title="Delete">×</button>` : ''}
+         ${isActive ? `<button class="fc-pill-action" onclick="renameScenario('${s.id}')" title="Rename">✎</button><button class="fc-pill-action delete" onclick="deleteScenario('${s.id}')" title="Delete">×</button>` : ''}
        </div>`
     );
   });
@@ -4373,17 +4378,28 @@ function buildForecastTab() {
   if (liabExtras.length) {
     liabHtml.push(`<tr class="fc-cat-row"><td colspan="7"><span class="fc-cat-dot" style="background:var(--gold)"></span>Theoretical</td></tr>`);
     liabExtras.forEach(extra => {
-      const term = parseFloat(extra.termYears)||0;
-      const apr = parseFloat(extra.interestRate)||0;
-      const bal = parseFloat(extra.value)||0;
+      // Read through any active scenario overrides so the computed payment reflects the view the user is looking at
+      const effField = (f) => {
+        if (active) {
+          const o = active.overrides[extra.id];
+          if (o && o[f] !== undefined && o[f] !== '') return o[f];
+        }
+        return extra[f];
+      };
+      const term = parseFloat(effField('termYears'))||0;
+      const apr  = parseFloat(effField('interestRate'))||0;
+      const bal  = parseFloat(effField('value'))||0;
       const autoPay = term > 0 ? amortizedPayment(bal, apr, term) : 0;
-      const payPh = term > 0 ? `auto: ${Math.round(autoPay)}` : '0';
+      // When a term is set, the engine ignores any typed monthlyPayment in favor of the amortized value — disable the input to reflect that.
+      const paymentCell = term > 0
+        ? `<input class="fc-input" type="number" disabled value="${Math.round(autoPay)}" title="Auto-computed from Term. Clear the Term field to edit the payment directly." style="opacity:.55;cursor:not-allowed;background:transparent">`
+        : mkInput(extra, 'monthlyPayment', '0', `updateExtraField('${extra.id}','monthlyPayment',this.value)`);
       liabHtml.push(`<tr class="fc-extra-row">
         <td data-label="Name"><input type="text" class="fc-extra-name" id="fc-extra-name-${extra.id}" placeholder="Name" value="${escHtml(extra.name||'')}" oninput="updateExtraField('${extra.id}','name',this.value)"></td>
         <td class="r" data-label="Balance">${mkInput(extra, 'value', '0', `updateExtraField('${extra.id}','value',this.value)`)}</td>
         <td class="r" data-label="Interest %">${mkInput(extra, 'interestRate', '% APR', `updateExtraField('${extra.id}','interestRate',this.value)`)}</td>
-        <td class="r" data-label="Term (yrs)">${mkInput(extra, 'termYears', 'yrs', `updateExtraField('${extra.id}','termYears',this.value)`)}</td>
-        <td class="r" data-label="Monthly Payment">${mkInput(extra, 'monthlyPayment', payPh, `updateExtraField('${extra.id}','monthlyPayment',this.value)`)}</td>
+        <td class="r" data-label="Term (yrs)"><input class="fc-input${active?' fc-input-scenario':''}" type="number" step="any" placeholder="${active && extra.termYears?`baseline: ${extra.termYears}`:'yrs'}" value="${escHtml(String((active?(active.overrides[extra.id]?.termYears||''):extra.termYears)||''))}" oninput="${active?`updateScenarioField('${extra.id}','termYears',this.value)`:`updateExtraField('${extra.id}','termYears',this.value)`}" onchange="buildForecastTab()"></td>
+        <td class="r" data-label="Monthly Payment">${paymentCell}</td>
         <td class="r" data-label="Extra Principal">${mkInput(extra, 'extraPrincipal', '0', `updateExtraField('${extra.id}','extraPrincipal',this.value)`)}</td>
         <td><button class="fc-extra-delete" onclick="deleteForecastExtra('${extra.id}')" title="Delete theoretical entry">×</button></td>
       </tr>`);
