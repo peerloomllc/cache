@@ -198,8 +198,9 @@
   .entry-fields.three-col{grid-template-columns:1fr 1fr 1fr}
 
   .field-group{display:flex;flex-direction:column;gap:3px}
-  .field-label{font-family:var(--mono);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim)}
-  .field-input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--sans);font-size:16px;padding:5px 8px;outline:none;transition:border-color .15s;width:100%}
+  .field-label{font-family:var(--mono);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;min-height:22px;line-height:1.2}
+  .field-input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--sans);font-size:16px;padding:5px 8px;outline:none;transition:border-color .15s;width:100%;box-sizing:border-box;height:34px;line-height:22px}
+  select.field-input{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0 L5 6 L10 0 Z' fill='%237a8a7a'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:10px 6px;padding-right:26px}
   .field-input:focus{border-color:var(--accent-dim)}
   .field-input.mono{font-family:var(--mono)}
   .field-input::placeholder{color:var(--text-dim)}
@@ -234,7 +235,7 @@
   .holdings-delete{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:0 3px;opacity:0;transition:all .15s}
   .holdings-table tr:hover .holdings-delete{opacity:1}
   .holdings-delete:hover{color:var(--red)}
-  .holdings-mode{display:flex;gap:4px;margin-left:8px}
+  .holdings-mode{display:flex;gap:4px;margin-top:2px}
   .holdings-mode button{font-family:var(--mono);font-size:13px;letter-spacing:.5px;background:none;border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s}
   .holdings-mode button:hover{color:var(--accent);border-color:var(--accent-dim)}
   .holdings-mode button.active{color:var(--accent);border-color:var(--accent-dim)}
@@ -337,6 +338,59 @@
   .cf-table th.sortable:hover{color:var(--text)}
   .cf-table th.sortable .cf-sort-arrow{font-size:13px;margin-left:3px;opacity:.4}
   .cf-table th.sortable.active .cf-sort-arrow{opacity:1;color:var(--accent)}
+
+  /* ── FORECAST MODELS TAB ── */
+  .fc-grid{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:40px 32px 100px;display:flex;flex-direction:column;gap:24px}
+  .fc-intro{font-family:var(--mono);font-size:15px;color:var(--text-dim);line-height:1.6;padding:4px;text-align:center}
+  .fc-intro a.fc-link{color:var(--accent);cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--accent-dim)}
+  .fc-intro a.fc-link:hover{color:var(--text);border-bottom-color:var(--text)}
+  .fc-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .fc-card-header{display:flex;align-items:center;justify-content:center;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .fc-card-title{font-family:var(--mono);font-size:16px;color:var(--text);letter-spacing:1px;text-transform:uppercase}
+  .fc-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .fc-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:15px}
+  .fc-table th{text-align:left;padding:10px 16px;color:var(--text-dim);font-weight:400;font-size:13px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .fc-table td{padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);vertical-align:middle}
+  .fc-table th.r,.fc-table td.r{text-align:right}
+  .fc-table tr:last-child td{border-bottom:none}
+  .fc-cat-row td{padding:8px 16px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);background:rgba(255,255,255,.02);font-family:var(--mono)}
+  .fc-cat-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:middle}
+  .fc-entry-name{color:var(--text);font-size:15px;min-width:180px}
+  .fc-ro{color:var(--text-muted)}
+  .fc-input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:14px;padding:4px 8px;outline:none;transition:border-color .15s;width:160px;text-align:right}
+  .fc-input:focus{border-color:var(--accent-dim)}
+  .fc-input::placeholder{color:var(--text-dim)}
+  .fc-edit-link{font-family:var(--mono);font-size:13px;color:var(--text-dim);cursor:pointer;background:none;border:1px solid var(--border);border-radius:3px;padding:4px 10px;transition:all .15s;white-space:nowrap}
+  .fc-edit-link:hover{color:var(--text);border-color:var(--text-dim)}
+  .fc-empty{text-align:center;color:var(--text-dim);padding:32px 16px;font-family:var(--mono);font-size:14px}
+  .fc-select{font-family:var(--mono);font-size:14px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;padding:5px 10px;cursor:pointer;outline:none}
+  .fc-select:focus{border-color:var(--accent-dim)}
+  .fc-horizon-row{display:flex;justify-content:center;padding:14px 20px;background:var(--surface2);border-bottom:1px solid var(--border)}
+  .fc-chart-wrap{position:relative;width:100%;height:320px;padding:16px 20px 20px}
+  .fc-chart-legend{display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:center;padding:10px 16px 16px;border-top:1px solid rgba(255,255,255,.04)}
+  .fc-add-btn-row{padding:14px 16px;text-align:center;border-top:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.01)}
+  .fc-add-btn{font-family:var(--mono);font-size:13px;color:var(--text-muted);background:var(--surface);border:1px dashed var(--border);border-radius:4px;padding:8px 16px;cursor:pointer;transition:all .15s;letter-spacing:0.5px}
+  .fc-add-btn:hover{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-glow)}
+  .fc-extra-row td{background:rgba(212,168,67,0.03)}
+  .fc-extra-name{background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:14px;padding:4px 8px;outline:none;width:100%;min-width:160px;max-width:220px}
+  .fc-extra-name:focus{border-color:var(--accent-dim)}
+  .fc-extra-badge{display:inline-block;font-size:10px;color:var(--gold);background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.3);border-radius:3px;padding:1px 6px;margin-left:8px;letter-spacing:1px;text-transform:uppercase;vertical-align:middle}
+  .fc-extra-delete{font-family:var(--mono);font-size:14px;color:var(--text-dim);background:none;border:1px solid var(--border);border-radius:3px;padding:4px 10px;cursor:pointer;transition:all .15s}
+  .fc-extra-delete:hover{color:#e07070;border-color:#e07070}
+  .fc-scenarios{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .fc-pill-wrap{display:flex;align-items:stretch;gap:0}
+  .fc-pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:14px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .fc-pill:hover{color:var(--text);border-color:var(--text-dim)}
+  .fc-pill.active{color:var(--text);border-color:var(--accent-dim);background:var(--surface2)}
+  .fc-pill-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .fc-pill-action{font-family:var(--mono);font-size:13px;color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);border-left:none;padding:0 10px;cursor:pointer;transition:color .15s}
+  .fc-pill-action:first-of-type{margin-left:-1px}
+  .fc-pill-action:last-of-type{border-radius:0 20px 20px 0}
+  .fc-pill-action:hover{color:var(--text)}
+  .fc-pill-add{color:var(--accent);border-style:dashed;border-color:var(--accent-dim)}
+  .fc-pill-add:hover{background:var(--accent-glow);color:var(--text)}
+  .fc-input-scenario{border-style:dashed}
+  .fc-input-scenario:focus{border-style:solid}
   #liab-import-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
   #liab-import-modal.hidden{display:none}
   .liab-import-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:14px;animation:fadeUp .2s ease}
@@ -375,6 +429,7 @@
 
   .changed-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;opacity:0;transition:opacity .3s}
   .changed-indicator.visible{opacity:1}
+  #changedDotSave{margin-left:0;margin-right:6px;vertical-align:middle}
 
   /* ── PWA INSTALL REMINDER ── */
   #pwa-reminder{display:none;align-items:center;justify-content:center;gap:10px;padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:15px;color:var(--text-muted)}
@@ -553,14 +608,22 @@
     .save-hint{display:none}
     .btn-group{flex-wrap:nowrap;flex-shrink:0;gap:6px}
     .btn-group .btn{padding:8px 10px;font-size:14px;white-space:nowrap;flex-shrink:0}
-    /* Tab nav: scrollable */
-    .tab-nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
-    .tab-btn{padding:8px 14px;flex-shrink:0;white-space:nowrap}
+    /* Tab nav: fit all tabs in portrait without scrolling */
+    .tab-nav{padding:0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;justify-content:space-around}
+    .tab-btn{padding:9px 6px;flex-shrink:1;white-space:nowrap;font-size:12px;letter-spacing:0.5px}
+    .tab-btn .tab-long{display:none}
     .btc-bar{padding:4px 12px 3px;gap:2px}
     .btc-price-label{display:none}
     .btc-bar-right{font-size:11px;margin-top:0}
-    .entry-fields{grid-template-columns:1fr}
+    .entry-fields{grid-template-columns:1fr;padding:0 12px 12px 18px}
     .entry-fields.three-col{grid-template-columns:1fr}
+    /* Make pay/delete buttons always visible on touch (hover doesn't work) */
+    .entry-delete{opacity:1;font-size:20px;padding:6px 8px}
+    .entry-pay{opacity:1;font-size:13px;padding:5px 10px}
+    /* Tighter summary padding on narrow screens */
+    .entry-summary{padding:8px 10px 8px 14px;gap:6px}
+    /* Category header: slightly tighter */
+    .category-header{padding:10px 12px 10px 8px}
     /* Summary bar values */
     .s-value{font-size:18px}
     /* Section header: wrap controls below title */
@@ -576,6 +639,42 @@
     #cf-table-wrap,#cf-cat-wrap,#cf-rec-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .cf-table{min-width:600px}
     .cf-table th,.cf-table td{padding:7px 10px;font-size:15px}
+    /* Forecast Models tab: compact pills, stacked card layout for tables */
+    .fc-grid{padding:20px 12px 100px;gap:16px}
+    .fc-intro{font-size:14px;padding:2px}
+    .fc-scenarios{gap:6px}
+    .fc-pill{font-size:13px;padding:7px 12px}
+    .fc-pill-action{padding:0 14px;font-size:14px;min-height:34px}
+    .fc-add-btn-row{padding:16px 12px}
+    .fc-add-btn{padding:10px 18px;font-size:14px}
+    .fc-chart-wrap{height:280px;padding:12px 12px 16px}
+    .fc-chart-legend{gap:12px;font-size:13px;padding:8px 12px 12px}
+    .fc-horizon-row{padding:12px 16px}
+    .fc-card-header{padding:12px 16px}
+    .fc-card-title{font-size:14px}
+    /* Transform the forecast tables into stacked cards — no horizontal scroll */
+    .fc-table-wrap{overflow-x:visible}
+    .fc-table,.fc-table tbody{display:block;min-width:0;width:100%}
+    .fc-table thead{display:none}
+    .fc-table tr{display:block;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .fc-table tr:last-child{border-bottom:none}
+    .fc-table tr.fc-cat-row{padding:8px 14px;background:rgba(255,255,255,.025)}
+    .fc-table tr.fc-cat-row td{display:block;padding:2px 0;font-size:12px;background:transparent;text-align:left}
+    .fc-table tr.fc-cat-row td:before{content:none}
+    .fc-table tr.fc-extra-row{background:rgba(212,168,67,.04)}
+    .fc-table td{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border:none;text-align:left;gap:12px;min-height:38px;color:var(--text)}
+    .fc-table td:before{content:attr(data-label);font-size:11px;color:var(--text-dim);letter-spacing:1.2px;text-transform:uppercase;flex-shrink:0;font-weight:400;white-space:nowrap}
+    .fc-table td:first-child{display:block;padding:0 0 8px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.04);min-height:auto}
+    .fc-table td:first-child:before{display:none}
+    .fc-table td.fc-entry-name{font-size:16px;color:var(--text)}
+    .fc-table td:last-child{justify-content:flex-end;padding-top:8px}
+    .fc-table td:last-child:before{display:none}
+    /* Inputs claim the right side of each card row */
+    .fc-table td .fc-input{width:auto;flex:1 1 auto;max-width:60%;min-width:110px;text-align:right}
+    .fc-table td .fc-extra-name{width:100%;max-width:none;min-width:0;font-size:15px}
+    /* Empty state: show as a single centered message */
+    .fc-table tr td.fc-empty{display:block;padding:24px 12px}
+    .fc-table tr td.fc-empty:before{display:none}
     /* Holdings: compact on mobile */
     .holdings-section{padding:0 10px 10px 20px}
     .holdings-table input{font-size:14px;padding:2px 4px}
@@ -863,6 +962,7 @@
   <button class="tab-btn active" onclick="switchTab('ledger',this)">Ledger</button>
   <button class="tab-btn" onclick="switchTab('charts',this)">Charts</button>
   <button class="tab-btn" onclick="switchTab('cashflow',this)">Cash Flow</button>
+  <button class="tab-btn" onclick="switchTab('forecast',this)"><span class="tab-long">Forecast </span>Models</button>
 </div>
 
 <!-- ══ LEDGER VIEW ══ -->
@@ -1183,6 +1283,63 @@
 </div>
 </div>
 
+<!-- ══ FORECAST MODELS VIEW ══ -->
+<div class="view" id="view-forecast">
+<div class="fc-grid">
+  <div class="fc-intro">
+    Set per-entry growth and contribution assumptions for projections. Current balances stay read-only here: <a class="fc-link" onclick="switchTab('ledger',document.querySelector('.tab-btn'))">edit them on the Ledger tab</a>. Create named scenarios to compare alternative plans side by side.
+  </div>
+  <div class="fc-scenarios" id="fc-scenarios-bar"></div>
+  <div class="fc-card">
+    <div class="fc-card-header"><div class="fc-card-title">Projection</div></div>
+    <div class="fc-horizon-row">
+      <select id="fc-horizon" class="fc-select" onchange="mkForecastChart()">
+        <option value="60">5 years</option>
+        <option value="120" selected>10 years</option>
+        <option value="240">20 years</option>
+        <option value="360">30 years</option>
+      </select>
+    </div>
+    <div class="fc-chart-wrap"><canvas id="fc-chart"></canvas></div>
+    <div class="fc-chart-legend" id="fc-chart-legend"></div>
+  </div>
+  <div class="fc-card">
+    <div class="fc-card-header"><div class="fc-card-title">Assets</div></div>
+    <div class="fc-table-wrap">
+      <table class="fc-table">
+        <thead><tr>
+          <th>Entry</th>
+          <th class="r">Current Value</th>
+          <th class="r">Monthly Contribution</th>
+          <th class="r">Annual Growth %</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="fc-assets-body"></tbody>
+      </table>
+    </div>
+    <div class="fc-add-btn-row"><button class="fc-add-btn" onclick="addForecastExtra('asset')">+ Add theoretical asset</button></div>
+  </div>
+  <div class="fc-card">
+    <div class="fc-card-header"><div class="fc-card-title">Liabilities</div></div>
+    <div class="fc-table-wrap">
+      <table class="fc-table">
+        <thead><tr>
+          <th>Entry</th>
+          <th class="r">Balance</th>
+          <th class="r">Interest %</th>
+          <th class="r" title="Theoretical liabilities only. Term auto-computes monthly payment via standard amortization.">Term (yrs)</th>
+          <th class="r">Monthly Payment</th>
+          <th class="r">Extra Principal</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="fc-liabs-body"></tbody>
+      </table>
+    </div>
+    <div class="fc-add-btn-row"><button class="fc-add-btn" onclick="addForecastExtra('liability')">+ Add theoretical liability</button></div>
+  </div>
+</div>
+</div>
+
 <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
 
 <div class="save-bar">
@@ -1192,7 +1349,7 @@
     <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ Settings</button>
     <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
     <button class="btn btn-lock btn-bookmarklet" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
-    <button class="btn btn-primary" onclick="saveData()">Save ✓</button>
+    <button class="btn btn-primary" onclick="saveData()"><span class="changed-indicator" id="changedDotSave"></span>Save ✓</button>
   </div>
 </div>
 
@@ -1302,8 +1459,16 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 const CHANGELOG = [
+  { version: '1.3', items: [
+    'New "Forecast Models" tab (shown as "Models" on mobile) — project net-worth forward over 5 / 10 / 20 / 30 years with per-entry growth and contribution assumptions',
+    'Create named scenarios ("College X" / "College Y") alongside a Baseline, override any projection field per scenario, and compare side by side on one chart',
+    'Add theoretical assets or liabilities that don\'t exist on the Ledger yet (e.g. a planned college loan); theoretical liabilities support a Loan Term field that auto-amortizes the monthly P&I payment',
+    'Ledger entry cards: tightened label and input alignment after the font-size bump, moved the Manual/Holdings toggle below the Balance input, shortened several field labels',
+    'Save indicator ("unsaved" dot) now visible on the Save button from every tab, not just Ledger',
+    'Mobile layout pass on Ledger and Forecast Models: fit the tab bar without horizontal scroll, always-visible delete/pay buttons, and forecast tables reflow into stacked cards in portrait mode',
+  ]},
   { version: '1.2', items: [
     'Auto-lock now auto-saves unsaved changes before locking, instead of silently skipping the lock',
     'Widened the About and Settings modals on desktop to reduce vertical scrolling after the recent font size increase',
@@ -1331,6 +1496,9 @@ let rentcastApiKey      = '';   // stored encrypted with data
 let stockApiKey         = '';   // Finnhub API key, stored encrypted
 let snapshots           = [];   // [{ ts, nw, cats:{cat:value} }]
 let recurring           = [];   // [{ id, name, amount, frequency, direction }]
+let scenarios           = [];   // [{ id, name, overrides: { [rowId]: { field: value } } }]
+let activeScenarioId    = null; // null = baseline; otherwise scenarios[i].id
+let forecastExtras      = [];   // [{ id, cat, name, value, interestRate, monthlyContribution, expectedReturn, monthlyPayment, extraPrincipal }] — theoretical entries shared across baseline + all scenarios
 let pendingBalanceUpdate = null; // { rowId, cat } — set when opening a bank tab
 let isChangingPw     = false;
 
@@ -1583,7 +1751,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, displayUnit, groupByState, rentcastApiKey, stockApiKey, currency, theme, snapshots, recurring, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, displayUnit, groupByState, rentcastApiKey, stockApiKey, currency, theme, snapshots, recurring, scenarios, forecastExtras, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1606,7 +1774,12 @@ function applyLoadedPayload(p) {
   fetchFxRate().then(() => recalc());
   if (p.data) {
     if (p.data.crypto && !p.data.bitcoin) p.data.bitcoin = p.data.crypto;
-    ALL_CATS.forEach(c=>{ if(p.data[c]) data[c]=p.data[c]; });
+    ALL_CATS.forEach(c=>{
+      if(p.data[c]) {
+        data[c]=p.data[c];
+        data[c].forEach(row => applyProjectionDefaults(row, c));
+      }
+    });
   }
   if (p.btcUnit)     { btcUnit=p.btcUnit; setBtcUnit(btcUnit); }
   if (p.btcLoanUnit) { btcLoanUnit=p.btcLoanUnit; setBtcLoanUnit(btcLoanUnit); }
@@ -1622,6 +1795,8 @@ function applyLoadedPayload(p) {
   if (p.stockApiKey) stockApiKey = p.stockApiKey;
   if (p.snapshots)     snapshots = p.snapshots;
   if (p.recurring)     recurring = p.recurring;
+  if (Array.isArray(p.scenarios)) scenarios = p.scenarios;
+  if (Array.isArray(p.forecastExtras)) forecastExtras = p.forecastExtras;
   if (p.catOrder)      applyCatOrder(p.catOrder.assets, p.catOrder.liabs);
   if (p.savedAt) document.getElementById('lastUpdated').textContent='Last saved '+new Date(p.savedAt).toLocaleString();
   // Seed LTV bands so first price fetch doesn't false-trigger alerts
@@ -1843,6 +2018,22 @@ const LIAB_CATS_ORIG  = [...LIAB_CATS];
 const SIMPLE_CATS = new Set(['real-estate','bitcoin']);
 // Which categories are BTC-denominated liabilities
 const BTC_LIAB_CATS = new Set(['btc-loan']);
+
+// Projection fields for the Forecast Models tab. Empty string = not configured.
+// Bitcoin uses usdCAGR (USD price appreciation); other assets use expectedReturn (annual CAGR %).
+function applyProjectionDefaults(row, cat) {
+  if (ASSET_CATS.includes(cat)) {
+    if (cat === 'bitcoin') {
+      if (row.usdCAGR === undefined) row.usdCAGR = '';
+    } else {
+      if (row.expectedReturn === undefined) row.expectedReturn = '';
+    }
+    if (row.monthlyContribution === undefined) row.monthlyContribution = '';
+  } else if (LIAB_CATS.includes(cat)) {
+    if (row.monthlyPayment === undefined) row.monthlyPayment = '';
+    if (row.extraPrincipal === undefined) row.extraPrincipal = '';
+  }
+}
 
 // LTV threshold colors and alert tracking
 function ltvColor(ratio) {
@@ -2081,6 +2272,7 @@ function addRow(cat, type, name='', value='', extra={}) {
   if (cat === 'mortgage') {
     row.linkedPropertyId = row.linkedPropertyId || '';
   }
+  applyProjectionDefaults(row, cat);
   data[cat].push(row);
   // Expand the category if it's collapsed
   const toggleBtn = document.getElementById(`toggle-${cat}`);
@@ -2132,6 +2324,7 @@ function deleteRow(cat, id) {
   if (cat === 'real-estate') {
     data['mortgage'].forEach(m => { if (m.linkedPropertyId === deletedId) m.linkedPropertyId = ''; });
   }
+  scenarios.forEach(s => { if (s.overrides) delete s.overrides[deletedId]; });
   markChanged();
 }
 
@@ -2336,12 +2529,12 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     const gmapsUrl = row.address ? `https://www.google.com/maps/search/${encodeURIComponent(row.address)}` : '#';
     return `<div class="entry-fields three-col">
       <div class="field-group">
-        <div class="field-label">Property Name / Nickname</div>
+        <div class="field-label">Property Name</div>
         <input class="field-input" id="entry-name-${id}" value="${escHtml(row.name)}" placeholder="e.g. Primary Residence"
           oninput="updateField('${cat}','${id}','name',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group" style="grid-column:span 2">
-        <div class="field-label">Street Address (for lookups)</div>
+        <div class="field-label">Street Address</div>
         <input class="field-input" id="re-addr-${id}" value="${addr}" placeholder="e.g. 123 Main St, Austin TX 78701"
           oninput="updateField('${cat}','${id}','address',this.value);updateReLinks('${id}')">
       </div>
@@ -2392,7 +2585,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
           oninput="updateField('${cat}','${id}','loanAmount',this.value);updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group">
-        <div class="field-label">Outstanding Balance ($)</div>
+        <div class="field-label">Balance ($)</div>
         <input class="field-input mono btc-loan-balance" type="number" step="100"
           value="${row.value!==''?row.value:''}" placeholder="0"
           oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
@@ -2404,7 +2597,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
           oninput="updateField('${cat}','${id}','collateralSats',btcLoanUnit==='btc'?Math.round(this.value*1e8):Math.round(this.value));updateCardDisplay('${id}','${cat}')">
       </div>
       <div class="field-group">
-        <div class="field-label">Interest Rate (% APR)</div>
+        <div class="field-label">% APR</div>
         <input class="field-input mono" type="number" step="0.01" min="0" max="100"
           value="${row.interestRate||''}" placeholder="e.g. 12.5"
           oninput="updateField('${cat}','${id}','interestRate',this.value);updateCardDisplay('${id}','${cat}')">
@@ -2435,24 +2628,22 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
   // Value field: readonly when computed from holdings
   const valueField = isComputed
     ? `<div class="field-group">
-        <div class="field-label" style="display:flex;align-items:center">Balance / Value ($)
-          <span class="holdings-mode">
-            <button onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
-            <button class="active" onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
-          </span>
-        </div>
+        <div class="field-label">Balance ($)</div>
         <div class="field-input mono" style="background:transparent;border-color:var(--border);color:var(--accent);cursor:default">${row.value!==''?fmt(parseFloat(row.value)||0):'—'}</div>
+        <span class="holdings-mode">
+          <button onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
+          <button class="active" onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
+        </span>
       </div>`
     : `<div class="field-group">
-        <div class="field-label" style="display:flex;align-items:center">Balance / Value ($)${isHoldingsCat?`
-          <span class="holdings-mode">
-            <button class="active" onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
-            <button onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
-          </span>`:''}
-        </div>
+        <div class="field-label">Balance ($)</div>
         <input class="field-input mono" type="number" step="any"
           value="${row.value!==''?row.value:''}" placeholder="0"
           oninput="updateField('${cat}','${id}','value',this.value);updateCardDisplay('${id}','${cat}')">
+        ${isHoldingsCat?`<span class="holdings-mode">
+          <button class="active" onclick="setHoldingsMode('${cat}','${id}','manual')">Manual</button>
+          <button onclick="setHoldingsMode('${cat}','${id}','computed')">Holdings</button>
+        </span>`:''}
       </div>`;
 
   // Holdings section for stocks/retirement
@@ -2465,7 +2656,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
         oninput="updateField('${cat}','${id}','name',this.value);updateCardDisplay('${id}','${cat}')">
     </div>
     <div class="field-group">
-      <div class="field-label">Institution / Company</div>
+      <div class="field-label">Institution</div>
       <input class="field-input" value="${escHtml(row.institution)}" placeholder="e.g. Chase Bank"
         oninput="updateField('${cat}','${id}','institution',this.value);updateCardDisplay('${id}','${cat}')">
     </div>
@@ -2477,7 +2668,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     </div>
     ${valueField}
     ${showLoanFields?`<div class="field-group">
-      <div class="field-label">Interest Rate (% APR)</div>
+      <div class="field-label">% APR</div>
       <input class="field-input mono" type="number" step="0.01" min="0" max="100"
         value="${row.interestRate||''}" placeholder="e.g. 6.75"
         oninput="updateField('${cat}','${id}','interestRate',this.value);updateCardDisplay('${id}','${cat}')">
@@ -3305,12 +3496,14 @@ function syncCollateralEntry() {
     if (existing) {
       if (existing.value !== totalSats) { existing.value = totalSats; changed = true; }
     } else {
-      data['bitcoin'].push({
+      const autoRow = {
         id: 'auto-collateral', _autoCollateral: true,
         name: 'Collateralized BTC', value: totalSats,
         accountType:'', institution:'', loginUrl:'', address:'',
         interestRate:'', originationDate:'', collateralSats:''
-      });
+      };
+      applyProjectionDefaults(autoRow, 'bitcoin');
+      data['bitcoin'].push(autoRow);
       changed = true;
     }
   } else if (existing) {
@@ -3590,6 +3783,7 @@ function recalc() {
     document.getElementById('nwBarLiab').style.width=((tL/tot)*100)+'%';
   }
   refreshCharts(tA,tL,nw);
+  queueForecastChartRender();
 }
 
 // ── CHARTS ────────────────────────────────────────────────────────────────
@@ -3828,6 +4022,395 @@ function buildCashFlowTab() {
   buildCashFlowSummary();
 }
 
+// ── FORECAST MODELS TAB ───────────────────────────────────────────────────
+// Projection engine: given a data snapshot and a month horizon, returns a monthly net-worth series.
+// Asset growth (expectedReturn / usdCAGR) is treated as annual CAGR; liability interestRate is treated as APR.
+// Bitcoin entries start at sats × btcPrice and grow their USD value via usdCAGR.
+// monthlyContribution is always USD; monthlyPayment + extraPrincipal amortize the liability balance.
+// Optional `overrides` maps rowId → { field: value } and takes precedence over the row's own fields
+// (used by the scenario view to project "what if X changed for this row").
+function projectForecast(dataSnapshot, horizonMonths, overrides) {
+  const price = btcPrice || 0;
+  const ov = overrides || {};
+  const fieldOf = (row, field) => {
+    const o = ov[row.id];
+    if (o && o[field] !== undefined && o[field] !== '') return o[field];
+    return row[field];
+  };
+  const assetStates = [];
+  const liabStates = [];
+
+  ASSET_CATS.forEach(cat => {
+    (dataSnapshot[cat] || []).forEach(row => {
+      if (row._autoCollateral) return;
+      const value0 = cat === 'bitcoin'
+        ? (parseFloat(row.value)||0) / 1e8 * price
+        : (parseFloat(row.value)||0);
+      const cagrPct = cat === 'bitcoin'
+        ? (parseFloat(fieldOf(row,'usdCAGR'))||0)
+        : (parseFloat(fieldOf(row,'expectedReturn'))||0);
+      const monthlyRate = Math.pow(1 + cagrPct/100, 1/12) - 1;
+      const contribution = parseFloat(fieldOf(row,'monthlyContribution')) || 0;
+      assetStates.push({value: value0, monthlyRate, contribution});
+    });
+  });
+
+  LIAB_CATS.forEach(cat => {
+    (dataSnapshot[cat] || []).forEach(row => {
+      const balance0 = parseFloat(row.value)||0;
+      const apr = parseFloat(row.interestRate) || 0;
+      const monthlyRate = apr / 12 / 100;
+      const payment = (parseFloat(fieldOf(row,'monthlyPayment'))||0) + (parseFloat(fieldOf(row,'extraPrincipal'))||0);
+      liabStates.push({balance: balance0, monthlyRate, payment});
+    });
+  });
+
+  // Theoretical entries (forecast-only; no bitcoin special-casing)
+  (forecastExtras||[]).forEach(row => {
+    if (ASSET_CATS.includes(row.cat)) {
+      const value0 = parseFloat(fieldOf(row,'value'))||0;
+      const cagrPct = parseFloat(fieldOf(row,'expectedReturn'))||0;
+      const monthlyRate = Math.pow(1 + cagrPct/100, 1/12) - 1;
+      const contribution = parseFloat(fieldOf(row,'monthlyContribution'))||0;
+      assetStates.push({value: value0, monthlyRate, contribution});
+    } else if (LIAB_CATS.includes(row.cat)) {
+      const balance0 = parseFloat(fieldOf(row,'value'))||0;
+      const apr = parseFloat(fieldOf(row,'interestRate'))||0;
+      const monthlyRate = apr / 12 / 100;
+      const termYears = parseFloat(fieldOf(row,'termYears'))||0;
+      const basePayment = termYears > 0
+        ? amortizedPayment(balance0, apr, termYears)
+        : (parseFloat(fieldOf(row,'monthlyPayment'))||0);
+      const payment = basePayment + (parseFloat(fieldOf(row,'extraPrincipal'))||0);
+      liabStates.push({balance: balance0, monthlyRate, payment});
+    }
+  });
+
+  const series = [];
+  const pushPoint = m => {
+    const a = assetStates.reduce((s,e)=>s+e.value, 0);
+    const l = liabStates.reduce((s,e)=>s+e.balance, 0);
+    series.push({month: m, assets: a, liabilities: l, netWorth: a-l});
+  };
+  pushPoint(0);
+  for (let m = 1; m <= horizonMonths; m++) {
+    assetStates.forEach(e => { e.value = e.value * (1 + e.monthlyRate) + e.contribution; });
+    liabStates.forEach(e => {
+      if (e.balance <= 0) return;
+      const interest = e.balance * e.monthlyRate;
+      e.balance = Math.max(0, e.balance + interest - e.payment);
+    });
+    pushPoint(m);
+  }
+  return series;
+}
+
+const SCENARIO_COLORS = ['#6aafcd','#d4a843','#b07de0','#e07070','#60b89a','#f7931a','#c0a080','#82b366'];
+function scenarioColor(idx) { return SCENARIO_COLORS[idx % SCENARIO_COLORS.length]; }
+
+// Standard amortization: monthly P&I for a principal, APR %, and term in years.
+function amortizedPayment(principal, annualRatePct, termYears) {
+  const n = termYears * 12;
+  if (n <= 0 || principal <= 0) return 0;
+  const c = annualRatePct / 100 / 12;
+  if (c === 0) return principal / n;
+  return principal * c * Math.pow(1+c, n) / (Math.pow(1+c, n) - 1);
+}
+
+function mkForecastChart() {
+  if (chartInst['forecast']) chartInst['forecast'].destroy();
+  const ctx = document.getElementById('fc-chart');
+  if (!ctx) return;
+  const horizonSel = document.getElementById('fc-horizon');
+  const horizon = horizonSel ? parseInt(horizonSel.value, 10) || 120 : 120;
+
+  const baseline = projectForecast(data, horizon);
+  const labels = baseline.map(p => {
+    if (p.month === 0) return 'Now';
+    if (p.month % 12 !== 0) return '';
+    return (p.month/12) + 'y';
+  });
+
+  // Assets and Liabilities lines always track the active scenario (or baseline when none active)
+  const active = scenarios.find(s => s.id === activeScenarioId);
+  const activeSeries = active ? projectForecast(data, horizon, active.overrides) : baseline;
+
+  const datasets = [
+    {label:'Baseline Net Worth', data:baseline.map(p=>p.netWorth), borderColor:'#a8d08d', backgroundColor:'rgba(168,208,141,0.08)', pointRadius:0, pointHoverRadius:5, borderWidth:2, fill:true, tension:0.25},
+    {label:'Assets',      data:activeSeries.map(p=>p.assets),   borderColor:'rgba(168,208,141,0.45)', pointRadius:0, pointHoverRadius:4, borderWidth:1, fill:false, tension:0.25, borderDash:[4,3]},
+    {label:'Liabilities', data:activeSeries.map(p=>p.liabilities), borderColor:'rgba(224,112,112,0.45)', pointRadius:0, pointHoverRadius:4, borderWidth:1, fill:false, tension:0.25, borderDash:[4,3]},
+  ];
+  scenarios.forEach((s, i) => {
+    const series = s.id === activeScenarioId ? activeSeries : projectForecast(data, horizon, s.overrides);
+    datasets.push({
+      label: s.name + ' Net Worth',
+      data: series.map(p=>p.netWorth),
+      borderColor: scenarioColor(i),
+      backgroundColor: 'transparent',
+      pointRadius: 0, pointHoverRadius: 5, borderWidth: 2, fill: false, tension: 0.25,
+    });
+  });
+
+  chartInst['forecast'] = new Chart(ctx, {
+    type: 'line',
+    data: {labels, datasets},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{...TTIP(), callbacks:{
+        title: items => items.length ? `Month ${baseline[items[0].dataIndex].month}` : '',
+        label: c => ` ${c.dataset.label}: ${fmtS(c.raw)}`,
+      }}},
+      scales:{
+        x:{ticks:{color:cTick(), font:{size:13}, autoSkip:true, maxTicksLimit:12}, grid:{color:cGridSub()}},
+        y:{ticks:{color:cTick(), font:{size:14}, callback:v=>fmtS(v)}, grid:{color:cGrid()}},
+      },
+    },
+  });
+
+  // Rebuild inline legend to reflect current scenarios
+  const legendEl = document.getElementById('fc-chart-legend');
+  if (legendEl) {
+    const items = [
+      `<span class="legend-item"><span class="legend-dot" style="background:#a8d08d"></span>Baseline Net Worth</span>`,
+      `<span class="legend-item"><span class="legend-dot" style="background:rgba(168,208,141,0.45)"></span>Assets</span>`,
+      `<span class="legend-item"><span class="legend-dot" style="background:rgba(224,112,112,0.45)"></span>Liabilities</span>`,
+    ];
+    scenarios.forEach((s, i) => {
+      items.push(`<span class="legend-item"><span class="legend-dot" style="background:${scenarioColor(i)}"></span>${escHtml(s.name)}</span>`);
+    });
+    legendEl.innerHTML = items.join('');
+  }
+}
+
+let fcChartDebounce;
+function queueForecastChartRender() {
+  clearTimeout(fcChartDebounce);
+  fcChartDebounce = setTimeout(() => {
+    const view = document.getElementById('view-forecast');
+    if (view && view.classList.contains('active')) mkForecastChart();
+  }, 350);
+}
+
+function renderScenarioPills() {
+  const bar = document.getElementById('fc-scenarios-bar');
+  if (!bar) return;
+  const isBaseline = activeScenarioId === null;
+  const parts = [
+    `<button class="fc-pill ${isBaseline?'active':''}" onclick="setActiveScenario(null)"><span class="fc-pill-dot" style="background:#a8d08d"></span>Baseline</button>`
+  ];
+  scenarios.forEach((s, i) => {
+    const isActive = s.id === activeScenarioId;
+    const color = scenarioColor(i);
+    parts.push(
+      `<div class="fc-pill-wrap">
+         <button class="fc-pill ${isActive?'active':''}" onclick="setActiveScenario('${s.id}')"><span class="fc-pill-dot" style="background:${color}"></span>${escHtml(s.name)}</button>
+         ${isActive ? `<button class="fc-pill-action" onclick="renameScenario('${s.id}')" title="Rename">✎</button><button class="fc-pill-action" onclick="deleteScenario('${s.id}')" title="Delete">×</button>` : ''}
+       </div>`
+    );
+  });
+  parts.push(`<button class="fc-pill fc-pill-add" onclick="addScenario()">+ Add Scenario</button>`);
+  bar.innerHTML = parts.join('');
+}
+
+function setActiveScenario(id) {
+  activeScenarioId = id;
+  buildForecastTab();
+}
+
+function addScenario() {
+  const name = prompt('Scenario name (e.g. "College X"):');
+  if (!name || !name.trim()) return;
+  const id = 'sce-' + uid();
+  scenarios.push({id, name: name.trim(), overrides: {}});
+  activeScenarioId = id;
+  buildForecastTab();
+  markChanged();
+}
+
+function renameScenario(id) {
+  const s = scenarios.find(x => x.id === id);
+  if (!s) return;
+  const name = prompt('Rename scenario:', s.name);
+  if (!name || !name.trim()) return;
+  s.name = name.trim();
+  buildForecastTab();
+  markChanged();
+}
+
+function deleteScenario(id) {
+  const s = scenarios.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`Delete scenario "${s.name}"?`)) return;
+  scenarios = scenarios.filter(x => x.id !== id);
+  if (activeScenarioId === id) activeScenarioId = null;
+  buildForecastTab();
+  markChanged();
+}
+
+function updateScenarioField(rowId, field, val) {
+  const s = scenarios.find(x => x.id === activeScenarioId);
+  if (!s) return;
+  if (!s.overrides[rowId]) s.overrides[rowId] = {};
+  if (val === '' || val === undefined || val === null) {
+    delete s.overrides[rowId][field];
+    if (Object.keys(s.overrides[rowId]).length === 0) delete s.overrides[rowId];
+  } else {
+    s.overrides[rowId][field] = val;
+  }
+  markChanged();
+  queueForecastChartRender();
+}
+
+function addForecastExtra(type) {
+  const cat = type === 'asset' ? 'other-asset' : 'other-liab';
+  const row = {id: 'extra-' + uid(), cat, name: '', value: ''};
+  applyProjectionDefaults(row, cat);
+  if (type === 'liability') row.interestRate = '';
+  forecastExtras.push(row);
+  buildForecastTab();
+  markChanged();
+  setTimeout(() => {
+    const el = document.querySelector(`#fc-extra-name-${row.id}`);
+    if (el) el.focus();
+  }, 30);
+}
+
+function deleteForecastExtra(id) {
+  const ex = forecastExtras.find(x => x.id === id);
+  if (!ex) return;
+  if (!confirm(`Delete theoretical entry "${ex.name || '(unnamed)'}"?`)) return;
+  forecastExtras = forecastExtras.filter(x => x.id !== id);
+  scenarios.forEach(s => { if (s.overrides) delete s.overrides[id]; });
+  buildForecastTab();
+  markChanged();
+}
+
+function updateExtraField(id, field, val) {
+  const ex = forecastExtras.find(x => x.id === id);
+  if (!ex) return;
+  ex[field] = val;
+  markChanged();
+  queueForecastChartRender();
+}
+
+function buildForecastTab() {
+  renderScenarioPills();
+
+  const assetsBody = document.getElementById('fc-assets-body');
+  const liabsBody  = document.getElementById('fc-liabs-body');
+  if (!assetsBody || !liabsBody) return;
+
+  const active = scenarios.find(s => s.id === activeScenarioId);
+  const mkInput = (row, field, ph, baselineHandler) => {
+    const baseVal = row[field];
+    if (active) {
+      const o = active.overrides[row.id];
+      const ov = o ? o[field] : undefined;
+      const val = (ov !== undefined && ov !== '') ? ov : '';
+      const pl = (baseVal !== undefined && baseVal !== '' && baseVal !== null) ? `baseline: ${baseVal}` : ph;
+      return `<input class="fc-input fc-input-scenario" type="number" step="any" placeholder="${escHtml(pl)}" value="${escHtml(String(val))}" oninput="updateScenarioField('${row.id}','${field}',this.value)">`;
+    }
+    return `<input class="fc-input" type="number" step="any" placeholder="${escHtml(ph)}" value="${escHtml(String(baseVal||''))}" oninput="${baselineHandler}">`;
+  };
+
+  const assetHtml = [];
+  ASSET_CATS.forEach(cat => {
+    const entries = (data[cat]||[]).filter(r => !r._autoCollateral);
+    if (!entries.length) return;
+    const meta = CAT_META[cat];
+    assetHtml.push(`<tr class="fc-cat-row"><td colspan="5"><span class="fc-cat-dot" style="background:${meta.color}"></span>${escHtml(meta.label)}</td></tr>`);
+    entries.forEach(row => {
+      const rateField = cat==='bitcoin' ? 'usdCAGR' : 'expectedReturn';
+      const ratePlaceholder = cat==='bitcoin' ? 'USD CAGR %' : '% / yr';
+      const valUsd = cat==='bitcoin' ? satsToFiat(parseFloat(row.value)||0) : (parseFloat(row.value)||0);
+      assetHtml.push(`<tr>
+        <td class="fc-entry-name" data-label="Name">${escHtml(row.name || '(unnamed)')}</td>
+        <td class="r fc-ro" data-label="Current Value">${fmt(valUsd)}</td>
+        <td class="r" data-label="Monthly Contribution">${mkInput(row, 'monthlyContribution', '0', `updateField('${cat}','${row.id}','monthlyContribution',this.value)`)}</td>
+        <td class="r" data-label="Annual Growth %">${mkInput(row, rateField, ratePlaceholder, `updateField('${cat}','${row.id}','${rateField}',this.value)`)}</td>
+        <td><button class="fc-edit-link" onclick="editInLedger('${row.id}')">Edit →</button></td>
+      </tr>`);
+    });
+  });
+  const assetExtras = forecastExtras.filter(e => ASSET_CATS.includes(e.cat));
+  if (assetExtras.length) {
+    assetHtml.push(`<tr class="fc-cat-row"><td colspan="5"><span class="fc-cat-dot" style="background:var(--gold)"></span>Theoretical</td></tr>`);
+    assetExtras.forEach(extra => {
+      assetHtml.push(`<tr class="fc-extra-row">
+        <td data-label="Name"><input type="text" class="fc-extra-name" id="fc-extra-name-${extra.id}" placeholder="Name" value="${escHtml(extra.name||'')}" oninput="updateExtraField('${extra.id}','name',this.value)"></td>
+        <td class="r" data-label="Current Value">${mkInput(extra, 'value', '0', `updateExtraField('${extra.id}','value',this.value)`)}</td>
+        <td class="r" data-label="Monthly Contribution">${mkInput(extra, 'monthlyContribution', '0', `updateExtraField('${extra.id}','monthlyContribution',this.value)`)}</td>
+        <td class="r" data-label="Annual Growth %">${mkInput(extra, 'expectedReturn', '% / yr', `updateExtraField('${extra.id}','expectedReturn',this.value)`)}</td>
+        <td><button class="fc-extra-delete" onclick="deleteForecastExtra('${extra.id}')" title="Delete theoretical entry">×</button></td>
+      </tr>`);
+    });
+  }
+  assetsBody.innerHTML = assetHtml.join('') || `<tr><td colspan="5" class="fc-empty">No assets yet. Add on the Ledger tab or use the button below.</td></tr>`;
+
+  const liabHtml = [];
+  LIAB_CATS.forEach(cat => {
+    const entries = (data[cat]||[]);
+    if (!entries.length) return;
+    const meta = CAT_META[cat];
+    liabHtml.push(`<tr class="fc-cat-row"><td colspan="7"><span class="fc-cat-dot" style="background:${meta.color}"></span>${escHtml(meta.label)}</td></tr>`);
+    entries.forEach(row => {
+      const val = parseFloat(row.value)||0;
+      const rate = parseFloat(row.interestRate);
+      const rateDisplay = isNaN(rate) ? '—' : rate.toFixed(2)+'%';
+      liabHtml.push(`<tr>
+        <td class="fc-entry-name" data-label="Name">${escHtml(row.name || '(unnamed)')}</td>
+        <td class="r fc-ro" data-label="Balance">${fmt(val)}</td>
+        <td class="r fc-ro" data-label="Interest %">${rateDisplay}</td>
+        <td class="r fc-ro" data-label="Term (yrs)">—</td>
+        <td class="r" data-label="Monthly Payment">${mkInput(row, 'monthlyPayment', '0', `updateField('${cat}','${row.id}','monthlyPayment',this.value)`)}</td>
+        <td class="r" data-label="Extra Principal">${mkInput(row, 'extraPrincipal', '0', `updateField('${cat}','${row.id}','extraPrincipal',this.value)`)}</td>
+        <td><button class="fc-edit-link" onclick="editInLedger('${row.id}')">Edit →</button></td>
+      </tr>`);
+    });
+  });
+  const liabExtras = forecastExtras.filter(e => LIAB_CATS.includes(e.cat));
+  if (liabExtras.length) {
+    liabHtml.push(`<tr class="fc-cat-row"><td colspan="7"><span class="fc-cat-dot" style="background:var(--gold)"></span>Theoretical</td></tr>`);
+    liabExtras.forEach(extra => {
+      const term = parseFloat(extra.termYears)||0;
+      const apr = parseFloat(extra.interestRate)||0;
+      const bal = parseFloat(extra.value)||0;
+      const autoPay = term > 0 ? amortizedPayment(bal, apr, term) : 0;
+      const payPh = term > 0 ? `auto: ${Math.round(autoPay)}` : '0';
+      liabHtml.push(`<tr class="fc-extra-row">
+        <td data-label="Name"><input type="text" class="fc-extra-name" id="fc-extra-name-${extra.id}" placeholder="Name" value="${escHtml(extra.name||'')}" oninput="updateExtraField('${extra.id}','name',this.value)"></td>
+        <td class="r" data-label="Balance">${mkInput(extra, 'value', '0', `updateExtraField('${extra.id}','value',this.value)`)}</td>
+        <td class="r" data-label="Interest %">${mkInput(extra, 'interestRate', '% APR', `updateExtraField('${extra.id}','interestRate',this.value)`)}</td>
+        <td class="r" data-label="Term (yrs)">${mkInput(extra, 'termYears', 'yrs', `updateExtraField('${extra.id}','termYears',this.value)`)}</td>
+        <td class="r" data-label="Monthly Payment">${mkInput(extra, 'monthlyPayment', payPh, `updateExtraField('${extra.id}','monthlyPayment',this.value)`)}</td>
+        <td class="r" data-label="Extra Principal">${mkInput(extra, 'extraPrincipal', '0', `updateExtraField('${extra.id}','extraPrincipal',this.value)`)}</td>
+        <td><button class="fc-extra-delete" onclick="deleteForecastExtra('${extra.id}')" title="Delete theoretical entry">×</button></td>
+      </tr>`);
+    });
+  }
+  liabsBody.innerHTML = liabHtml.join('') || `<tr><td colspan="7" class="fc-empty">No liabilities yet. Add on the Ledger tab or use the button below.</td></tr>`;
+
+  mkForecastChart();
+}
+
+function editInLedger(rowId) {
+  let foundCat = null;
+  for (const c of ALL_CATS) {
+    if ((data[c]||[]).some(r => r.id === rowId)) { foundCat = c; break; }
+  }
+  const ledgerBtn = document.querySelector('.tab-btn');
+  if (ledgerBtn) switchTab('ledger', ledgerBtn);
+  if (foundCat) {
+    const toggle = document.getElementById(`toggle-${foundCat}`);
+    if (toggle && !toggle.classList.contains('open')) toggleCat(foundCat);
+  }
+  setTimeout(() => {
+    const card = document.getElementById(`card-${rowId}`);
+    if (card) card.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 150);
+}
+
 // ── TAB ───────────────────────────────────────────────────────────────────
 function switchTab(tab,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -3836,6 +4419,7 @@ function switchTab(tab,btn){
   btn.classList.add('active');
   if(tab==='charts') setTimeout(()=>recalc(),50);
   if(tab==='cashflow') setTimeout(()=>buildCashFlowTab(),50);
+  if(tab==='forecast') setTimeout(()=>buildForecastTab(),50);
 }
 
 // ── PERSIST ───────────────────────────────────────────────────────────────
@@ -3847,7 +4431,7 @@ async function saveData(){
   snapshots.push(snap);
   await encryptAndSave();
   hasUnsavedChanges=false;
-  document.getElementById('changedDot').classList.remove('visible');
+  document.querySelectorAll('.changed-indicator').forEach(el=>el.classList.remove('visible'));
   document.getElementById('lastUpdated').textContent='Saved '+new Date().toLocaleString();
   showToast('Saved successfully','success');
 }
@@ -3862,15 +4446,18 @@ function clearAll(){
   ALL_CATS.forEach(c=>{data[c]=[];sortState[c]=null;});
   snapshots = [];
   recurring = [];
+  scenarios = [];
+  activeScenarioId = null;
+  forecastExtras = [];
   renderAll(); recalc(); buildCashFlowTab(); markChanged();
   showToast('All entries cleared');
 }
-function markChanged(){hasUnsavedChanges=true;document.getElementById('changedDot').classList.add('visible');}
+function markChanged(){hasUnsavedChanges=true;document.querySelectorAll('.changed-indicator').forEach(el=>el.classList.add('visible'));}
 
 function exportJSON(){
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
   const totalBtcSats = data['bitcoin'].reduce((s,r)=>s+(parseFloat(r.value)||0),0);
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL,totalBtcSats},data,recurring,snapshots},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL,totalBtcSats},data,recurring,snapshots,scenarios,forecastExtras},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
   showToast('Exported as JSON');
 }
@@ -3886,9 +4473,15 @@ function handleImportFile(event){
       const finalKeys=ALL_CATS.filter(c=>Array.isArray(incoming[c]));
       if(finalKeys.length===0){showToast('Invalid JSON: no recognized categories found','error');return;}
       if(!confirm(`Import will replace current data with ${finalKeys.length} categories from the file. Continue?`))return;
-      ALL_CATS.forEach(c=>{data[c]=incoming[c]||[];sortState[c]=null;});
+      ALL_CATS.forEach(c=>{
+        data[c]=incoming[c]||[];
+        data[c].forEach(row => applyProjectionDefaults(row, c));
+        sortState[c]=null;
+      });
       if(Array.isArray(p.recurring)) recurring=p.recurring;
       if(Array.isArray(p.snapshots)) snapshots=p.snapshots;
+      if(Array.isArray(p.scenarios)) { scenarios=p.scenarios; activeScenarioId=null; }
+      if(Array.isArray(p.forecastExtras)) forecastExtras=p.forecastExtras;
       renderAll(); recalc(); buildCashFlowTab(); markChanged();
       showToast(`Imported ${finalKeys.length} categories`,'success');
     }catch(err){showToast('Failed to parse JSON file','error');console.error(err);}

@@ -1,5 +1,7 @@
 *.kate-swp
 *.swp
+.env
+node_modules/
 *.json
 *copy*.html
 TODO.md
