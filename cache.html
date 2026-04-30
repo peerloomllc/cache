@@ -409,15 +409,40 @@
   .save-hint{font-family:var(--mono);font-size:15px;color:var(--text-dim);letter-spacing:1px}
   .save-hint span{color:var(--accent-dim)}
   .btn-group{display:flex;gap:8px}
-  .btn{font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:8px 16px;border-radius:4px;cursor:pointer;border:none;transition:all .15s}
+  .btn{font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:8px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;box-sizing:border-box;min-width:80px;text-align:center;transition:all .15s}
   .btn-ghost{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
   .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-primary{background:var(--accent);color:var(--bg);font-weight:500}
   .btn-primary:hover{background:#bfe0a0}
+  .btn-privacy{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
+  .btn-privacy:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-privacy.on{background:rgba(168,208,141,0.12);border-color:var(--accent);color:var(--accent)}
   .btn-export{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
   .btn-export:hover{border-color:var(--gold);color:var(--gold)}
   .btn-import{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
   .btn-import:hover{border-color:var(--blue);color:var(--blue)}
+
+  /* ── PRIVACY MODE: blur monetary values ── */
+  body[data-privacy="on"] .net-worth-value,
+  body[data-privacy="on"] .s-value,
+  body[data-privacy="on"] .section-total,
+  body[data-privacy="on"] .category-total,
+  body[data-privacy="on"] .entry-value,
+  body[data-privacy="on"] .holdings-value,
+  body[data-privacy="on"] .holdings-table td:not(:first-child),
+  body[data-privacy="on"] .cf-stat-value,
+  body[data-privacy="on"] .cf-stat-sub,
+  body[data-privacy="on"] .cf-card-total,
+  body[data-privacy="on"] .cf-table td.r,
+  body[data-privacy="on"] .cf-table td.cf-amt-cell,
+  body[data-privacy="on"] .cf-rec-section-total,
+  body[data-privacy="on"] .fc-table tbody td:not(:first-child),
+  body[data-privacy="on"] .fc-tooltip,
+  body[data-privacy="on"] .chart-card .chart-body{
+    filter:blur(8px);
+    transition:filter .25s ease;
+    user-select:none;
+  }
 
   /* ── TOAST ── */
   .toast{position:fixed;top:24px;right:32px;z-index:200;background:var(--surface2);border:1px solid var(--border-light);color:var(--text);font-family:var(--mono);font-size:16px;padding:10px 18px;border-radius:5px;opacity:0;transform:translateY(-8px);transition:all .2s;pointer-events:none}
@@ -494,9 +519,9 @@
   .settings-input:focus{border-color:var(--accent-dim)}
   .settings-help{font-family:var(--mono);font-size:14px;color:var(--text-dim);line-height:1.5}
   .settings-row{display:flex;gap:8px}
-  .settings-save-btn{background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:1px;padding:9px 16px;border:none;border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap}
+  .settings-save-btn{background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:1px;padding:9px 16px;border:1px solid transparent;box-sizing:border-box;min-width:80px;text-align:center;border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap}
   .settings-save-btn:hover{background:#bfe0a0}
-  .settings-close-btn{background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .settings-close-btn{background:transparent;border:1px solid var(--border-light);box-sizing:border-box;min-width:80px;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
   .settings-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
 
   /* ── AVM RESULT DISPLAY ── */
@@ -594,7 +619,6 @@
     .header-left h1{font-size:28px}
     .header-left .subtitle{display:none}
     .header-right{flex-wrap:nowrap;gap:8px;text-align:right}
-    .btn-bookmarklet{display:none}
     .net-worth-label{font-size:13px;letter-spacing:1.5px;margin-bottom:2px}
     .net-worth-value{font-size:25px}
     .last-updated{display:none}
@@ -602,11 +626,14 @@
     .summary-item{padding:6px 8px;gap:2px}
     .s-label{font-size:11px;letter-spacing:1px}
     .chart-card.wide{grid-column:1}
-    /* Save bar: horizontal scroll on mobile */
-    .save-bar{padding:10px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;flex-wrap:nowrap;justify-content:center}
+    /* Save bar: icon-only non-primary buttons on mobile */
+    .save-bar{padding:10px 12px;gap:8px;flex-wrap:nowrap;justify-content:center}
     .save-hint{display:none}
     .btn-group{flex-wrap:nowrap;flex-shrink:0;gap:6px}
-    .btn-group .btn{padding:8px 10px;font-size:14px;white-space:nowrap;flex-shrink:0}
+    .btn-group .btn{font-size:14px;white-space:nowrap;flex-shrink:0}
+    .btn-label{display:none}
+    .btn-group .btn:not(.btn-primary){width:40px;height:40px;min-width:0;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1}
+    .btn-group .btn-about .about-icon{margin-right:0}
     /* Tab nav: fit all tabs in portrait without scrolling */
     .tab-nav{padding:0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;justify-content:space-around}
     .tab-btn{padding:9px 6px;flex-shrink:1;white-space:nowrap;font-size:12px;letter-spacing:0.5px}
@@ -623,6 +650,9 @@
     .entry-summary{padding:8px 10px 8px 14px;gap:6px}
     /* Category header: slightly tighter */
     .category-header{padding:10px 12px 10px 8px}
+    /* Categories with an Update Prices button: stack the button below the title row so it doesn't overlap */
+    .category-header.has-refresh{padding-bottom:32px}
+    .category-header.has-refresh .cat-refresh-btn{top:auto;bottom:6px}
     /* Summary bar values */
     .s-value{font-size:18px}
     /* Section header: wrap controls below title */
@@ -634,6 +664,11 @@
     .cf-grid{padding:20px 16px 100px}
     .cf-summary-row{grid-template-columns:1fr}
     .cf-stat-value{font-size:28px}
+    /* Cash flow card headers: drop the centered banner ad (no room), tighten title/total */
+    .cf-card-header{padding:12px 14px;gap:10px;flex-wrap:wrap}
+    .cf-card-header .cf-banner-text{display:none}
+    .cf-card-title{font-size:13px;letter-spacing:1px}
+    .cf-card-total{font-size:16px;white-space:nowrap}
     /* Cash flow tables: horizontal scroll */
     #cf-table-wrap,#cf-cat-wrap,#cf-rec-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .cf-table{min-width:600px}
@@ -1344,10 +1379,11 @@
 <div class="save-bar">
   <div class="save-hint">All data saved locally — <span>never leaves this device</span></div>
   <div class="btn-group">
-    <button class="btn btn-about" onclick="openAbout()"><span class="about-icon">i</span> About</button>
-    <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ Settings</button>
-    <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 Lock</button>
-    <button class="btn btn-lock btn-bookmarklet" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 Bookmarklet</button>
+    <button class="btn btn-privacy" id="privacyBtn" onclick="togglePrivacy()" title="Toggle privacy mode" aria-label="Toggle privacy mode">👁 <span class="btn-label">Privacy</span></button>
+    <button class="btn btn-about" onclick="openAbout()" title="About"><span class="about-icon">i</span> <span class="btn-label">About</span></button>
+    <button class="btn btn-lock" onclick="openSettings()" title="Settings">⚙ <span class="btn-label">Settings</span></button>
+    <button class="btn btn-lock btn-bookmarklet" onclick="openBookmarkletSetup()" title="Balance bookmarklet setup">🔖 <span class="btn-label">Bookmarklet</span></button>
+    <button class="btn btn-lock" onclick="lockApp()" title="Lock now">🔒 <span class="btn-label">Lock</span></button>
     <button class="btn btn-primary" onclick="saveData()"><span class="changed-indicator" id="changedDotSave"></span>Save ✓</button>
   </div>
 </div>
@@ -1458,8 +1494,16 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 const CHANGELOG = [
+  { version: '1.5', items: [
+    'New Privacy mode button in the bottom save bar (eye icon, leftmost) blurs net-worth, summary bar, category and entry totals, charts, cash-flow stats and per-year amounts, cash-flow card-header totals, and forecast tables. Setting persists with your data',
+    'Bottom save-bar buttons (Privacy / About / Settings / Bookmarklet / Lock) now collapse to icon-only 40×40 squares on mobile so the full bar fits in portrait without horizontal scrolling',
+    'Reordered save-bar so Lock sits adjacent to Save (Privacy · About · Settings · Bookmarklet · Lock · Save)',
+    'Stocks and Retirement category headers no longer overlap the Update Prices button on mobile: the button now drops to its own row below the title in narrow widths',
+    'Cash Flow card headers no longer overlap on mobile: the centered "Try Cache Flow" banner ad is hidden on narrow widths, and the title and total fonts shrink slightly so they fit on one line',
+    'Inline Cancel and Save buttons across modals now match height and width: added a transparent 1px border plus box-sizing so borderless and bordered button variants line up correctly',
+  ]},
   { version: '1.4', items: [
     'Credit cards now support an Interest Rate (% APR) field in the Ledger, so forecasts correctly accrue interest on carried credit-card balances',
     'Theoretical liability: when a Term is set, the Monthly Payment input is now disabled and shows the amortized value the engine is actually using (clear Term to edit the payment directly)',
@@ -1755,7 +1799,7 @@ function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer=
 
 // ── ENCRYPTED SAVE / LOAD ───────────────────────────────────────────────────
 async function encryptAndSave() {
-  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, displayUnit, groupByState, rentcastApiKey, stockApiKey, currency, theme, snapshots, recurring, scenarios, forecastExtras, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
+  const payload = JSON.stringify({ data, btcUnit, btcLoanUnit, displayUnit, privacyMode, groupByState, rentcastApiKey, stockApiKey, currency, theme, snapshots, recurring, scenarios, forecastExtras, catOrder:{assets:[...ASSET_CATS],liabs:[...LIAB_CATS]}, savedAt:new Date().toISOString() });
   if (sessionKey) {
     const { iv, ct } = await encryptPayload(payload, sessionKey);
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
@@ -1788,6 +1832,8 @@ function applyLoadedPayload(p) {
   if (p.btcUnit)     { btcUnit=p.btcUnit; setBtcUnit(btcUnit); }
   if (p.btcLoanUnit) { btcLoanUnit=p.btcLoanUnit; setBtcLoanUnit(btcLoanUnit); }
   if (p.displayUnit === 'sats' || p.displayUnit === 'fiat') { displayUnit = p.displayUnit; refreshDisplayUnitToggle(); }
+  privacyMode = !!p.privacyMode;
+  applyPrivacyMode();
   if (p.groupByState) {
     groupByState=p.groupByState;
     ['assets','liabilities'].forEach(s=>{
@@ -2129,6 +2175,7 @@ let currency = 'USD';
 let fxRate = 1;
 let theme = 'dark';
 let displayUnit = 'fiat'; // 'fiat' | 'sats'
+let privacyMode = false;
 function csym() { return CURRENCIES[currency].symbol; }
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', theme);
@@ -2152,6 +2199,7 @@ function init() {
   ALL_CATS.forEach(c => { data[c] = []; sortState[c] = null; });
   // Lock system handles data loading — it will call applyLoadedPayload after unlock
   // For legacy plaintext path, loadData() is called from initLockSystem
+  applyPrivacyMode();
   recalc();
   fetchFxRate().then(()=>recalc());
   fetchBtcPrice(false);
@@ -2822,6 +2870,16 @@ function setThemeSetting(t) {
   updateThemeButtons();
   recalc();
   encryptAndSave();
+}
+function togglePrivacy() {
+  privacyMode = !privacyMode;
+  applyPrivacyMode();
+  encryptAndSave();
+}
+function applyPrivacyMode() {
+  document.body.setAttribute('data-privacy', privacyMode ? 'on' : 'off');
+  const btn = document.getElementById('privacyBtn');
+  if (btn) btn.classList.toggle('on', privacyMode);
 }
 function openSettings() {
   const sel = document.getElementById('settings-currency');
