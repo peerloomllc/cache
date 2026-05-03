@@ -1321,7 +1321,7 @@
 <div class="view" id="view-forecast">
 <div class="fc-grid">
   <div class="fc-intro">
-    Set per-entry growth and contribution assumptions for projections. Current balances stay read-only here: <a class="fc-link" onclick="switchTab('ledger',document.querySelector('.tab-btn'))">edit them on the Ledger tab</a>. Create named scenarios to compare alternative plans side by side.
+    Set per-entry growth and contribution assumptions for projections. Current balances stay read-only here: <a class="fc-link" onclick="switchTab('ledger',document.querySelector('.tab-btn'))">edit them on the Ledger tab</a>. Create named scenarios to compare alternative plans side by side. Liability payments are debited from your cash, retirement, and stock assets each month so projections reflect the opportunity cost of servicing debt.
   </div>
   <div class="fc-scenarios" id="fc-scenarios-bar"></div>
   <div class="fc-card">
@@ -1494,8 +1494,13 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.7';
 const CHANGELOG = [
+  { version: '1.7', items: [
+    'Forecast projections now debit liability payments from your cash-like assets (cash, then retirement, then stocks, in that order) instead of paying loans down "for free" out of thin air. This means your baseline projection will look lower than before, but it now reflects the real opportunity cost of servicing your debts',
+    'Scenarios with new theoretical liabilities (e.g. a college loan) now stay measurably below baseline even after the loan amortizes off, since the cash you spent making payments is no longer available to compound. Previously the scenario would converge back to baseline once the loan hit zero',
+    'If your cash-like assets run out before all loans are paid off, the engine stops debiting (no further opportunity-cost modeling) rather than letting balances go negative',
+  ]},
   { version: '1.5', items: [
     'New Privacy mode button in the bottom save bar (eye icon, leftmost) blurs net-worth, summary bar, category and entry totals, charts, cash-flow stats and per-year amounts, cash-flow card-header totals, and forecast tables. Setting persists with your data',
     'Bottom save-bar buttons (Privacy / About / Settings / Bookmarklet / Lock) now collapse to icon-only 40×40 squares on mobile so the full bar fits in portrait without horizontal scrolling',
@@ -4090,8 +4095,12 @@ function buildCashFlowTab() {
 // Asset growth (expectedReturn / usdCAGR) is treated as annual CAGR; liability interestRate is treated as APR.
 // Bitcoin entries start at sats × btcPrice and grow their USD value via usdCAGR.
 // monthlyContribution is always USD; monthlyPayment + extraPrincipal amortize the liability balance.
+// Each month, the sum of all liability payments is debited from cash-like assets in priority order
+// (cash → retirement → stocks) so the projection reflects the opportunity cost of servicing debt.
+// If cash-like assets run out, the remainder is treated as deferred (no further debit, no default modeled).
 // Optional `overrides` maps rowId → { field: value } and takes precedence over the row's own fields
 // (used by the scenario view to project "what if X changed for this row").
+const CASH_LIKE_DEBIT_ORDER = ['cash', 'retirement', 'stocks'];
 function projectForecast(dataSnapshot, horizonMonths, overrides) {
   const price = btcPrice || 0;
   const ov = overrides || {};
@@ -4114,7 +4123,7 @@ function projectForecast(dataSnapshot, horizonMonths, overrides) {
         : (parseFloat(fieldOf(row,'expectedReturn'))||0);
       const monthlyRate = Math.pow(1 + cagrPct/100, 1/12) - 1;
       const contribution = parseFloat(fieldOf(row,'monthlyContribution')) || 0;
-      assetStates.push({value: value0, monthlyRate, contribution});
+      assetStates.push({value: value0, monthlyRate, contribution, cat});
     });
   });
 
@@ -4135,7 +4144,7 @@ function projectForecast(dataSnapshot, horizonMonths, overrides) {
       const cagrPct = parseFloat(fieldOf(row,'expectedReturn'))||0;
       const monthlyRate = Math.pow(1 + cagrPct/100, 1/12) - 1;
       const contribution = parseFloat(fieldOf(row,'monthlyContribution'))||0;
-      assetStates.push({value: value0, monthlyRate, contribution});
+      assetStates.push({value: value0, monthlyRate, contribution, cat: row.cat});
     } else if (LIAB_CATS.includes(row.cat)) {
       const balance0 = parseFloat(fieldOf(row,'value'))||0;
       const apr = parseFloat(fieldOf(row,'interestRate'))||0;
@@ -4158,11 +4167,29 @@ function projectForecast(dataSnapshot, horizonMonths, overrides) {
   pushPoint(0);
   for (let m = 1; m <= horizonMonths; m++) {
     assetStates.forEach(e => { e.value = e.value * (1 + e.monthlyRate) + e.contribution; });
+    // Amortize each liability and accumulate the actual cash outlay (capped at remaining balance + interest
+    // so the final installment doesn't over-debit cash by the rounding overshoot).
+    let cashOutlay = 0;
     liabStates.forEach(e => {
       if (e.balance <= 0) return;
       const interest = e.balance * e.monthlyRate;
-      e.balance = Math.max(0, e.balance + interest - e.payment);
+      const due = e.balance + interest;
+      const paid = Math.min(e.payment, due);
+      e.balance = due - paid;
+      cashOutlay += paid;
     });
+    // Debit the month's loan-payment outlay from cash-like assets in priority order.
+    let remaining = cashOutlay;
+    for (const cat of CASH_LIKE_DEBIT_ORDER) {
+      if (remaining <= 0) break;
+      for (const e of assetStates) {
+        if (e.cat !== cat || e.value <= 0) continue;
+        const debit = Math.min(e.value, remaining);
+        e.value -= debit;
+        remaining -= debit;
+        if (remaining <= 0) break;
+      }
+    }
     pushPoint(m);
   }
   return series;
