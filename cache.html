@@ -258,9 +258,9 @@
 
   /* ── ADD ROW ── */
   .add-row{padding:8px 14px 10px 36px;border-top:1px solid rgba(255,255,255,.03)}
-  .add-row-btn{background:none;border:1px dashed var(--border-light);color:var(--text-dim);font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:5px 12px;border-radius:4px;cursor:pointer;width:100%;text-align:left;transition:color .15s,border-color .15s}
-  .add-row-btn:hover{color:var(--accent);border-color:var(--accent-dim)}
-  .add-row-btn.liability:hover{color:var(--red);border-color:var(--red-dim)}
+  .add-row-btn{background:none;border:1px dashed var(--border-light);color:var(--text);font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:5px 12px;border-radius:4px;cursor:pointer;width:100%;text-align:left;transition:color .15s,border-color .15s,background .15s}
+  .add-row-btn:hover{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-glow)}
+  .add-row-btn.liability:hover{color:var(--red);border-color:var(--red-dim);background:var(--red-glow)}
   .full-width{grid-column:1/-1}
 
   /* ── NET WORTH BAR ── */
@@ -615,11 +615,13 @@
 
   @media(max-width:900px){
     .main,.charts-grid{grid-template-columns:1fr;padding:20px 16px 100px}
-    header{padding:10px 16px;flex-direction:row;align-items:center;gap:8px}
-    .header-left h1{font-size:28px}
-    .header-left .subtitle{display:none}
-    .header-right{flex-wrap:nowrap;gap:8px;text-align:right}
-    .net-worth-label{font-size:13px;letter-spacing:1.5px;margin-bottom:2px}
+    /* Mobile header diet: drop title block + Net Worth label so the header collapses
+       to just the value + unit toggle. The unsaved-changes dot is mirrored on the
+       Save button in the bottom save bar, so hiding the label-bound dot is safe. */
+    header{padding:8px 16px;flex-direction:row;align-items:center;justify-content:center;gap:8px}
+    .header-left{display:none}
+    .header-right{flex-wrap:nowrap;gap:8px;text-align:center}
+    .net-worth-label{display:none}
     .net-worth-value{font-size:25px}
     .last-updated{display:none}
     .summary-bar{grid-template-columns:1fr 1fr 1fr}
@@ -1494,8 +1496,12 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.6';
 const CHANGELOG = [
+  { version: '1.6', items: [
+    'Slimmer mobile header: dropped the "Cache" title block and "Net Worth" label in portrait mode so the header takes about half the vertical space, leaving more room for the ledger',
+    '"+ Add" buttons in every category are now brighter by default and gain a soft accent-glow background on hover, making it more obvious where to add new entries (asset categories glow green, liabilities glow red)',
+  ]},
   { version: '1.5', items: [
     'New Privacy mode button in the bottom save bar (eye icon, leftmost) blurs net-worth, summary bar, category and entry totals, charts, cash-flow stats and per-year amounts, cash-flow card-header totals, and forecast tables. Setting persists with your data',
     'Bottom save-bar buttons (Privacy / About / Settings / Bookmarklet / Lock) now collapse to icon-only 40×40 squares on mobile so the full bar fits in portrait without horizontal scrolling',
