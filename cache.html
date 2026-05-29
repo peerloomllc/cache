@@ -498,6 +498,8 @@
   .lock-btn.secondary:hover{border-color:var(--text-dim);color:var(--text);background:transparent}
   .lock-error{font-family:var(--mono);font-size:15px;color:var(--red);text-align:center;min-height:16px}
   .lock-hint{font-family:var(--mono);font-size:14px;color:var(--text-dim);text-align:center}
+  .lock-forgot{font-family:var(--mono);font-size:13px;color:var(--text-muted);text-align:center;background:none;border:none;cursor:pointer;letter-spacing:.5px;padding:2px;text-decoration:underline;text-underline-offset:3px}
+  .lock-forgot:hover{color:var(--red)}
   .lock-progress{height:2px;background:var(--border);border-radius:1px;overflow:hidden;display:none}
   .lock-progress-bar{height:100%;background:var(--accent);width:0%;transition:width .1s}
   .lock-progress.active{display:block}
@@ -755,6 +757,7 @@
       <div class="lock-progress" id="lock-progress"><div class="lock-progress-bar" id="lock-progress-bar"></div></div>
       <div class="lock-error" id="lock-error"></div>
       <button class="lock-btn" id="lock-submit-btn" onclick="submitUnlock()">Unlock</button>
+      <button class="lock-forgot" onclick="forgotPassword()">Forgot password? Reset app</button>
     </div>
     <!-- Set password form (first run or change) -->
     <div id="lock-form-set" style="display:none;flex-direction:column;gap:12px">
@@ -1568,8 +1571,11 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.8';
+const APP_VERSION = '1.9';
 const CHANGELOG = [
+  { version: '1.9', items: [
+    'New "Forgot password? Reset app" link on the unlock screen. Because your data is encrypted and the password is never stored, a forgotten password cannot be recovered. The link offers a confirm-gated way to wipe everything on this device and start fresh, instead of having to manually clear browser storage in DevTools',
+  ]},
   { version: '1.8', items: [
     'Cross-device sync over NOSTR (NIP-78 kind-30078, NIP-44 v2 encryption to self): generate or paste an nsec, ledger snapshots are encrypted and published to relays so a second device can pull the same data. Auto-pulls on unlock; auto-pushes after each save. Settings → "Cross-device sync" to set up. Default relays: damus.io, nos.lol, nostr.band, nostr.wine — fully editable',
     'Real-estate "Use this value" button (after Fetch Estimate) now refreshes the entry summary line and removes the estimate box once applied',
@@ -1969,6 +1975,39 @@ function cancelChangePassword() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && isChangingPw) cancelChangePassword();
 });
+
+// ── FORGOT PASSWORD / RESET APP ─────────────────────────────────────────────
+// Data is encrypted and the password is never stored, so a forgotten password
+// is unrecoverable by design. This offers a confirm-gated way to wipe the
+// encrypted payload + salt and start fresh, instead of clearing localStorage by
+// hand in DevTools. Mirrors Cache Flow's lock-screen reset.
+function forgotPassword() {
+  if (!confirm('Forgot your password?\n\nYour data is encrypted and CANNOT be recovered without it. Resetting will permanently delete everything on this device and start fresh.')) return;
+  if (!confirm('Really reset? This cannot be undone.')) return;
+  // Wipe encrypted payload, salt, and any legacy plaintext
+  localStorage.removeItem(STORAGE_ENC);
+  localStorage.removeItem(STORAGE_META);
+  localStorage.removeItem(STORAGE_KEY);
+  sessionKey = null;
+  // Wipe sync identity from memory + reset sync config
+  if (currentNsec) { try { currentNsec.fill(0); } catch(_){} }
+  currentNsec = null;
+  syncState = defaultSyncState();
+  // Reset in-memory ledger to empty
+  ALL_CATS.forEach(c => { data[c] = []; sortState[c] = null; });
+  snapshots = [];
+  recurring = [];
+  scenarios = [];
+  activeScenarioId = null;
+  forecastExtras = [];
+  hasUnsavedChanges = false;
+  document.querySelectorAll('.changed-indicator').forEach(el => el.classList.remove('visible'));
+  // Treat as a fresh install: set-password screen + first-run tour after setup
+  isFirstRun = true;
+  document.getElementById('lock-pw-input').value = '';
+  renderAll(); recalc();
+  showLockScreen('set');
+}
 
 // ── LOCK / IDLE ─────────────────────────────────────────────────────────────
 function lockApp() {
