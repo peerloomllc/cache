@@ -129,7 +129,7 @@
   .category-header.has-refresh{position:relative}
   .category-header:hover{background:rgba(255,255,255,.02)}
 
-  /* sort button — always in col 1, fixed width cell */
+  /* sort button - always in col 1, fixed width cell */
   .sort-btn{
     background:none;border:1px solid var(--border);color:var(--text-dim);
     font-family:var(--mono);font-size:13px;letter-spacing:.5px;
@@ -149,7 +149,7 @@
   .cat-dot.credit{background:#d06060}.cat-dot.student{background:#b85050}.cat-dot.other-liab{background:#a04040}
   .cat-dot.btc-loan{background:#f7931a}
 
-  /* total — right-aligned in its fixed 90px cell */
+  /* total - right-aligned in its fixed 90px cell */
   .category-total{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--text);text-align:right;white-space:nowrap;padding-left:8px}
   .toggle-btn{font-size:14px;color:var(--text-dim);transition:transform .2s;text-align:center;justify-self:center}
   .toggle-btn.open{transform:rotate(180deg)}
@@ -163,7 +163,7 @@
   .entry-card.auto-collateral{background:rgba(247,147,26,.04);border-left:2px solid rgba(247,147,26,.3)}
   .auto-collateral-badge{font-size:13px;background:rgba(247,147,26,.15);color:#f7931a;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:middle;letter-spacing:.3px}
 
-  /* Summary line — always visible */
+  /* Summary line - always visible */
   .entry-summary{
     display:grid;
     grid-template-columns:16px 1fr auto auto;
@@ -699,7 +699,7 @@
     .fc-horizon-row{padding:12px 16px}
     .fc-card-header{padding:12px 16px}
     .fc-card-title{font-size:14px}
-    /* Transform the forecast tables into stacked cards — no horizontal scroll */
+    /* Transform the forecast tables into stacked cards - no horizontal scroll */
     .fc-table-wrap{overflow-x:visible}
     .fc-table,.fc-table tbody{display:block;min-width:0;width:100%}
     .fc-table thead{display:none}
@@ -873,7 +873,7 @@
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Clear Data</div>
       <button class="settings-close-btn" onclick="closeSettings();clearAll()" style="width:100%;color:var(--red);border-color:var(--red-dim)">Clear All Data</button>
-      <div class="settings-help" style="margin-top:6px">Removes all entries from memory. Does not delete saved data — use Save to persist.</div>
+      <div class="settings-help" style="margin-top:6px">Removes all entries from memory. Does not delete saved data - use Save to persist.</div>
     </div>
     <button class="about-close-btn" onclick="closeSettings()">Close</button>
   </div>
@@ -1003,29 +1003,29 @@
 <div id="bookmarklet-modal" class="hidden" onclick="if(event.target===this)closeBookmarkletSetup()">
   <div class="bm-card">
     <div class="settings-title">Balance Bookmarklet</div>
-    <div class="bm-step-body">Update account balances without manually typing — log into your bank, click the bookmarklet, and Cache captures the balance automatically.</div>
+    <div class="bm-step-body">Update account balances without manually typing - log into your bank, click the bookmarklet, and Cache captures the balance automatically.</div>
     <hr class="bm-divider">
     <div class="bm-step">
-      <div class="bm-step-label">Step 1 — Install once</div>
+      <div class="bm-step-label">Step 1 - Install once</div>
       <div class="bm-step-body">Drag this button to your bookmarks bar:</div>
       <a id="bookmarklet-link" class="bm-drag-link" title="Drag me to your bookmarks bar">🔖 Cache Balance</a>
       <div class="bm-drag-hint">Works in Chrome, Firefox, Safari, Edge, Arc, and Brave.</div>
     </div>
     <hr class="bm-divider">
     <div class="bm-step">
-      <div class="bm-step-label">Step 2 — First-time setup per account</div>
+      <div class="bm-step-label">Step 2 - First-time setup per account</div>
       <div class="bm-step-body">
         First, expand an account card and add your institution's <strong>Login URL</strong> (e.g. <em>https://chase.com/login</em>) in the Login URL field.<br><br>
         Then click <strong>↻</strong> next to the URL. Cache will open that page in a new tab.<br><br>
         Log in, navigate to the page showing your balance, then click <strong>Cache Balance</strong> in your bookmarks bar.<br><br>
-        A green outline will appear as you hover — <strong>click on your account balance</strong>. Cache remembers that element for next time.
+        A green outline will appear as you hover - <strong>click on your account balance</strong>. Cache remembers that element for next time.
       </div>
     </div>
     <hr class="bm-divider">
     <div class="bm-step">
-      <div class="bm-step-label">Step 3 — Ongoing updates</div>
+      <div class="bm-step-label">Step 3 - Ongoing updates</div>
       <div class="bm-step-body">
-        Log into your bank → click <strong>Cache Balance</strong> in your bookmarks bar. The balance syncs instantly — no clicking required after first-time setup.
+        Log into your bank → click <strong>Cache Balance</strong> in your bookmarks bar. The balance syncs instantly - no clicking required after first-time setup.
       </div>
     </div>
     <hr class="bm-divider">
@@ -1067,7 +1067,7 @@
       </div>
     </div>
 
-    <!-- Real Estate (simple — no institution fields) -->
+    <!-- Real Estate (simple - no institution fields) -->
     <div class="category" id="cat-real-estate">
       <div class="category-header" onclick="toggleCat('real-estate')">
         <span class="drag-handle" draggable="false">⠿</span>
@@ -1428,7 +1428,7 @@
 <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
 
 <div class="save-bar">
-  <div class="save-hint">All data saved locally — <span>never leaves this device</span></div>
+  <div class="save-hint">All data saved locally - <span>never leaves this device</span></div>
   <div class="btn-group">
     <button class="btn btn-privacy" id="privacyBtn" onclick="togglePrivacy()" title="Toggle privacy mode" aria-label="Toggle privacy mode">👁 <span class="btn-label">Privacy</span></button>
     <button class="btn btn-about" onclick="openAbout()" title="About"><span class="about-icon">i</span> <span class="btn-label">About</span></button>
@@ -1550,7 +1550,7 @@
 })();
 
 // ══════════════════════════════════════════════════════════════════════════
-// ── ENCRYPTION / LOCK SYSTEM (Web Crypto API — AES-256-GCM + PBKDF2) ─────
+// ── ENCRYPTION / LOCK SYSTEM (Web Crypto API - AES-256-GCM + PBKDF2) ─────
 // ══════════════════════════════════════════════════════════════════════════
 
 const STORAGE_KEY    = 'cache-v1';
@@ -1577,7 +1577,7 @@ const CHANGELOG = [
     'New "Forgot password? Reset app" link on the unlock screen. Because your data is encrypted and the password is never stored, a forgotten password cannot be recovered. The link offers a confirm-gated way to wipe everything on this device and start fresh, instead of having to manually clear browser storage in DevTools',
   ]},
   { version: '1.8', items: [
-    'Cross-device sync over NOSTR (NIP-78 kind-30078, NIP-44 v2 encryption to self): generate or paste an nsec, ledger snapshots are encrypted and published to relays so a second device can pull the same data. Auto-pulls on unlock; auto-pushes after each save. Settings → "Cross-device sync" to set up. Default relays: damus.io, nos.lol, nostr.band, nostr.wine — fully editable',
+    'Cross-device sync over NOSTR (NIP-78 kind-30078, NIP-44 v2 encryption to self): generate or paste an nsec, ledger snapshots are encrypted and published to relays so a second device can pull the same data. Auto-pulls on unlock; auto-pushes after each save. Settings → "Cross-device sync" to set up. Default relays: damus.io, nos.lol, nostr.band, nostr.wine - fully editable',
     'Real-estate "Use this value" button (after Fetch Estimate) now refreshes the entry summary line and removes the estimate box once applied',
   ]},
   { version: '1.7', items: [
@@ -1596,10 +1596,10 @@ const CHANGELOG = [
   { version: '1.4', items: [
     'Credit cards now support an Interest Rate (% APR) field in the Ledger, so forecasts correctly accrue interest on carried credit-card balances',
     'Theoretical liability: when a Term is set, the Monthly Payment input is now disabled and shows the amortized value the engine is actually using (clear Term to edit the payment directly)',
-    'Scenario pill "rename" and "delete" controls are now small circular icon buttons next to the active pill instead of segmented extensions — cleaner visual, and delete hover turns red',
+    'Scenario pill "rename" and "delete" controls are now small circular icon buttons next to the active pill instead of segmented extensions - cleaner visual, and delete hover turns red',
   ]},
   { version: '1.3', items: [
-    'New "Forecast Models" tab (shown as "Models" on mobile) — project net-worth forward over 5 / 10 / 20 / 30 years with per-entry growth and contribution assumptions',
+    'New "Forecast Models" tab (shown as "Models" on mobile) - project net-worth forward over 5 / 10 / 20 / 30 years with per-entry growth and contribution assumptions',
     'Create named scenarios ("College X" / "College Y") alongside a Baseline, override any projection field per scenario, and compare side by side on one chart',
     'Add theoretical assets or liabilities that don\'t exist on the Ledger yet (e.g. a planned college loan); theoretical liabilities support a Loan Term field that auto-amortizes the monthly P&I payment',
     'Ledger entry cards: tightened label and input alignment after the font-size bump, moved the Manual/Holdings toggle below the Balance input, shortened several field labels',
@@ -1611,7 +1611,7 @@ const CHANGELOG = [
     'Widened the About and Settings modals on desktop to reduce vertical scrolling after the recent font size increase',
   ]},
   { version: '1.1', items: [
-    'SATS/USD toggle next to Net Worth — denominates totals, category sums, entry values, and charts in sats',
+    'SATS/USD toggle next to Net Worth - denominates totals, category sums, entry values, and charts in sats',
     'In SATS mode, Net Worth and asset totals render in Bitcoin orange; category totals no longer truncate',
     'Toggle is disabled when BTC price is unavailable; preference persists with your data',
     'Scaled all fonts ~25% larger across the UI (body, labels, totals, tables, charts) for better readability',
@@ -1635,8 +1635,8 @@ let snapshots           = [];   // [{ ts, nw, cats:{cat:value} }]
 let recurring           = [];   // [{ id, name, amount, frequency, direction }]
 let scenarios           = [];   // [{ id, name, overrides: { [rowId]: { field: value } } }]
 let activeScenarioId    = null; // null = baseline; otherwise scenarios[i].id
-let forecastExtras      = [];   // [{ id, cat, name, value, interestRate, monthlyContribution, expectedReturn, monthlyPayment, extraPrincipal }] — theoretical entries shared across baseline + all scenarios
-let pendingBalanceUpdate = null; // { rowId, cat } — set when opening a bank tab
+let forecastExtras      = [];   // [{ id, cat, name, value, interestRate, monthlyContribution, expectedReturn, monthlyPayment, extraPrincipal }] - theoretical entries shared across baseline + all scenarios
+let pendingBalanceUpdate = null; // { rowId, cat } - set when opening a bank tab
 let isChangingPw     = false;
 
 // ── NOSTR SYNC: constants + in-memory state ────────────────────────────────
@@ -1910,7 +1910,7 @@ async function submitUnlock() {
     setLockBtn(false,'Unlock');
     const input = document.getElementById('lock-pw-input');
     input.classList.add('error');
-    errEl.textContent = 'Incorrect password — please try again.';
+    errEl.textContent = 'Incorrect password - please try again.';
     input.value = '';
     setTimeout(()=>input.classList.remove('error'), 500);
   }
@@ -1957,7 +1957,7 @@ async function submitSetPassword() {
     resetIdleTimer();
     requestAnimationFrame(setStickyOffsets);
     if (isFirstRun) { isFirstRun=false; startTour(); }
-    showToast('Password set — data is now encrypted', 'success');
+    showToast('Password set - data is now encrypted', 'success');
   }, 300);
 }
 
@@ -2034,8 +2034,8 @@ function resetIdleTimer() {
     if (isLocked) return;
     if (hasUnsavedChanges) {
       if (!sessionKey) {
-        // No password set — nothing to lock to. Skip and reschedule.
-        showToast('Auto-lock skipped — save your changes first');
+        // No password set - nothing to lock to. Skip and reschedule.
+        showToast('Auto-lock skipped - save your changes first');
         resetIdleTimer();
         return;
       }
@@ -2043,7 +2043,7 @@ function resetIdleTimer() {
         await saveData();
       } catch (e) {
         console.warn('Auto-save before lock failed', e);
-        showToast('Auto-save failed — app not locked', 'error');
+        showToast('Auto-save failed - app not locked', 'error');
         resetIdleTimer();
         return;
       }
@@ -2066,7 +2066,7 @@ async function encryptAndSave() {
     localStorage.setItem(STORAGE_ENC, JSON.stringify({ iv, ct }));
     localStorage.removeItem(STORAGE_KEY); // never keep plaintext if encrypted
   } else {
-    // No password — store plaintext under legacy key
+    // No password - store plaintext under legacy key
     localStorage.setItem(STORAGE_KEY, payload);
   }
   if (!_suppressAutoPush && syncState.enabled && currentNsec) {
@@ -2136,13 +2136,13 @@ function initLockSystem() {
   const hasPlain     = !!localStorage.getItem(STORAGE_KEY);
 
   if (hasEncrypted) {
-    // Data exists and is encrypted — show unlock screen
+    // Data exists and is encrypted - show unlock screen
     showLockScreen('unlock');
     return; // wait for user to unlock; init() called after
   }
 
   if (hasPlain) {
-    // Legacy unencrypted data — load it, then prompt to set password
+    // Legacy unencrypted data - load it, then prompt to set password
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY));
       applyLoadedPayload(p);
@@ -2159,7 +2159,7 @@ function initLockSystem() {
     return;
   }
 
-  // First run — no data at all
+  // First run - no data at all
   isFirstRun = true;
   isLocked   = false;
 
@@ -2222,7 +2222,7 @@ const TOUR_STEPS = [
   { target: '#cf-rec-wrap', label: 'Recurring items', body: 'Add recurring <strong>income</strong> and <strong>expenses</strong> like salary, rent, subscriptions and loan payments. Supports weekly, biweekly, monthly, quarterly and annual frequencies.<br><br>Use <strong>Import from liabilities</strong> to auto-create expenses from your ledger.' },
   { target: '#cf-table-wrap', label: 'Revolving interest', body: 'Interest burden is scoped to <strong>revolving debt</strong> (credit cards and BTC-backed loans) where paying down the balance directly reduces your interest cost. Fixed-term loan payments belong in recurring expenses instead.' },
   { target: 'button[onclick="saveData()"]', label: 'Save your data', body: 'Your data is encrypted with <strong>AES-256-GCM</strong> and stored locally. Save often and nothing ever leaves this device.', onEnter: () => tourSwitchTab('ledger') },
-  { target: null, label: 'Cross-device sync (optional)', body: 'If you use Cache on more than one device, you can keep them in sync over the <strong>NOSTR</strong> network — without giving up local-only data.<br><br>Snapshots are encrypted under a <strong>sync key (nsec)</strong> only your devices know. Relays only see ciphertext. Off by default.' },
+  { target: null, label: 'Cross-device sync (optional)', body: 'If you use Cache on more than one device, you can keep them in sync over the <strong>NOSTR</strong> network - without giving up local-only data.<br><br>Snapshots are encrypted under a <strong>sync key (nsec)</strong> only your devices know. Relays only see ciphertext. Off by default.' },
   { target: '#settingsBtn', label: 'Where to set it up', body: 'When you’re ready, open <strong>Settings ⚙</strong> → expand <strong>Cross-device sync</strong> → <strong>Set up sync…</strong>.<br><br>On your first device pick <strong>Create New</strong>, save the nsec it gives you somewhere safe (a password manager works), then on any other device pick <strong>Use Existing</strong> and paste the same nsec.' }
 ];
 let currentTourSteps = TOUR_STEPS;
@@ -2487,7 +2487,7 @@ const chartInst = {};
 // ── INIT ──────────────────────────────────────────────────────────────────
 function init() {
   ALL_CATS.forEach(c => { data[c] = []; sortState[c] = null; });
-  // Lock system handles data loading — it will call applyLoadedPayload after unlock
+  // Lock system handles data loading - it will call applyLoadedPayload after unlock
   // For legacy plaintext path, loadData() is called from initLockSystem
   applyPrivacyMode();
   recalc();
@@ -2580,7 +2580,7 @@ function setBtcLoanUnit(unit) {
 
 function setDisplayUnit(unit) {
   if (unit === 'sats' && !btcPrice) {
-    showToast('BTC price unavailable — cannot denominate in sats', 'error');
+    showToast('BTC price unavailable - cannot denominate in sats', 'error');
     return;
   }
   displayUnit = unit;
@@ -2653,7 +2653,7 @@ function applyPayment(cat, id, val) {
   row.value = Math.max(0, oldVal - amount);
   renderRows(cat); recalc(); markChanged();
   if (cat === 'mortgage') renderRows('real-estate');
-  showToast(`Payment of ${fmt(amount)} applied — balance now ${fmt(row.value)}`, 'success');
+  showToast(`Payment of ${fmt(amount)} applied - balance now ${fmt(row.value)}`, 'success');
 }
 
 function deleteRow(cat, id) {
@@ -2753,7 +2753,7 @@ function buildEntryCard(cat, row, isBtc, isBtcLoan, isSimple) {
     }
     if (cat === 'real-estate') {
       const ltv = getPropertyLtv(row.id);
-      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(fx(ltv.totalDebt))} owed</span>`;
+      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% - ${fmtS(fx(ltv.totalDebt))} owed</span>`;
     }
     if (HOLDINGS_CATS.has(cat) && row.holdings && row.holdings.length) {
       valueSub += `<span style="font-size:14px;color:var(--text-dim);display:block;text-align:right">${row.holdings.length} holding${row.holdings.length>1?'s':''}</span>`;
@@ -3024,7 +3024,7 @@ function buildDetailFields(cat, row, isBtc, isBtcLoan, isSimple) {
     ${cat==='mortgage'?`<div class="field-group">
       <div class="field-label">Linked Property</div>
       <select class="field-input" onchange="updateField('${cat}','${id}','linkedPropertyId',this.value);renderRows('real-estate')">
-        <option value="">— None —</option>${data['real-estate'].map(p=>`<option value="${p.id}"${p.id===row.linkedPropertyId?' selected':''}>${escHtml(p.name||'Untitled')}${p.value?' — '+fmt(parseFloat(p.value)||0):''}</option>`).join('')}
+        <option value="">— None —</option>${data['real-estate'].map(p=>`<option value="${p.id}"${p.id===row.linkedPropertyId?' selected':''}>${escHtml(p.name||'Untitled')}${p.value?' - '+fmt(parseFloat(p.value)||0):''}</option>`).join('')}
       </select>
     </div>`:''}
     <div class="field-group" style="grid-column:span 2">
@@ -3117,7 +3117,7 @@ function updateCardDisplay(rowId, cat) {
     valueDisplay = fmt(parseFloat(row.value)||0);
     if (cat === 'real-estate') {
       const ltv = getPropertyLtv(row.id);
-      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% — ${fmtS(ltv.totalDebt)} owed</span>`;
+      if (ltv) valueSub += `<span class="entry-re-ltv">LTV ${(ltv.ratio*100).toFixed(1)}% - ${fmtS(ltv.totalDebt)} owed</span>`;
     }
     if (HOLDINGS_CATS.has(cat) && row.holdings && row.holdings.length) {
       valueSub += `<span style="font-size:14px;color:var(--text-dim);display:block;text-align:right">${row.holdings.length} holding${row.holdings.length>1?'s':''}</span>`;
@@ -3504,7 +3504,7 @@ function syncSetupRenderModeContent() {
     const npub = npubFromSecret(_syncSetupState.secretKey);
     el.innerHTML =
       '<div class="settings-help" style="margin-bottom:10px">' +
-        'Save this sync key (nsec) somewhere safe — your password manager, an offline note, or a piece of paper. ' +
+        'Save this sync key (nsec) somewhere safe - your password manager, an offline note, or a piece of paper. ' +
         "You'll need it to add this account to other devices, and there's no recovery if it's lost." +
       '</div>' +
       '<div class="settings-section-label" style="margin-bottom:4px;text-align:left">Sync key (nsec)</div>' +
@@ -3533,10 +3533,10 @@ function syncSetupCopyNsec() {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(nsec).then(
       () => showToast('Sync key copied', 'success'),
-      () => showToast('Copy failed — select and copy manually', 'error')
+      () => showToast('Copy failed - select and copy manually', 'error')
     );
   } else {
-    showToast('Clipboard unavailable — select and copy manually', 'error');
+    showToast('Clipboard unavailable - select and copy manually', 'error');
   }
 }
 
@@ -3620,13 +3620,13 @@ async function syncSetupFinish() {
       const pubkeyHex = NostrTools.getPublicKey(sk);
       try {
         fetchedEvent = await fetchLatestSyncEvent(relays, pubkeyHex);
-      } catch (_) { /* network failure — proceed without remote */ }
+      } catch (_) { /* network failure - proceed without remote */ }
 
       if (fetchedEvent) {
         const decrypted = parseSyncEvent(sk, fetchedEvent);
         if (!decrypted) {
           if (btn) { btn.disabled = false; btn.textContent = 'Enable sync'; }
-          showToast('Found existing sync data on relays, but it could not be decrypted with this nsec — wrong key?', 'error');
+          showToast('Found existing sync data on relays, but it could not be decrypted with this nsec - wrong key?', 'error');
           return;
         }
         try { remotePayload = JSON.parse(decrypted); }
@@ -3675,13 +3675,13 @@ async function syncSetupFinish() {
       renderAll(); recalc();
       showToast('Pulled existing sync data from relays', 'success');
     } else {
-      showToast('Sync enabled — publishing initial snapshot…', 'info');
+      showToast('Sync enabled - publishing initial snapshot…', 'info');
       pushSyncSnapshot().then(result => {
         if (!result) return;
         if (result.ok > 0) {
           showToast('Synced to ' + result.ok + '/' + result.total + ' relays', 'success');
         } else {
-          showToast('Could not reach any relay — try Push later', 'error');
+          showToast('Could not reach any relay - try Push later', 'error');
         }
       }).catch(err => {
         showToast('Push failed: ' + (err && err.message || err), 'error');
@@ -3777,13 +3777,13 @@ function useAvmValue(rowId) {
 
 // ── BOOKMARKLET ───────────────────────────────────────────────────────────────
 function bookmarkletCode() {
-  return `(function(){function gSel(el){if(el.id)return'#'+el.id;var p=[],e=el;while(e&&e!==document.body){var t=e.tagName.toLowerCase(),c=Array.from(e.classList).slice(0,2).map(function(x){return'.'+x}).join(''),sb=e.parentNode?Array.from(e.parentNode.children).filter(function(x){return x.tagName===e.tagName}):[],i=sb.indexOf(e);p.unshift(t+c+(i>0?':nth-of-type('+(i+1)+')':''));e=e.parentElement}return p.join('>')}function parse(t){return parseFloat(t.replace(/[^0-9.\\-]/g,''))||NaN}function toast(m,c){var d=document.createElement('div');d.style.cssText='position:fixed;top:16px;right:16px;z-index:999999;background:#141714;color:'+(c||'#a8d08d')+';font-family:monospace;font-size:18px;padding:12px 18px;border-radius:6px;border:1px solid '+(c||'#a8d08d')+';box-shadow:0 4px 24px rgba(0,0,0,.5)';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},3000)}function send(v,s){var p={type:'cache-balance-update',value:v,domain:location.hostname};if(s)p.selector=s;if(window.opener){window.opener.postMessage(p,'*');toast('Sent to Cache: $'+v.toLocaleString())}else toast('Open this site from Cache first','#e07070')}if(!window.opener){toast('Open this site from Cache first','#e07070');return}var done=false;function pick(){if(done)return;done=true;var ov=document.createElement('div');ov.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999999;background:#141714;color:#e8ede8;font-family:monospace;font-size:16px;padding:12px 20px;border-radius:6px;border:1px solid #2e352e;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)';ov.textContent='Click on your account balance';document.body.appendChild(ov);var hv=null,ho='';function mv(e){var t=document.elementFromPoint(e.clientX,e.clientY);if(t===hv)return;if(hv)hv.style.outline=ho;hv=t;if(hv){ho=hv.style.outline;hv.style.outline='2px solid #a8d08d'}}function ck(e){e.preventDefault();e.stopPropagation();var el=e.target,s=gSel(el),v=parse(el.textContent);if(hv)hv.style.outline=ho;document.removeEventListener('mousemove',mv,true);document.removeEventListener('click',ck,true);ov.remove();if(isNaN(v)||v<=0){toast('Could not read a number — try a different element','#e07070');return}send(v,s)}document.addEventListener('mousemove',mv,true);document.addEventListener('click',ck,true)}window.addEventListener('message',function h(e){if(!e.data||e.data.type!=='cache-balance-config')return;window.removeEventListener('message',h);if(done)return;var sel=e.data.selector;if(sel){var el=document.querySelector(sel);if(el){var v=parse(el.textContent);if(!isNaN(v)&&v>0){done=true;send(v,sel);return}}}pick()});window.opener.postMessage({type:'cache-balance-init'},'*');setTimeout(pick,1500)})()`;
+  return `(function(){function gSel(el){if(el.id)return'#'+el.id;var p=[],e=el;while(e&&e!==document.body){var t=e.tagName.toLowerCase(),c=Array.from(e.classList).slice(0,2).map(function(x){return'.'+x}).join(''),sb=e.parentNode?Array.from(e.parentNode.children).filter(function(x){return x.tagName===e.tagName}):[],i=sb.indexOf(e);p.unshift(t+c+(i>0?':nth-of-type('+(i+1)+')':''));e=e.parentElement}return p.join('>')}function parse(t){return parseFloat(t.replace(/[^0-9.\\-]/g,''))||NaN}function toast(m,c){var d=document.createElement('div');d.style.cssText='position:fixed;top:16px;right:16px;z-index:999999;background:#141714;color:'+(c||'#a8d08d')+';font-family:monospace;font-size:18px;padding:12px 18px;border-radius:6px;border:1px solid '+(c||'#a8d08d')+';box-shadow:0 4px 24px rgba(0,0,0,.5)';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},3000)}function send(v,s){var p={type:'cache-balance-update',value:v,domain:location.hostname};if(s)p.selector=s;if(window.opener){window.opener.postMessage(p,'*');toast('Sent to Cache: $'+v.toLocaleString())}else toast('Open this site from Cache first','#e07070')}if(!window.opener){toast('Open this site from Cache first','#e07070');return}var done=false;function pick(){if(done)return;done=true;var ov=document.createElement('div');ov.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999999;background:#141714;color:#e8ede8;font-family:monospace;font-size:16px;padding:12px 20px;border-radius:6px;border:1px solid #2e352e;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)';ov.textContent='Click on your account balance';document.body.appendChild(ov);var hv=null,ho='';function mv(e){var t=document.elementFromPoint(e.clientX,e.clientY);if(t===hv)return;if(hv)hv.style.outline=ho;hv=t;if(hv){ho=hv.style.outline;hv.style.outline='2px solid #a8d08d'}}function ck(e){e.preventDefault();e.stopPropagation();var el=e.target,s=gSel(el),v=parse(el.textContent);if(hv)hv.style.outline=ho;document.removeEventListener('mousemove',mv,true);document.removeEventListener('click',ck,true);ov.remove();if(isNaN(v)||v<=0){toast('Could not read a number - try a different element','#e07070');return}send(v,s)}document.addEventListener('mousemove',mv,true);document.addEventListener('click',ck,true)}window.addEventListener('message',function h(e){if(!e.data||e.data.type!=='cache-balance-config')return;window.removeEventListener('message',h);if(done)return;var sel=e.data.selector;if(sel){var el=document.querySelector(sel);if(el){var v=parse(el.textContent);if(!isNaN(v)&&v>0){done=true;send(v,sel);return}}}pick()});window.opener.postMessage({type:'cache-balance-init'},'*');setTimeout(pick,1500)})()`;
 }
 
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); document.getElementById('ln-panel').style.display='none'; }
 
-// Semver-ish "less than" — handles 'X.Y' / 'X.Y.Z' style versions used here.
+// Semver-ish "less than" - handles 'X.Y' / 'X.Y.Z' style versions used here.
 function versionLt(a, b) {
   if (!a) return true;
   if (!b) return false;
@@ -4696,7 +4696,7 @@ function mkTable(tA,tL){
   const grand=tA+tL;
   const rows=ALL_CATS.map(c=>({c,val:catSumDisplay(c),type:ASSET_CATS.includes(c)?'Asset':'Liability',color:CAT_META[c].color,label:CAT_META[c].label})).filter(r=>r.val>0).sort((a,b)=>b.val-a.val);
   const tbody=document.getElementById('breakdownBody'); if(!tbody)return;
-  tbody.innerHTML=rows.length?rows.map(r=>{const pct=grand>0?((r.val/grand)*100).toFixed(1):'0.0';const tc=r.type==='Asset'?'#a8d08d':'#e07070';return `<tr><td><span class="swatch" style="background:${r.color}"></span>${r.label}</td><td><span style="color:${tc};font-size:15px">${r.type}</span></td><td class="val">${fmt(r.val)}</td><td class="pct">${pct}%</td></tr>`;}).join(''):`<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px">No data yet — add entries in the Ledger tab</td></tr>`;
+  tbody.innerHTML=rows.length?rows.map(r=>{const pct=grand>0?((r.val/grand)*100).toFixed(1):'0.0';const tc=r.type==='Asset'?'#a8d08d':'#e07070';return `<tr><td><span class="swatch" style="background:${r.color}"></span>${r.label}</td><td><span style="color:${tc};font-size:15px">${r.type}</span></td><td class="val">${fmt(r.val)}</td><td class="pct">${pct}%</td></tr>`;}).join(''):`<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px">No data yet - add entries in the Ledger tab</td></tr>`;
 }
 function mkHistoryChart(){
   if(chartInst['hist'])chartInst['hist'].destroy();
@@ -5275,7 +5275,7 @@ function buildForecastTab() {
       const apr  = parseFloat(effField('interestRate'))||0;
       const bal  = parseFloat(effField('value'))||0;
       const autoPay = term > 0 ? amortizedPayment(bal, apr, term) : 0;
-      // When a term is set, the engine ignores any typed monthlyPayment in favor of the amortized value — disable the input to reflect that.
+      // When a term is set, the engine ignores any typed monthlyPayment in favor of the amortized value - disable the input to reflect that.
       const paymentCell = term > 0
         ? `<input class="fc-input" type="number" disabled value="${Math.round(autoPay)}" title="Auto-computed from Term. Clear the Term field to edit the payment directly." style="opacity:.55;cursor:not-allowed;background:transparent">`
         : mkInput(extra, 'monthlyPayment', '0', `updateExtraField('${extra.id}','monthlyPayment',this.value)`);
