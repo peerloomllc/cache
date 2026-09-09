@@ -525,6 +525,14 @@
   .settings-save-btn:hover{background:#bfe0a0}
   .settings-close-btn{background:transparent;border:1px solid var(--border-light);box-sizing:border-box;min-width:80px;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
   .settings-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
+  .export-opt{display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px}
+  .export-opt input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0}
+  .export-panel{font-family:var(--mono);font-size:14px;color:var(--text-muted);line-height:1.5;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-top:8px}
+  .export-panel .settings-input{font-size:16px;margin-top:8px;cursor:text}
+  .export-panel .lock-error{margin-top:8px;font-size:14px}
+  .export-btn-row{display:flex;gap:8px;margin-top:10px}
+  .export-btn-row button{flex:1;min-width:0}
+  #export-encrypt-panel:empty,#import-backup-panel:empty{display:none}
 
   /* ── AVM RESULT DISPLAY ── */
   .avm-result{margin-top:6px;background:rgba(168,208,141,0.05);border:1px solid rgba(168,208,141,0.15);border-radius:4px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -864,10 +872,20 @@
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Import / Export</div>
       <div style="display:flex;gap:8px">
-        <button class="settings-close-btn" onclick="closeSettings();document.getElementById('importFileInput').click()" style="flex:1">Import JSON</button>
-        <button class="settings-close-btn" onclick="closeSettings();exportJSON()" style="flex:1">Export JSON</button>
+        <button class="settings-close-btn" onclick="document.getElementById('importFileInput').click()" style="flex:1">Import JSON</button>
+        <button class="settings-close-btn" onclick="exportJSON()" style="flex:1">Export JSON</button>
       </div>
-      <div class="settings-help" style="margin-top:6px">Export a backup or import a previously exported file.</div>
+      <label class="export-opt">
+        <input type="checkbox" id="export-mask-amounts">
+        <span class="settings-help">Mask amounts in export</span>
+      </label>
+      <label class="export-opt">
+        <input type="checkbox" id="export-encrypt" onchange="if(!this.checked)cancelEncryptedExport()">
+        <span class="settings-help">Encrypt export with a password</span>
+      </label>
+      <div id="export-encrypt-panel"></div>
+      <div id="import-backup-panel"></div>
+      <div class="settings-help" style="margin-top:6px">Export a backup or import a previously exported file. Mask amounts replaces every figure with *** so the file can be shared safely, but it can no longer be restored. Encrypt asks for a password and locks the file with it; Import prompts for that password when you restore it.</div>
     </div>
     <hr class="about-divider">
     <div>
@@ -1571,8 +1589,12 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.9';
+const APP_VERSION = '1.10';
 const CHANGELOG = [
+  { version: '1.10', items: [
+    'Two new options under Settings \u2192 Import / Export. "Mask amounts in export" replaces every figure in the file with *** so a backup can be shared or attached without exposing balances, while names, institutions, categories, rates and dates stay readable. A masked file is marked as such and is refused on import',
+    '"Encrypt export with a password" locks the exported file with AES-256-GCM under a password of its own, separate from your app password. Import detects an encrypted file and asks for that password before restoring. The two options combine, so a file can be both masked and encrypted',
+  ]},
   { version: '1.9', items: [
     'New "Forgot password? Reset app" link on the unlock screen. Because your data is encrypted and the password is never stored, a forgotten password cannot be recovered. The link offers a confirm-gated way to wipe everything on this device and start fresh, instead of having to manually clear browser storage in DevTools',
   ]},
@@ -2024,6 +2046,7 @@ function lockApp() {
   if (currentNsec) { try { currentNsec.fill(0); } catch(_){} }
   currentNsec = null;
   syncState = defaultSyncState();
+  closeSettings();
   renderAll(); recalc();
   showLockScreen('unlock');
 }
@@ -2216,7 +2239,7 @@ const TOUR_STEPS = [
   { target: '#cat-stocks', label: 'Stock holdings', body: 'Stocks and retirement accounts support <strong>individual holdings</strong>. Expand an account to add ticker symbols, share counts and prices. Toggle to <strong>Holdings</strong> mode to auto-compute the account value from your positions.<br><br>Use the <strong>\u21bb Prices</strong> button to fetch live quotes via Finnhub (free API key required, set in Settings).' },
   { target: 'button[onclick="openBookmarkletSetup()"]', label: 'Balance bookmarklet', body: 'Install the <strong>bookmarklet</strong> to auto-capture balances from your bank\u2019s website. Log in, click the bookmarklet and the balance syncs back here.' },
   { target: '#cat-real-estate', label: 'Property lookups', body: 'Real estate entries include <strong>Zillow</strong> and <strong>RentCast</strong> lookup tools to estimate property values without leaving Cache.' },
-  { target: 'button[onclick="openSettings()"]', label: 'Settings & API keys', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser.<br><br>Settings also stores your <strong>Finnhub</strong> and <strong>RentCast</strong> API keys for live stock prices and property estimates.' },
+  { target: 'button[onclick="openSettings()"]', label: 'Settings & API keys', body: 'Your data lives in this browser\u2019s local storage and doesn\u2019t travel with the HTML file. Use <strong>Export JSON</strong> to back up your data and <strong>Import JSON</strong> to restore it on a new device or browser. An export can optionally mask every amount, or be locked with its own password.<br><br>Settings also stores your <strong>Finnhub</strong> and <strong>RentCast</strong> API keys for live stock prices and property estimates.' },
   { target: '.chart-card.wide', label: 'Charts', body: 'The <strong>Charts</strong> tab visualizes your wealth. Track <strong>net worth over time</strong>, see <strong>asset allocation</strong> and <strong>liability breakdown</strong> donuts and compare assets vs liabilities side by side.<br><br>The history chart records a snapshot each time you save.', onEnter: () => tourSwitchTab('charts') },
   { target: '.cf-summary-row', label: 'Cash flow summary', body: 'The <strong>Cash Flow</strong> tab shows your monthly picture at a glance: <strong>income</strong>, <strong>obligations</strong> (recurring expenses + revolving interest) and <strong>net cash flow</strong>.', onEnter: () => tourSwitchTab('cashflow') },
   { target: '#cf-rec-wrap', label: 'Recurring items', body: 'Add recurring <strong>income</strong> and <strong>expenses</strong> like salary, rent, subscriptions and loan payments. Supports weekly, biweekly, monthly, quarterly and annual frequencies.<br><br>Use <strong>Import from liabilities</strong> to auto-create expenses from your ledger.' },
@@ -3184,10 +3207,23 @@ function openSettings() {
   stockEl.value = stockApiKey;
   stockEl.type = 'password';
   renderSyncSettings();
+  // Never reopen the modal holding a password someone typed last time.
+  resetExportPanels();
   document.getElementById('settings-modal').classList.remove('hidden');
 }
 function closeSettings() {
+  resetExportPanels();
   document.getElementById('settings-modal').classList.add('hidden');
+}
+// Clears both password panels and their checkboxes, so a typed password never
+// sits in the DOM between visits to Settings.
+function resetExportPanels() {
+  cancelEncryptedExport();
+  cancelBackupImport();
+  const maskEl = document.getElementById('export-mask-amounts');
+  const encEl  = document.getElementById('export-encrypt');
+  if (maskEl) maskEl.checked = false;
+  if (encEl)  encEl.checked = false;
 }
 function saveSettings() {
   const newCurrency = document.getElementById('settings-currency').value;
@@ -5355,40 +5391,244 @@ function clearAll(){
 }
 function markChanged(){hasUnsavedChanges=true;document.querySelectorAll('.changed-indicator').forEach(el=>el.classList.add('visible'));}
 
-function exportJSON(){
+// ── EXPORT ────────────────────────────────────────────────────────────────
+
+const MASK_TOKEN = '***';
+
+// Every key in the export that carries a money figure, at any depth. A masked
+// export swaps each one for MASK_TOKEN and leaves names, institutions,
+// categories, dates, rates and frequencies readable, so the file shows the
+// shape of the ledger without the numbers. btcPriceAtExport is left alone: it
+// is the public market price, and with value and collateralSats masked it
+// reveals nothing about the holding. Rates and terms are not amounts.
+const MASKED_FIELDS = [
+  'value', 'collateralSats', 'amount',
+  'totalAssets', 'totalLiabilities', 'netWorth', 'totalBtcSats', 'nw',
+  'monthlyContribution', 'monthlyPayment', 'extraPrincipal'
+];
+
+function maskAmounts(v) {
+  if (Array.isArray(v)) return v.map(maskAmounts);
+  if (v && typeof v === 'object') {
+    const out = {};
+    for (const k in v) {
+      const val = v[k];
+      if (k === 'cats' && val && typeof val === 'object' && !Array.isArray(val)) {
+        // Snapshot totals are keyed by category name, so the amounts are the
+        // values rather than a named field.
+        const c = {};
+        for (const ck in val) c[ck] = val[ck] == null ? val[ck] : MASK_TOKEN;
+        out[k] = c;
+      } else if (MASKED_FIELDS.indexOf(k) !== -1 && val != null && val !== '') {
+        out[k] = MASK_TOKEN;
+      } else {
+        out[k] = maskAmounts(val);
+      }
+    }
+    return out;
+  }
+  return v;
+}
+
+function exportOptions(){
+  const maskEl = document.getElementById('export-mask-amounts');
+  const encEl  = document.getElementById('export-encrypt');
+  return { mask: !!(maskEl && maskEl.checked), encrypt: !!(encEl && encEl.checked) };
+}
+
+function buildExportPayload(mask){
   const tA=ASSET_CATS.reduce((s,c)=>s+catSum(c),0),tL=LIAB_CATS.reduce((s,c)=>s+catSum(c),0);
   const totalBtcSats = data['bitcoin'].reduce((s,r)=>s+(parseFloat(r.value)||0),0);
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL,totalBtcSats},data,recurring,snapshots,scenarios,forecastExtras},null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`cache-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
-  showToast('Exported as JSON');
+  const payload = {exportedAt:new Date().toISOString(),currency,btcPriceAtExport:btcPrice,summary:{totalAssets:tA,totalLiabilities:tL,netWorth:tA-tL,totalBtcSats},data,recurring,snapshots,scenarios,forecastExtras};
+  if(!mask) return payload;
+  const masked = maskAmounts(payload);
+  masked._masked = true;
+  return masked;
 }
+
+function downloadExport(obj, filename){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function exportFilename(mask, encrypted){
+  return 'cache-'+(mask?'masked-':'')+(encrypted?'encrypted-':'')+new Date().toISOString().slice(0,10)+'.json';
+}
+
+function exportJSON(){
+  const { mask, encrypt } = exportOptions();
+  if(encrypt){ showExportPasswordPrompt(); return; }
+  downloadExport(buildExportPayload(mask), exportFilename(mask,false));
+  closeSettings();
+  showToast(mask?'Exported masked JSON':'Exported as JSON');
+}
+
+// ── ENCRYPTED EXPORT ──────────────────────────────────────────────────────
+// An encrypted export is a small envelope around the same AES-256-GCM payload
+// the app already writes to localStorage, with its own salt so the file
+// password is independent of the app password. Version it: a future format
+// change has to be told apart from a corrupt file when someone restores a
+// year-old backup.
+const ENC_EXPORT_MAGIC   = 'cache-encrypted-backup';
+const ENC_EXPORT_VERSION = 1;
+
+function showExportPasswordPrompt(){
+  const el=document.getElementById('export-encrypt-panel'); if(!el)return;
+  el.innerHTML='<div class="export-panel">'+
+    'Choose a password for this file. It is separate from your app password, and it cannot be recovered - lose it and the backup is gone.'+
+    '<input type="password" class="settings-input" id="export-pw" placeholder="Password (8 characters minimum)" autocomplete="new-password">'+
+    '<input type="password" class="settings-input" id="export-pw2" placeholder="Confirm password" autocomplete="new-password">'+
+    '<div class="lock-error" id="export-pw-error"></div>'+
+    '<div class="export-btn-row">'+
+    '<button class="settings-save-btn" id="export-pw-go" onclick="confirmEncryptedExport()">Encrypt</button>'+
+    '<button class="settings-close-btn" onclick="cancelEncryptedExport()">Cancel</button></div></div>';
+  const pw1=document.getElementById('export-pw'),pw2=document.getElementById('export-pw2');
+  pw1.addEventListener('keydown',e=>{if(e.key==='Enter')pw2.focus();});
+  pw2.addEventListener('keydown',e=>{if(e.key==='Enter')confirmEncryptedExport();});
+  pw1.focus();
+}
+
+function cancelEncryptedExport(){
+  const el=document.getElementById('export-encrypt-panel'); if(el)el.innerHTML='';
+}
+
+async function confirmEncryptedExport(){
+  const pw =(document.getElementById('export-pw') ||{}).value||'';
+  const pw2=(document.getElementById('export-pw2')||{}).value||'';
+  const errEl=document.getElementById('export-pw-error');
+  const btn=document.getElementById('export-pw-go');
+  if(!errEl||!btn)return;
+  errEl.textContent='';
+  if(pw.length<8){errEl.textContent='Password must be at least 8 characters.';return;}
+  if(pw!==pw2){errEl.textContent='Passwords do not match.';return;}
+
+  // Key derivation is 310k PBKDF2 rounds and takes about a second, so the
+  // button has to say something or it reads as a dead tap.
+  btn.disabled=true; btn.textContent='Encrypting…';
+  try{
+    const { mask } = exportOptions();
+    const salt=crypto.getRandomValues(new Uint8Array(32));
+    const key=await deriveKey(pw,salt);
+    const { iv, ct }=await encryptPayload(JSON.stringify(buildExportPayload(mask)),key);
+    downloadExport({
+      _cache: ENC_EXPORT_MAGIC,
+      version: ENC_EXPORT_VERSION,
+      kdf: { name:'PBKDF2', hash:'SHA-256', iterations:PBKDF2_ITERS },
+      cipher: 'AES-GCM',
+      salt: buf2b64(salt),
+      iv: iv,
+      ct: ct,
+      masked: mask,
+      exportedAt: new Date().toISOString()
+    }, exportFilename(mask,true));
+    cancelEncryptedExport();
+    closeSettings();
+    showToast(mask?'Exported encrypted masked JSON':'Exported encrypted JSON');
+  }catch(e){
+    btn.disabled=false; btn.textContent='Encrypt';
+    errEl.textContent='Could not encrypt: '+e.message;
+  }
+}
+
+// ── IMPORT ────────────────────────────────────────────────────────────────
+
+let pendingEncryptedBackup = null;
 
 function handleImportFile(event){
   const file=event.target.files[0]; if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    try{
-      const p=JSON.parse(e.target.result);
-      const incoming=p.data||p;
-      if(incoming.crypto&&!incoming.bitcoin)incoming.bitcoin=incoming.crypto;
-      const finalKeys=ALL_CATS.filter(c=>Array.isArray(incoming[c]));
-      if(finalKeys.length===0){showToast('Invalid JSON: no recognized categories found','error');return;}
-      if(!confirm(`Import will replace current data with ${finalKeys.length} categories from the file. Continue?`))return;
-      ALL_CATS.forEach(c=>{
-        data[c]=incoming[c]||[];
-        data[c].forEach(row => applyProjectionDefaults(row, c));
-        sortState[c]=null;
-      });
-      if(Array.isArray(p.recurring)) recurring=p.recurring;
-      if(Array.isArray(p.snapshots)) snapshots=p.snapshots;
-      if(Array.isArray(p.scenarios)) { scenarios=p.scenarios; activeScenarioId=null; }
-      if(Array.isArray(p.forecastExtras)) forecastExtras=p.forecastExtras;
-      renderAll(); recalc(); buildCashFlowTab(); markChanged();
-      showToast(`Imported ${finalKeys.length} categories`,'success');
-    }catch(err){showToast('Failed to parse JSON file','error');console.error(err);}
+    let p;
+    try{ p=JSON.parse(e.target.result); }
+    catch(err){ showToast('Failed to parse JSON file','error'); console.error(err); event.target.value=''; return; }
     event.target.value='';
+    if(p&&p._cache===ENC_EXPORT_MAGIC){
+      if(p.version>ENC_EXPORT_VERSION){showToast('That backup was written by a newer version of Cache','error');return;}
+      pendingEncryptedBackup=p;
+      showImportPasswordPrompt(p);
+      return;
+    }
+    applyImportedPayload(p);
   };
   reader.readAsText(file);
+}
+
+// Restores a decoded backup, whichever way it arrived: a plain file, or the
+// plaintext out of an encrypted one.
+function applyImportedPayload(p){
+  try{
+    if(p&&p._masked){showToast('That backup has masked amounts and cannot be restored','error');return;}
+    const incoming=p.data||p;
+    if(incoming.crypto&&!incoming.bitcoin)incoming.bitcoin=incoming.crypto;
+    const finalKeys=ALL_CATS.filter(c=>Array.isArray(incoming[c]));
+    if(finalKeys.length===0){showToast('Invalid JSON: no recognized categories found','error');return;}
+    if(!confirm(`Import will replace current data with ${finalKeys.length} categories from the file. Continue?`))return;
+    ALL_CATS.forEach(c=>{
+      data[c]=incoming[c]||[];
+      data[c].forEach(row => applyProjectionDefaults(row, c));
+      sortState[c]=null;
+    });
+    if(Array.isArray(p.recurring)) recurring=p.recurring;
+    if(Array.isArray(p.snapshots)) snapshots=p.snapshots;
+    if(Array.isArray(p.scenarios)) { scenarios=p.scenarios; activeScenarioId=null; }
+    if(Array.isArray(p.forecastExtras)) forecastExtras=p.forecastExtras;
+    cancelBackupImport();
+    closeSettings();
+    renderAll(); recalc(); buildCashFlowTab(); markChanged();
+    showToast(`Imported ${finalKeys.length} categories`,'success');
+  }catch(err){showToast('Failed to import JSON file','error');console.error(err);}
+}
+
+function showImportPasswordPrompt(env){
+  const el=document.getElementById('import-backup-panel'); if(!el)return;
+  const when=env.exportedAt?new Date(env.exportedAt).toLocaleDateString():'unknown';
+  el.innerHTML='<div class="export-panel">'+
+    'Encrypted backup from '+escHtml(when)+'.'+(env.masked?' Amounts in it are masked.':'')+
+    '<input type="password" class="settings-input" id="import-pw" placeholder="Backup password" autocomplete="current-password">'+
+    '<div class="lock-error" id="import-pw-error"></div>'+
+    '<div class="export-btn-row">'+
+    '<button class="settings-save-btn" id="import-pw-go" onclick="confirmImportDecrypt()">Unlock</button>'+
+    '<button class="settings-close-btn" onclick="cancelBackupImport()">Cancel</button></div></div>';
+  const input=document.getElementById('import-pw');
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')confirmImportDecrypt();});
+  input.focus();
+}
+
+function cancelBackupImport(){
+  pendingEncryptedBackup=null;
+  const el=document.getElementById('import-backup-panel'); if(el)el.innerHTML='';
+}
+
+async function confirmImportDecrypt(){
+  const env=pendingEncryptedBackup; if(!env)return;
+  const pw=(document.getElementById('import-pw')||{}).value||'';
+  const errEl=document.getElementById('import-pw-error');
+  const btn=document.getElementById('import-pw-go');
+  if(!errEl||!btn)return;
+  errEl.textContent='';
+  if(!pw){errEl.textContent='Enter the backup password.';return;}
+  btn.disabled=true; btn.textContent='Unlocking…';
+
+  let plain;
+  try{
+    // AES-GCM authenticates, so a wrong password fails here rather than
+    // producing garbage that then fails to parse.
+    const key=await deriveKey(pw,b642buf(env.salt));
+    plain=await decryptPayload(env.iv,env.ct,key);
+  }catch(e){
+    btn.disabled=false; btn.textContent='Unlock';
+    errEl.textContent='Wrong password, or the file is damaged.';
+    return;
+  }
+
+  let json;
+  try{ json=JSON.parse(plain); }
+  catch(e){
+    btn.disabled=false; btn.textContent='Unlock';
+    errEl.textContent='Unlocked, but the contents are not readable.';
+    return;
+  }
+  applyImportedPayload(json);
 }
 
 let toastTimer;
