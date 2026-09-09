@@ -400,7 +400,6 @@
   .liab-import-row input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0}
   .liab-import-label{font-family:var(--mono);font-size:16px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .liab-import-amt{font-family:var(--mono);font-size:15px;color:var(--text-dim);flex-shrink:0}
-  .liab-import-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:4px}
   .accent{color:var(--accent)}
   .interest-sub{display:block;font-family:var(--mono);font-size:14px;color:var(--gold);margin-top:2px}
 
@@ -410,8 +409,6 @@
   .save-hint span{color:var(--accent-dim)}
   .btn-group{display:flex;gap:8px}
   .btn{font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:8px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;box-sizing:border-box;min-width:80px;text-align:center;transition:all .15s}
-  .btn-ghost{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
-  .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-primary{background:var(--accent);color:var(--bg);font-weight:500}
   .btn-primary:hover{background:#bfe0a0}
   .btn-privacy{background:transparent;border:1px solid var(--border-light);color:var(--text-muted)}
@@ -525,13 +522,24 @@
   .settings-save-btn:hover{background:#bfe0a0}
   .settings-close-btn{background:transparent;border:1px solid var(--border-light);box-sizing:border-box;min-width:80px;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:15px;letter-spacing:1px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
   .settings-close-btn:hover{border-color:var(--text-dim);color:var(--text)}
+  /* ── SHARED FORM ACTIONS ──
+     One vocabulary for every Cancel/Save style button pair, in modals and in
+     the inline panels. Keeps the pair equal width and, in portrait, centered
+     and evenly split, without each form restyling its own buttons. */
+  .form-actions{display:flex;gap:8px;align-items:stretch}
+  .form-btn{flex:1 1 0;min-width:80px;background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:1px;padding:9px 16px;border:1px solid transparent;box-sizing:border-box;border-radius:4px;cursor:pointer;text-align:center;white-space:nowrap;transition:background .15s}
+  .form-btn:hover{background:#bfe0a0}
+  .form-btn:disabled{opacity:.5;cursor:not-allowed}
+  .form-btn:disabled:hover{background:var(--accent)}
+  .form-btn.cancel{background:transparent;border-color:var(--border-light);color:var(--text-muted);font-weight:400;transition:all .15s}
+  .form-btn.cancel:hover{background:transparent;border-color:var(--text-dim);color:var(--text)}
+  .form-btn.cancel:disabled:hover{background:transparent;border-color:var(--border-light);color:var(--text-muted)}
   .export-opt{display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px}
   .export-opt input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0}
   .export-panel{font-family:var(--mono);font-size:14px;color:var(--text-muted);line-height:1.5;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-top:8px}
   .export-panel .settings-input{font-size:16px;margin-top:8px;cursor:text}
   .export-panel .lock-error{margin-top:8px;font-size:14px}
-  .export-btn-row{display:flex;gap:8px;margin-top:10px}
-  .export-btn-row button{flex:1;min-width:0}
+  .export-panel .form-actions{margin-top:10px}
   #export-encrypt-panel:empty,#import-backup-panel:empty{display:none}
 
   /* ── AVM RESULT DISPLAY ── */
@@ -599,7 +607,6 @@
   .onboarding-title span{color:var(--accent);font-style:italic}
   .onboarding-body{font-family:var(--mono);font-size:15px;color:var(--text-muted);line-height:1.7}
   .onboarding-body strong{color:var(--text)}
-  .onboarding-actions{display:flex;gap:8px}
 
   /* ── NOSTR SYNC ── */
   #sync-setup-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
@@ -737,6 +744,8 @@
     .cat-refresh-btn{font-size:11px;padding:2px 5px}
     /* Modals: full-width on small screens */
     .settings-card,.about-card,.bm-card,.onboarding-card,.lock-card,.pwa-gate-card,.liab-import-card,.whats-new-card{max-width:calc(100vw - 32px);padding:24px 20px;max-height:85vh;overflow-y:auto}
+    .form-actions{width:100%;justify-content:center;gap:12px}
+    .form-actions .form-btn{flex:1 1 0;max-width:200px;min-width:0;padding:9px 10px}
     .about-card{max-height:80vh;gap:12px}
     .about-card .about-body{font-size:14px;line-height:1.5}
     .about-card .about-link{font-size:15px;padding:7px 10px}
@@ -852,9 +861,9 @@
         onkeydown="if(event.key==='Enter')saveSettings()">
       <div class="settings-help" style="margin-top:8px">Used to fetch live stock prices for holdings. Free tier: 60 calls/min. Sign up at <a href="https://finnhub.io" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">finnhub.io</a>. Stored encrypted with your data.</div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="settings-save-btn" onclick="saveSettings()" style="flex:1">Save Settings</button>
-      <button class="settings-close-btn" onclick="closeSettings()">Cancel</button>
+    <div class="form-actions">
+      <button class="form-btn" onclick="saveSettings()">Save Settings</button>
+      <button class="form-btn cancel" onclick="closeSettings()">Cancel</button>
     </div>
     <hr class="about-divider">
     <div>
@@ -871,9 +880,9 @@
     <hr class="about-divider">
     <div>
       <div class="settings-section-label" style="margin-bottom:8px">Import / Export</div>
-      <div style="display:flex;gap:8px">
-        <button class="settings-close-btn" onclick="document.getElementById('importFileInput').click()" style="flex:1">Import JSON</button>
-        <button class="settings-close-btn" onclick="exportJSON()" style="flex:1">Export JSON</button>
+      <div class="form-actions">
+        <button class="form-btn cancel" onclick="document.getElementById('importFileInput').click()">Import JSON</button>
+        <button class="form-btn cancel" onclick="exportJSON()">Export JSON</button>
       </div>
       <label class="export-opt">
         <input type="checkbox" id="export-mask-amounts">
@@ -909,9 +918,9 @@
       3. Copy your key and paste it in <strong>Settings ⚙</strong><br><br>
       Free tier includes <strong>50 API calls/month</strong>.
     </div>
-    <div class="onboarding-actions">
-      <button class="settings-save-btn" onclick="closeOnboarding();openSettings()">Open Settings</button>
-      <button class="settings-close-btn" onclick="closeOnboarding()">Cancel</button>
+    <div class="form-actions">
+      <button class="form-btn" onclick="closeOnboarding();openSettings()">Open Settings</button>
+      <button class="form-btn cancel" onclick="closeOnboarding()">Cancel</button>
     </div>
   </div>
 </div>
@@ -939,9 +948,9 @@
       </div>
     </div>
     <hr class="about-divider">
-    <div style="display:flex;gap:8px">
-      <button class="settings-close-btn" onclick="closeSyncSetup()" style="flex:1">Cancel</button>
-      <button class="settings-save-btn" id="sync-setup-finish-btn" onclick="syncSetupFinish()" disabled style="flex:1">Enable sync</button>
+    <div class="form-actions">
+      <button class="form-btn cancel" onclick="closeSyncSetup()">Cancel</button>
+      <button class="form-btn" id="sync-setup-finish-btn" onclick="syncSetupFinish()" disabled>Enable sync</button>
     </div>
   </div>
 </div>
@@ -1010,9 +1019,9 @@
     <div class="settings-title">Import from Liabilities</div>
     <div class="liab-import-sub">Select liabilities to add as recurring expenses.</div>
     <div id="liab-import-body"></div>
-    <div class="liab-import-actions">
-      <button class="btn btn-ghost" onclick="closeLiabImport()">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmLiabImport()">Import Selected</button>
+    <div class="form-actions">
+      <button class="form-btn cancel" onclick="closeLiabImport()">Cancel</button>
+      <button class="form-btn" onclick="confirmLiabImport()">Import</button>
     </div>
   </div>
 </div>
@@ -1589,8 +1598,11 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.10';
+const APP_VERSION = '1.10.1';
 const CHANGELOG = [
+  { version: '1.10.1', items: [
+    'Cancel and Save button pairs across the app now share one style. In portrait they sit centered, side by side and evenly split, so the Settings, RentCast, sync setup, liability import and export password forms all behave the same on a phone instead of each modal styling its own buttons',
+  ]},
   { version: '1.10', items: [
     'Two new options under Settings \u2192 Import / Export. "Mask amounts in export" replaces every figure in the file with *** so a backup can be shared or attached without exposing balances, while names, institutions, categories, rates and dates stay readable. A masked file is marked as such and is refused on import',
     '"Encrypt export with a password" locks the exported file with AES-256-GCM under a password of its own, separate from your app password. Import detects an encrypted file and asks for that password before restoring. The two options combine, so a file can be both masked and encrypted',
@@ -5479,9 +5491,9 @@ function showExportPasswordPrompt(){
     '<input type="password" class="settings-input" id="export-pw" placeholder="Password (8 characters minimum)" autocomplete="new-password">'+
     '<input type="password" class="settings-input" id="export-pw2" placeholder="Confirm password" autocomplete="new-password">'+
     '<div class="lock-error" id="export-pw-error"></div>'+
-    '<div class="export-btn-row">'+
-    '<button class="settings-save-btn" id="export-pw-go" onclick="confirmEncryptedExport()">Encrypt</button>'+
-    '<button class="settings-close-btn" onclick="cancelEncryptedExport()">Cancel</button></div></div>';
+    '<div class="form-actions">'+
+    '<button class="form-btn" id="export-pw-go" onclick="confirmEncryptedExport()">Encrypt</button>'+
+    '<button class="form-btn cancel" onclick="cancelEncryptedExport()">Cancel</button></div></div>';
   const pw1=document.getElementById('export-pw'),pw2=document.getElementById('export-pw2');
   pw1.addEventListener('keydown',e=>{if(e.key==='Enter')pw2.focus();});
   pw2.addEventListener('keydown',e=>{if(e.key==='Enter')confirmEncryptedExport();});
@@ -5586,9 +5598,9 @@ function showImportPasswordPrompt(env){
     'Encrypted backup from '+escHtml(when)+'.'+(env.masked?' Amounts in it are masked.':'')+
     '<input type="password" class="settings-input" id="import-pw" placeholder="Backup password" autocomplete="current-password">'+
     '<div class="lock-error" id="import-pw-error"></div>'+
-    '<div class="export-btn-row">'+
-    '<button class="settings-save-btn" id="import-pw-go" onclick="confirmImportDecrypt()">Unlock</button>'+
-    '<button class="settings-close-btn" onclick="cancelBackupImport()">Cancel</button></div></div>';
+    '<div class="form-actions">'+
+    '<button class="form-btn" id="import-pw-go" onclick="confirmImportDecrypt()">Unlock</button>'+
+    '<button class="form-btn cancel" onclick="cancelBackupImport()">Cancel</button></div></div>';
   const input=document.getElementById('import-pw');
   input.addEventListener('keydown',e=>{if(e.key==='Enter')confirmImportDecrypt();});
   input.focus();
