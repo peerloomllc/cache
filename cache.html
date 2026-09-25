@@ -1379,7 +1379,7 @@
       <div class="cf-card-total" id="cf-table-total"></div>
     </div>
     <div id="cf-table-wrap">
-      <div class="cf-empty">No revolving debt with interest rates yet.</div>
+      <div class="cf-empty">No revolving debt yet.</div>
     </div>
   </div>
   <div class="cf-card">
@@ -1598,8 +1598,11 @@ const STORAGE_META   = 'cache-v1-meta';  // salt (non-secret, public)
     }
   });
 })();
-const APP_VERSION = '1.10.1';
+const APP_VERSION = '1.10.2';
 const CHANGELOG = [
+  { version: '1.10.2', items: [
+    'Credit cards and BTC-backed loans at 0% interest, such as promotional balance-transfer cards, now appear in the Revolving Interest by Account and by Category tables on the Cash Flow tab. They were previously left out because they had no interest cost',
+  ]},
   { version: '1.10.1', items: [
     'Cancel and Save button pairs across the app now share one style. In portrait they sit centered, side by side and evenly split, so the Settings, RentCast, sync setup, liability import and export password forms all behave the same on a phone instead of each modal styling its own buttons',
   ]},
@@ -4825,7 +4828,9 @@ function getRevolvingInterest() {
       const bal  = parseFloat(row.value)||0;
       const rate = parseFloat(row.interestRate)||0;
       const mi   = BTC_LIAB_CATS.has(cat) ? calcMonthlyInterestBtcLoan(row) : calcMonthlyInterest(row);
-      rows.push({ cat, label: row.name || 'Untitled', inst: row.institution || '', bal, rate, mi, orig: row.originationDate || '', hasRate: rate > 0 });
+      const rateSet = row.interestRate !== undefined && row.interestRate !== null && String(row.interestRate).trim() !== '';
+      // Include 0% (e.g. promotional) cards: any row with a balance or a rate shows up
+      rows.push({ cat, label: row.name || 'Untitled', inst: row.institution || '', bal, rate, rateSet, mi, orig: row.originationDate || '', show: bal > 0 || rate > 0 });
     });
   });
   return rows;
@@ -4833,7 +4838,7 @@ function getRevolvingInterest() {
 
 function buildCashFlowSummary() {
   const revRows = getRevolvingInterest();
-  const withRate = revRows.filter(r => r.hasRate);
+  const withRate = revRows.filter(r => r.show);
   const revInterest = withRate.reduce((s,r) => s+r.mi, 0);
 
   const monthlyIncome = recurring.filter(r => r.direction === 'income').reduce((s,r) => s + toMonthly(r), 0);
@@ -4865,14 +4870,14 @@ function buildCashFlowTab() {
   renderRecurringTable();
 
   const revRows = getRevolvingInterest();
-  const withRate = revRows.filter(r => r.hasRate);
+  const withRate = revRows.filter(r => r.show);
   const totalMonthly = withRate.reduce((s,r) => s+r.mi, 0);
 
   // Revolving interest detail table
   const tableWrap = document.getElementById('cf-table-wrap');
   document.getElementById('cf-table-total').textContent = withRate.length ? fmtS(fx(totalMonthly))+'/mo' : '';
   if (!withRate.length) {
-    tableWrap.innerHTML = '<div class="cf-empty">No revolving debt with interest rates yet.</div>';
+    tableWrap.innerHTML = '<div class="cf-empty">No revolving debt yet.</div>';
   } else {
     const sorted = applyCfSort('rev', withRate, {
       label: r => (r.label || '').toLowerCase(),
@@ -4889,9 +4894,9 @@ function buildCashFlowTab() {
         <td>${escHtml(r.inst)||'—'}</td>
         <td>${r.orig ? new Date(r.orig+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short'}) : '—'}</td>
         <td class="r">${fmt(fx(r.bal))}</td>
-        <td class="r">${r.rate.toFixed(2)}%</td>
+        <td class="r">${r.rateSet ? r.rate.toFixed(2)+'%' : '—'}</td>
         <td class="r red">${fmtS(fx(r.mi))}</td>
-        <td><div class="cf-bar" style="width:${Math.round((r.mi/maxMi)*76)}px"></div></td>
+        <td><div class="cf-bar" style="width:${maxMi > 0 ? Math.round((r.mi/maxMi)*76) : 0}px"></div></td>
       </tr>`).join('')}
       <tr style="border-top:1px solid var(--border-light)">
         <td colspan="5" style="color:var(--text-dim);font-size:14px;letter-spacing:1px;text-transform:uppercase">Total</td>
@@ -4928,7 +4933,7 @@ function buildCashFlowTab() {
           <td class="r">${fmt(fx(d.bal))}</td>
           <td class="r red">${fmtS(fx(d.mi))}</td>
           <td class="r">${pct}%</td>
-          <td><div class="cf-bar" style="width:${Math.round((d.mi/maxCatMi)*76)}px;background:${color}"></div></td>
+          <td><div class="cf-bar" style="width:${maxCatMi > 0 ? Math.round((d.mi/maxCatMi)*76) : 0}px;background:${color}"></div></td>
         </tr>`;
       }).join('')}
       </tbody>
